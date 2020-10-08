@@ -30,7 +30,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Purpose](#purpose)
 - [Problem](#problem)
 - [Solution](#solution)
@@ -68,7 +67,7 @@ We've poured our soul into **`ReactDataGrid`** and built it from scratch with **
 There are 2 editions of the **`ReactDataGrid`** that we're releasing:
 
 - **Community Edition** - includes the core functionality most people actually use in their products ([MIT License](./community-edition/LICENSE.md));
-- **Enterprise Edition** - includes advanced functionality, especially targeted for enterprise apps ([Commercial License](https://reactdatagrid.io/pricing)).
+- **Enterprise Edition** - includes advanced functionality, especially targeted for enterprise apps ([Commercial License](./enterprise-edition/LICENSE.md)).
 
 Both editions of the **`ReactDataGrid`** are published and available in the public **npm** registry.
 
@@ -115,7 +114,7 @@ Here's a list of the features that we support for each edition:
 - [Keyboard navigation](https://reactdatagrid.io/docs/keyboard-navigation)
 - [Customizing rows, cells and headers](https://reactdatagrid.io/docs/customizing-cells-rows-headers)
 - [Scroll customization](https://reactdatagrid.io/docs/scrolling-and-scroll-customization)
-- [RTL support](https://reactdatagrid.io/docs/rtl)
+- [RTL support](https://reactdatagrid.io/docs/rtl-support)
 - [Beautiful themes](https://reactdatagrid.io/docs/styling-and-theming#themes)
 - [Column reorder](https://reactdatagrid.io/docs/api-reference#props-reorderColumns)
 - [Column resize](https://reactdatagrid.io/docs/api-reference#props-resizable)
