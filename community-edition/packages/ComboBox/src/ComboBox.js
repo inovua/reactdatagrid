@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component, cloneElement } from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { Component, cloneElement, createRef } from 'react';
 import PropTypes from 'prop-types';
 import cleanProps from '../../../common/cleanProps';
 import { NotifyResize } from '../../NotifyResize';
@@ -106,9 +105,9 @@ class InovuaComboBox extends Component {
     this.addTextInputRef = ref => {
       this.textInput = ref;
     };
-    this.addRootRef = ref => {
-      this.comboNode = ref;
-    };
+
+    this.comboNode = createRef();
+
     this.addListRef = ref => {
       this.listNode = ref;
     };
@@ -248,7 +247,7 @@ class InovuaComboBox extends Component {
         onBlur={this.handleComboBlur}
         className={className}
         style={style}
-        ref={this.addRootRef}
+        ref={this.comboNode}
         onMouseEnter={this.handleMouseEnter}
         onMouseLeave={this.handleMouseLeave}
       >
@@ -1367,7 +1366,7 @@ class InovuaComboBox extends Component {
       this.isFocused() &&
       event &&
       event.relatedTarget &&
-      containsNode(findDOMNode(this), event.relatedTarget)
+      containsNode(this.comboNode.current, event.relatedTarget)
     ) {
       global.requestAnimationFrame(() => {
         this.focus();
@@ -1823,7 +1822,7 @@ class InovuaComboBox extends Component {
       ? this.toolsNode.getBoundingClientRect()
       : { width: 0, height: 0 }
   ) {
-    const node = findDOMNode(this);
+    const node = this.comboNode.current;
     const computedStyle = global.getComputedStyle(node);
 
     const width =
@@ -1954,7 +1953,7 @@ class InovuaComboBox extends Component {
   }
 
   getComboNode() {
-    return this.comboNode;
+    return this.comboNode.current;
   }
 
   getListNode() {
@@ -2119,7 +2118,7 @@ InovuaComboBox.defaultProps = {
   toggleExpandOnClick: true,
   wrapMultiple: true,
 
-  theme: 'default',
+  theme: 'default-light',
 
   // navigation
   enableNavigation: true,

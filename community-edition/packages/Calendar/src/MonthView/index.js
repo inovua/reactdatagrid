@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Component from '../../../react-class';
 
 import moment from 'moment';
@@ -238,6 +237,8 @@ export default class MonthView extends Component {
       activeDate: props.defaultActiveDate,
       viewDate: props.defaultViewDate,
     };
+
+    this.monthViewRef = createRef();
   }
 
   UNSAFE_componentWillMount() {
@@ -508,7 +509,8 @@ export default class MonthView extends Component {
   }
 
   focus() {
-    const domNode = findDOMNode(this);
+    const domNode = this.monthViewRef.current;
+
     if (domNode) {
       domNode.focus();
     }
@@ -671,6 +673,7 @@ export default class MonthView extends Component {
       <BasicMonthView
         key="basic_month"
         tabIndex={0}
+        innerRef={this.monthViewRef}
         {...basicViewProps}
         renderChildren={this.renderChildren}
         onKeyDown={this.onViewKeyDown}

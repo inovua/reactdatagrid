@@ -5,38 +5,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
 import join from '../../../common/join';
 import props2className from './props2className';
 import cleanup from './cleanup';
 
-import shouldComponentUpdate from './shouldComponentUpdate';
+const InovuaFlex = forwardRef((props, ref) => {
+  const className = join('inovua-react-toolkit-flex', props2className(props));
 
-class InovuaFlex extends Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    const shouldUpdate = shouldComponentUpdate(this, nextProps, nextState);
+  const allProps = { ...props };
 
-    return shouldUpdate;
+  cleanup(allProps);
+
+  allProps.className = className;
+
+  if (props.factory) {
+    return props.factory(allProps);
   }
-  render() {
-    const props = this.props;
-    const className = join('inovua-react-toolkit-flex', props2className(props));
 
-    const allProps = { ...props };
-
-    cleanup(allProps);
-
-    allProps.className = className;
-
-    if (props.factory) {
-      return props.factory(allProps);
-    }
-
-    return <div {...allProps} />;
-  }
-}
+  return <div ref={ref} {...allProps} />;
+});
 
 InovuaFlex.defaultProps = {
   row: true,
@@ -63,4 +53,4 @@ InovuaFlex.propTypes = {
   justifyContent: PropTypes.string,
 };
 
-export default InovuaFlex;
+export default React.memo(InovuaFlex);

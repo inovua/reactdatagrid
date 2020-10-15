@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import autoBind from '../../../packages/react-class/autoBind';
 import hasTouch from '../../../packages/hasTouch';
@@ -276,10 +275,8 @@ class InovuaNumericInput extends Component {
       spinDirection: null,
       intermediateValue: null,
     };
-  }
 
-  setInputRef(el) {
-    this.input = el;
+    this.input = createRef();
   }
 
   render() {
@@ -316,7 +313,7 @@ class InovuaNumericInput extends Component {
         size={Math.max(1, props.size || 0)} // if not present, FF will not correctly flex the input when the NumericInput is smaller than the default input width
         placeholder={this.props.placeholder}
         {...inputProps}
-        ref={this.setInputRef}
+        ref={this.input}
         type="text"
         key="input"
         className={inputClassName}
@@ -686,7 +683,7 @@ class InovuaNumericInput extends Component {
   handleFocus(event) {
     const { onFocus } = this.props;
 
-    if (event.target != this.input) {
+    if (event.target != this.input.current) {
       return;
     }
 
@@ -809,7 +806,7 @@ class InovuaNumericInput extends Component {
     const { isControlledPrecision, currentValue, decimalDelimiter } = this.p;
 
     if (isControlledPrecision) {
-      const currentSelection = getSelectedRange(this.input);
+      const currentSelection = getSelectedRange(this.input.current);
       const decimalPosition = getDecimalDelimiterPosition(
         currentValue,
         decimalDelimiter
@@ -821,7 +818,7 @@ class InovuaNumericInput extends Component {
 
       if (currentSelection.end - 1 === decimalPosition) {
         raf(() => {
-          setCaretPosition(this.input, currentSelection.end - 1);
+          setCaretPosition(this.input.current, currentSelection.end - 1);
         });
         event.preventDefault();
         event.stopPropagation();
@@ -833,7 +830,7 @@ class InovuaNumericInput extends Component {
     const { isControlledPrecision, currentValue, decimalDelimiter } = this.p;
 
     if (isControlledPrecision) {
-      const currentSelection = getSelectedRange(this.input);
+      const currentSelection = getSelectedRange(this.input.current);
       const decimalPosition = getDecimalDelimiterPosition(
         currentValue,
         decimalDelimiter
@@ -869,7 +866,7 @@ class InovuaNumericInput extends Component {
   }
 
   getSelectedText() {
-    const { start, end } = getSelectedRange(this.input);
+    const { start, end } = getSelectedRange(this.input.current);
     const value = `${this.getValue()}`;
 
     return value.substring(start, end);
@@ -883,7 +880,7 @@ class InovuaNumericInput extends Component {
       prefix,
       suffix,
     } = this.p;
-    currentSelection = currentSelection || getSelectedRange(this.input);
+    currentSelection = currentSelection || getSelectedRange(this.input.current);
 
     let selectionStartsAtBeginningOfNumber = currentSelection.start === 0;
     if (prefix) {
@@ -931,7 +928,7 @@ class InovuaNumericInput extends Component {
       return;
     }
 
-    const currentSelection = getSelectedRange(this.input);
+    const currentSelection = getSelectedRange(this.input.current);
 
     if (selectionContainsPosition(currentSelection, decimalDelimiterPosition)) {
       this.handleSelectionOverDecimalDelimiter(event, currentSelection);
@@ -1013,7 +1010,7 @@ class InovuaNumericInput extends Component {
   }
 
   getInput() {
-    return findDOMNode(this.refs.field);
+    return this.input.current;
   }
 
   getNumericValue() {
@@ -1136,11 +1133,11 @@ class InovuaNumericInput extends Component {
   }
 
   focus() {
-    this.input.focus();
+    this.input.current.focus();
   }
 
   getSelectionStart() {
-    return getSelectionStart(this.input);
+    return getSelectionStart(this.input.current);
   }
 
   getProps(props, state) {

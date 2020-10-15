@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Component from '../../react-class';
 import { Flex, Item } from '../../Flex';
 import assign from '../../../common/assign';
@@ -92,6 +91,8 @@ export default class YearView extends Component {
   constructor(props) {
     super(props);
     this.state = getInitialState(props);
+
+    this.yearViewRef = createRef();
   }
 
   /**
@@ -167,6 +168,7 @@ export default class YearView extends Component {
       <Flex
         inline
         column
+        ref={this.yearViewRef}
         alignItems="stretch"
         tabIndex={0}
         {...flexProps}
@@ -288,7 +290,7 @@ export default class YearView extends Component {
   }
 
   focus() {
-    findDOMNode(this).focus();
+    this.yearViewRef.current.focus();
   }
 }
 

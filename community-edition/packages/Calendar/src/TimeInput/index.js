@@ -5,17 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Component from '../../../react-class';
-import { Flex, Item } from '../../../Flex';
-import moment from 'moment';
 import raf from '../../../../common/raf';
 import assign from '../../../../common/assign';
 
-import toMoment from '../toMoment';
-import join from '../../../../common/join';
 import Clock from '../Clock';
 
 import getSelectionStart from './getSelectionStart';
@@ -36,6 +31,8 @@ export default class TimeInput extends Component {
   constructor(props) {
     super(props);
     const format = props.format || props.timeFormat;
+
+    this.timeInputRef = createRef();
 
     if (
       format.indexOf('hh') != 0 &&
@@ -87,6 +84,7 @@ export default class TimeInput extends Component {
     return (
       <input
         {...props}
+        ref={this.timeInputRef}
         defaultValue={undefined}
         value={props.value}
         onKeyDown={this.onKeyDown}
@@ -143,7 +141,7 @@ export default class TimeInput extends Component {
   }
 
   getInput() {
-    return findDOMNode(this);
+    return this.timeInputRef.current;
   }
 
   setCaretPosition(pos) {

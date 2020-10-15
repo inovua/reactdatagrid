@@ -271,7 +271,7 @@ export default class Calendar extends Component {
 Calendar.defaultProps = {
   rootClassName: 'inovua-react-toolkit-calendar__calendar',
   dateFormat: 'YYYY-MM-DD',
-  theme: 'default',
+  theme: 'default-light',
   isDatePicker: true,
   triggerChangeOnTimeChange: true,
   enableMonthDecadeViewAnimation: true,

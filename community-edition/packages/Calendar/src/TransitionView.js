@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Component from '../../react-class';
 import { Flex } from '../../Flex';
 
@@ -66,6 +65,8 @@ export default class TransitionView extends Component {
       rendered: false,
       viewDate: this.toMoment(viewDate, { dateFormat, locale }),
     };
+
+    this.view = createRef();
   }
 
   toMoment(value, props) {
@@ -111,8 +112,8 @@ export default class TransitionView extends Component {
   }
 
   prepareChildProps(child, extraProps) {
-    if (this.view) {
-      return this.view.p;
+    if (this.view.current) {
+      return this.view.current.p;
     }
 
     child = child || this.getViewChild();
@@ -149,9 +150,7 @@ export default class TransitionView extends Component {
     // TODO make transition view pass all props, as is to child component
     const newProps = {
       key: 'picker',
-      ref: v => {
-        this.view = v;
-      },
+      ref: this.view,
 
       viewDate: this.viewDate,
       onViewDateChange,
@@ -262,7 +261,10 @@ export default class TransitionView extends Component {
     let footer;
 
     if (props.footer) {
-      footer = renderFooter(props, props.insideField ? props : this.view);
+      footer = renderFooter(
+        props,
+        props.insideField ? props : this.view.current
+      );
     }
 
     if (multiView) {
@@ -476,13 +478,13 @@ export default class TransitionView extends Component {
   }
 
   getViewSize() {
-    return this.view && this.view.getViewSize
-      ? this.view.getViewSize() || 1
+    return this.view.current && this.view.current.getViewSize
+      ? this.view.current.getViewSize() || 1
       : 1;
   }
 
   renderAt(index, { multiView, navBarProps }) {
-    if (!this.state.rendered || !this.view) {
+    if (!this.state.rendered || !this.view.current) {
       return null;
     }
 
@@ -557,11 +559,11 @@ export default class TransitionView extends Component {
   }
 
   getView() {
-    return this.view;
+    return this.view.current;
   }
 
   isInView(...args) {
-    return this.view.isInView(...args);
+    return this.view.current.isInView(...args);
   }
 
   onViewDateChange(dateString, { dateMoment }) {
@@ -610,8 +612,8 @@ export default class TransitionView extends Component {
       },
       () => {
         setTimeout(() => {
-          // in order to allow this.view.p to update
-          if (!findDOMNode(this.view)) {
+          // in order to allow this.view.current.p to update
+          if (!this.view.current) {
             return;
           }
 
@@ -628,7 +630,7 @@ export default class TransitionView extends Component {
   }
 
   addTransitionEnd() {
-    const dom = findDOMNode(this.view);
+    const dom = this.view.current;
 
     if (dom) {
       dom.addEventListener(getTransitionEnd(), this.onTransitionEnd, false);
@@ -636,7 +638,7 @@ export default class TransitionView extends Component {
   }
 
   removeTransitionEnd(dom) {
-    dom = dom || findDOMNode(this.view);
+    dom = dom || this.view.current;
 
     if (dom) {
       dom.removeEventListener(getTransitionEnd(), this.onTransitionEnd);
@@ -718,6 +720,6 @@ TransitionView.defaultProps = {
   constrainActiveInView: false,
   focusOnTransitionEnd: false,
   navigation: true,
-  theme: 'default',
+  theme: 'default-light',
   isDatePicker: true,
 };

@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Component from '../../../react-class';
 import throttle from '../../../../common/throttle';
 import assign from '../../../../common/assign';
@@ -55,6 +54,8 @@ export default class DateFormatInput extends Component {
       minDate,
       maxDate,
     };
+
+    this.dateFormatInputRef = createRef();
   }
 
   getMinMax(props) {
@@ -140,6 +141,7 @@ export default class DateFormatInput extends Component {
     return (
       <input
         {...inputProps}
+        ref={this.dateFormatInputRef}
         defaultValue={undefined}
         onFocus={this.onFocus}
         onBlur={this.onBlur}
@@ -153,7 +155,7 @@ export default class DateFormatInput extends Component {
   }
 
   focus() {
-    findDOMNode(this).focus();
+    this.dateFormatInputRef.current.focus();
   }
 
   onFocus(event) {
@@ -337,7 +339,7 @@ export default class DateFormatInput extends Component {
   }
 
   getInput() {
-    return findDOMNode(this);
+    return this.dateFormatInputRef.current;
   }
 
   setCaretPosition(pos) {

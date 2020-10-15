@@ -5,14 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { findDOMNode } from 'react-dom';
 import DateFormatInput from '../src/DateFormatInput';
 import MonthView from '../src/MonthView';
 
 import TimePicker from '../src/TimePicker';
 import TimeInput from '../src/TimeInput';
 
-import TransitionView from '../src/TransitionView';
 import DecadeView from '../src/DecadeView';
 import YearView from '../src/YearView';
 import NavBar from '../src/NavBar';
@@ -35,7 +33,6 @@ import { render } from 'react-dom';
 
 import './index.scss';
 require('../style/index.scss');
-global.findDOMNode = findDOMNode;
 
 var range = ['2016-05-01', '2016-05-09'];
 var date = moment().add(-10, 'days');

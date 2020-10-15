@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import Component from '../../react-class';
 import { Flex } from '../../Flex';
@@ -248,6 +248,7 @@ class BasicMonthView extends Component {
     delete flexProps.triggerChangeOnTimeChange;
     delete flexProps.cancelButtonText;
     delete flexProps.clearButton;
+    delete flexProps.innerRef;
 
     if (typeof props.cleanup == 'function') {
       props.cleanup(flexProps);
@@ -256,6 +257,7 @@ class BasicMonthView extends Component {
     return (
       <Flex
         column
+        ref={props.innerRef}
         wrap={false}
         inline
         alignItems="stretch"
@@ -498,7 +500,9 @@ BasicMonthView.defaultProps = {
   weekDayNames: weekDayNamesFactory,
 };
 
-export default BasicMonthView;
+export default forwardRef((props, ref) => (
+  <BasicMonthView innerRef={ref} {...props} />
+));
 
 export {
   getWeekStartDay,

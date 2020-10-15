@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import { autoBind } from '../../../packages/react-class';
 import uglified from '../../../packages/uglified';
@@ -274,6 +273,8 @@ class InovuaCheckBox extends Component {
         ? defaultChecked
         : uncheckedValue,
     };
+
+    this.checkboxRef = createRef();
   }
 
   componentDidUpdate(previousProps) {
@@ -301,7 +302,7 @@ class InovuaCheckBox extends Component {
   }
 
   focus() {
-    findDOMNode(this).focus();
+    this.checkboxRef.current.focus();
   }
 
   checkUpdateIndeterminate(props = this.p) {

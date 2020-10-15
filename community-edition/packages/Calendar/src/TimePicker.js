@@ -7,7 +7,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Component from '../../react-class';
 import { Flex, Item } from '../../Flex';
 import assign from '../../../common/assign';
