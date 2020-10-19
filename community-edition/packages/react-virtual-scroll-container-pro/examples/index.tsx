@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { render, findDOMNode } from 'react-dom';
+import { render } from 'react-dom';
 import VirtualScrollContainer, { NativeScrollContainer } from '../src';
 
 import '../style/index.scss';
@@ -76,7 +76,6 @@ class App extends React.Component {
           nativeScroll={this.state.nativeScroll}
           ref={x => {
             global.scroller = x;
-            global.scrollerNode = findDOMNode(x);
           }}
           style={{
             position: 'relative',

@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { cloneElement } from 'react';
+import React, { cloneElement, createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import shouldComponentUpdate from '../../../packages/shouldComponentUpdate';
 import sealedObjectFactory from './sealedObjectFactory';
 const sharedRowProps = sealedObjectFactory({
@@ -30,12 +29,10 @@ export default class InovuaVirtualListRow extends React.Component {
         this.mounted = true;
         this.refetchNode = true;
         this.offset = 0;
-        this.ref = r => {
-            this.row = r;
-        };
+        this.row = createRef();
     }
     getInstance() {
-        return this.row;
+        return this.row.current;
     }
     shouldComponentUpdate(nextProps, nextState) {
         if (!nextProps.pure) {
@@ -78,10 +75,12 @@ export default class InovuaVirtualListRow extends React.Component {
         if (this.node) {
             return this.node;
         }
-        if (!this.row) {
+        if (!this.row.current) {
             return null;
         }
-        this.node = this.row.domRef ? this.row.domRef.current : findDOMNode(this);
+        this.node = this.row.current.domRef
+            ? this.row.current.domRef.current
+            : this.row.current;
         return this.node;
     }
     fetchNode() {
@@ -172,7 +171,7 @@ export default class InovuaVirtualListRow extends React.Component {
             // the initial this.props.index, so as to reuse the same `div` (HTMLElement)
             // and not throw it away and replace with another HTMLElement
             key: this.props.index,
-            ref: this.ref,
+            ref: this.row,
             onFocus: onFocus ? onFocus.bind(null, index) : null,
             onKeyDown: onKeyDown ? onKeyDown.bind(null, index) : null,
             style: extraStyle,

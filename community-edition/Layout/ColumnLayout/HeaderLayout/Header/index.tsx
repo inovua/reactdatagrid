@@ -7,7 +7,6 @@
 
 import React, { RefObject } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 
 import cleanProps from '../../../../packages/react-clean-props';
 import uglified from '../../../../packages/uglified';
@@ -726,7 +725,7 @@ export default class InovuaDataGridHeader extends React.Component {
     }
 
     result = result.map((cProps, index) => {
-      return <Cell {...cProps} key={index} />;
+      return <Cell {...cProps} key={index} index={index} />;
     });
 
     return renderCellsMaybeLocked(result, this.props, props.scrollLeft, {
@@ -754,7 +753,11 @@ export default class InovuaDataGridHeader extends React.Component {
       console.error(`Cannot find dom cell at ${index}.`);
     }
 
-    return cell.getDOMNode ? cell.getDOMNode() : findDOMNode(cell);
+    return cell.getDOMNode
+      ? cell.getDOMNode()
+      : cell.domRef
+      ? cell.domRef.current
+      : null;
   };
 
   renderHeaderGroup = (groupName, groupItems) => {
@@ -910,7 +913,7 @@ export default class InovuaDataGridHeader extends React.Component {
         {
           colHeaderNode: headerGroupInstance.domRef
             ? headerGroupInstance.domRef.current
-            : findDOMNode(headerGroupInstance),
+            : null,
           event,
           groupColumns: groupProps.columns,
         }
@@ -927,7 +930,7 @@ export default class InovuaDataGridHeader extends React.Component {
         {
           colHeaderNode: headerGroupInstance.domRef
             ? headerGroupInstance.domRef.current
-            : findDOMNode(headerGroupInstance),
+            : null,
           event,
           groupColumns: groupProps.columns,
         }

@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { cloneElement } from 'react';
+import React, { cloneElement, createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import cleanProps from '../../../../packages/react-clean-props';
 import debounce from '../../../../packages/debounce';
 import NotifyResize from '../../../../packages/react-notify-resize/src';
@@ -96,7 +95,9 @@ export default (displayName, CONFIG) => {
                     // FF has nagative scroll values for RTL
                     HAS_NEGATIVE_SCROLL = true;
                 }
-                const node = this.contentNode;
+                const node = this.childNode.current
+                    ? this.childNode.current.firstChild
+                    : null;
                 if (this.props.rtl) {
                     if (!HAS_NEGATIVE_SCROLL) {
                         // for browsers with non-negative scroll values, we need adjustment
@@ -183,7 +184,7 @@ export default (displayName, CONFIG) => {
                 });
             };
             this.scrollIntoView = ({ target }) => {
-                if (target === this.childNode) {
+                if (target === this.childNode.current) {
                     if (target.scrollTop !== 0) {
                         this.scrollTop += target.scrollTop;
                         target.scrollTop = 0;
@@ -202,12 +203,12 @@ export default (displayName, CONFIG) => {
                 this.lazyRestorePointerEvents();
             };
             this.lazyRestorePointerEvents = () => {
-                if (this.childNode && this.wheelCapturedOnScroller) {
+                if (this.childNode.current && this.wheelCapturedOnScroller) {
                     this.clear();
                     this.rafHandle = raf(() => {
                         this.wheelCapturedOnScroller = false;
                         delete this.rafHandle;
-                        this.childNode.style.pointerEvents = 'auto';
+                        this.childNode.current.style.pointerEvents = 'auto';
                     });
                 }
             };
@@ -218,7 +219,7 @@ export default (displayName, CONFIG) => {
                     event.preventDefault();
                     return;
                 }
-                this.childNode.style.pointerEvents = 'none';
+                this.childNode.current.style.pointerEvents = 'none';
                 this.wheelCapturedOnScroller = true;
                 event.stopPropagation();
                 const isProbablyChrome = !IS_MS_BROWSER && !IS_FF && !isSafari();
@@ -243,13 +244,7 @@ export default (displayName, CONFIG) => {
             };
             this.wheelEventTimestamp = 0;
             this.lazyRestorePointerEvents = debounce(this.lazyRestorePointerEvents, props.pointerEventsRestoreDelay, { leading: false, trailing: true });
-            this.refChildNode = c => {
-                this.childNode = c ? findDOMNode(c) : null;
-                this.contentNode = this.childNode ? this.childNode.firstChild : null;
-                if (this.contentNode) {
-                    this.contentNode.style.willChange = 'transform';
-                }
-            };
+            this.childNode = createRef();
             this.refThis = c => {
                 this.domNode = c;
             };
@@ -291,6 +286,12 @@ export default (displayName, CONFIG) => {
                     getComputedStyle(this.domNode).position === 'static') {
                     console.warn(`${displayName} has position: "static". It should have a non-static position!`);
                 }
+            }
+            const contentNode = this.childNode.current
+                ? this.childNode.current.firstChild
+                : null;
+            if (contentNode) {
+                contentNode.style.willChange = 'transform';
             }
             if (this.props.rtl && !this.scrollLeft) {
                 this.updateScrollStyle();
@@ -399,7 +400,7 @@ export default (displayName, CONFIG) => {
                 childStyle.zIndex = 2 * SCROLLER_Z_INDEX;
             }
             const domProps = {
-                ref: this.refChildNode,
+                ref: this.childNode,
                 style: childStyle,
                 onScroll: this.scrollIntoView,
                 [useWheelCapture ? 'onWheelCapture' : 'onWheel']: IS_EDGE

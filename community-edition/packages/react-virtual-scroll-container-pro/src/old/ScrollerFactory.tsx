@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { cloneElement } from 'react';
+import React, { cloneElement, createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 
 import cleanProps from '../../../../packages/react-clean-props';
 
@@ -60,13 +59,8 @@ export default (displayName, CONFIG) => {
         { leading: false, trailing: true }
       );
 
-      this.refChildNode = c => {
-        this.childNode = c ? findDOMNode(c) : null;
-        this.contentNode = this.childNode ? this.childNode.firstChild : null;
-        if (this.contentNode) {
-          this.contentNode.style.willChange = 'transform';
-        }
-      };
+      this.childNode = createRef();
+
       this.refThis = c => {
         this.domNode = c;
       };
@@ -122,6 +116,14 @@ export default (displayName, CONFIG) => {
             `${displayName} has position: "static". It should have a non-static position!`
           );
         }
+      }
+
+      const contentNode = this.childNode.current
+        ? this.childNode.current.firstChild
+        : null;
+
+      if (contentNode) {
+        contentNode.style.willChange = 'transform';
       }
 
       if (this.props.rtl && !this.scrollLeft) {
@@ -244,7 +246,9 @@ export default (displayName, CONFIG) => {
         HAS_NEGATIVE_SCROLL = true;
       }
 
-      const node = this.contentNode;
+      const node = this.childNode.current
+        ? this.childNode.current.firstChild
+        : null;
 
       if (this.props.rtl) {
         if (!HAS_NEGATIVE_SCROLL) {
@@ -375,7 +379,7 @@ export default (displayName, CONFIG) => {
       }
 
       const domProps = {
-        ref: this.refChildNode,
+        ref: this.childNode,
         style: childStyle,
         onScroll: this.scrollIntoView,
         [useWheelCapture ? 'onWheelCapture' : 'onWheel']: IS_EDGE
@@ -525,7 +529,7 @@ export default (displayName, CONFIG) => {
     };
 
     scrollIntoView = ({ target }) => {
-      if (target === this.childNode) {
+      if (target === this.childNode.current) {
         if (target.scrollTop !== 0) {
           this.scrollTop += target.scrollTop;
           target.scrollTop = 0;
@@ -546,12 +550,12 @@ export default (displayName, CONFIG) => {
     };
 
     lazyRestorePointerEvents = () => {
-      if (this.childNode && this.wheelCapturedOnScroller) {
+      if (this.childNode.current && this.wheelCapturedOnScroller) {
         this.clear();
         this.rafHandle = raf(() => {
           this.wheelCapturedOnScroller = false;
           delete this.rafHandle;
-          this.childNode.style.pointerEvents = 'auto';
+          this.childNode.current.style.pointerEvents = 'auto';
         });
       }
     };
@@ -566,7 +570,7 @@ export default (displayName, CONFIG) => {
         return;
       }
 
-      this.childNode.style.pointerEvents = 'none';
+      this.childNode.current.style.pointerEvents = 'none';
       this.wheelCapturedOnScroller = true;
 
       event.stopPropagation();

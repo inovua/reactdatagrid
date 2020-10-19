@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 // @ts-nocheck
-import React from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
 import InovuaScrollContainer from '../../react-scroll-container-pro/src';
 import cleanProps from '../../react-clean-props';
@@ -93,7 +92,7 @@ class StickyVirtualScrollContainer extends React.Component {
             }
         };
         this.getTransformNode = () => {
-            return this.viewNode.children[0].children[0];
+            return this.viewNode.current.children[0].children[0];
         };
         this.getScrollSize = () => {
             const node = this.getTransformNode();
@@ -255,9 +254,7 @@ class StickyVirtualScrollContainer extends React.Component {
                 afterElementSize: size,
             });
         };
-        this.refView = c => {
-            this.viewNode = c ? findDOMNode(c) : null;
-        };
+        this.viewNode = createRef();
         this.refScroller = s => {
             this.scroller = s;
             this.scrollerNode = s ? s.getScrollerNode() : null;
@@ -337,7 +334,7 @@ class StickyVirtualScrollContainer extends React.Component {
         const afterHeight = this.getAfterHeight();
         const renderView = viewProps => {
             const viewDOMProps = {
-                ref: this.refView,
+                ref: this.viewNode,
                 style: stickyStyle,
                 key: 'view',
                 'data-name': 'view',

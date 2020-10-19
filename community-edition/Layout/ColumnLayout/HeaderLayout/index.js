@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Component from '../../../packages/react-class';
 
 import debounce from '../../../packages/debounce';
@@ -313,9 +312,7 @@ export default class InovuaDataGridHeaderLayout extends Component {
       this.dragHeaderGroup = item;
     };
 
-    this.refGroupToolbar = t => {
-      this.groupToolbar = t;
-    };
+    this.groupToolbar = createRef();
 
     this.refHeader = h => {
       this.headerNode = null;
@@ -338,13 +335,13 @@ export default class InovuaDataGridHeaderLayout extends Component {
       this.header = h;
     };
 
-    this.refHeaderWrapper = w => {
-      this.headerWrapper = w;
-    };
+    this.headerWrapper = createRef();
 
     this.refReorderArrow = cmp => {
       this.reorderArrow = cmp;
     };
+
+    this.headerDomNode = createRef();
 
     this.lazyNotifyHeaderScrollLeftMax = debounce(
       this.notifyHeaderScrollLeftMax,
@@ -388,7 +385,10 @@ export default class InovuaDataGridHeaderLayout extends Component {
 
   render() {
     return (
-      <div className={'InovuaReactDataGrid__header-layout'}>
+      <div
+        ref={this.headerDomNode}
+        className={'InovuaReactDataGrid__header-layout'}
+      >
         {this.renderGroupToolbar()}
         {this.renderHeaderWrapper()}
         {this.renderDragCell()}
@@ -428,7 +428,7 @@ export default class InovuaDataGridHeaderLayout extends Component {
       headerGroupPlaceholderText: i18n('dragHeaderToGroup'),
       onItemMouseDown: this.onGroupItemMouseDown,
       onSortClick: onHeaderSortClick,
-      ref: this.refGroupToolbar,
+      ref: this.groupToolbar,
     });
   }
 
@@ -455,7 +455,7 @@ export default class InovuaDataGridHeaderLayout extends Component {
         onHeaderGroupMouseDown={this.onHeaderGroupMouseDown}
         onHeaderCellMouseDown={this.onHeaderCellMouseDown}
         onHeaderCellTouchStart={this.onHeaderCellTouchStart}
-        ref={this.refHeaderWrapper}
+        ref={this.headerWrapper}
         refHeader={this.refHeader}
         scrollLeft={scrollLeft}
       />
@@ -513,7 +513,9 @@ export default class InovuaDataGridHeaderLayout extends Component {
       return;
     }
 
-    const dragTargetNode = findDOMNode(headerGroup);
+    const dragTargetNode = headerGroup.domRef
+      ? headerGroup.domRef.current
+      : null;
     const shouldStop = [
       ...dragTargetNode.querySelectorAll(
         '.InovuaReactDataGrid__column-header__filter-wrapper'
@@ -832,15 +834,15 @@ export default class InovuaDataGridHeaderLayout extends Component {
   }
 
   getGroupToolbar() {
-    return this.groupToolbar;
+    return this.groupToolbar.current;
   }
 
   getGroupByItems() {
-    if (!this.groupToolbar) {
+    if (!this.groupToolbar.current) {
       return null;
     }
 
-    return this.groupToolbar.getSortedItemsInfo();
+    return this.groupToolbar.current.getSortedItemsInfo();
   }
 
   getHeaderCells() {
@@ -852,8 +854,8 @@ export default class InovuaDataGridHeaderLayout extends Component {
       return this.header.getCells();
     }
 
-    if (target == 'group' && this.groupToolbar) {
-      return this.groupToolbar.getCells();
+    if (target == 'group' && this.groupToolbar.current) {
+      return this.groupToolbar.current.getCells();
     }
 
     if (target == 'headergroup') {
@@ -902,7 +904,7 @@ export default class InovuaDataGridHeaderLayout extends Component {
     const columns = this.props.visibleColumns;
     const { rtl } = this.props;
 
-    const headerRegion = Region.from(findDOMNode(this));
+    const headerRegion = Region.from(this.headerDomNode.current);
     const dragBox = this.getDragBoxInstance(
       dragIndex,
       dragTarget,
@@ -954,20 +956,19 @@ export default class InovuaDataGridHeaderLayout extends Component {
         ? dragColumn.id
         : null;
 
+    const dragBoxNode = dragBox.domRef ? dragBox.domRef.current : null;
+
     const dragBoxInitialRegion =
       dragBox && dragBox.getProxyRegion
         ? dragBox.getProxyRegion()
-        : Region.from(findDOMNode(dragBox));
+        : Region.from(dragBoxNode);
     if (
       DRAG_CELL_MAX_WIDTH &&
       dragBoxInitialRegion.getWidth() > DRAG_CELL_MAX_WIDTH
     ) {
       dragBoxInitialRegion.setWidth(DRAG_CELL_MAX_WIDTH);
     }
-    if (
-      Region.from(findDOMNode(dragBox)).getWidth() >
-      headerRegion.getWidth() / 2
-    ) {
+    if (Region.from(dragBoxNode).getWidth() > headerRegion.getWidth() / 2) {
       // if the column or col group is bigger than half the width of the header
       // place the proxy left edge approx where the mouse is, so it can be dragged more easily
       if (rtl) {
@@ -1049,9 +1050,11 @@ export default class InovuaDataGridHeaderLayout extends Component {
       validDropPositions[dragIndex] = true;
     }
 
+    const wrapperNode = this.headerDomNode ? this.headerDomNode.current : null;
+
     let filterRowHeight = 0;
     if (this.props.computedFilterable) {
-      const filterWrapperNode = findDOMNode(this).querySelector(
+      const filterWrapperNode = wrapperNode.querySelector(
         '.InovuaReactDataGrid__column-header__filter-wrapper'
       );
 
@@ -1091,8 +1094,14 @@ export default class InovuaDataGridHeaderLayout extends Component {
       validDropPositions,
     };
 
-    const headerGroupTargetNode = findDOMNode(this);
-    const groupTargetNode = findDOMNode(this.groupToolbar || this);
+    const groupToolbarNode = this.groupToolbar.current
+      ? this.groupToolbar.current.domRef
+        ? this.groupToolbar.current.domRef.current
+        : null
+      : null;
+
+    const headerGroupTargetNode = wrapperNode;
+    const groupTargetNode = groupToolbarNode || this.headerDomNode.current;
 
     const groupComputedStyle = getComputedStyle(groupTargetNode);
 
@@ -1125,10 +1134,12 @@ export default class InovuaDataGridHeaderLayout extends Component {
     this.props.coverHandleRef.current.setActive(true);
     this.props.coverHandleRef.current.setCursor('grabbing');
 
+    const headerNode = this.headerDomNode ? this.headerDomNode.current : null;
+
     setupColumnDrag(
       {
         constrainTo: this.props.constrainReorder
-          ? Region.from(findDOMNode(this).parentNode)
+          ? Region.from(headerNode.parentNode)
           : undefined,
         region: dragBoxInitialRegion,
       },
@@ -1242,6 +1253,7 @@ export default class InovuaDataGridHeaderLayout extends Component {
       this.setGroupBy(newGroupBy);
       return;
     }
+
     const order = getColumnOrder(props, c => c.id !== columnId);
 
     const insertIndex = columnAtDropIndex
@@ -1363,8 +1375,15 @@ export default class InovuaDataGridHeaderLayout extends Component {
     const minScrollLeft = Math.max(headerRegion.left, 0);
     const maxScrollRight = headerRegion.right;
 
-    if (this.groupToolbar && allowTargetChange) {
-      const groupToolbarRegion = Region.from(findDOMNode(this.groupToolbar));
+    const groupToolbarNode =
+      this.groupToolbar &&
+      this.groupToolbar.current &&
+      this.groupToolbar.current.domRef
+        ? this.groupToolbar.current.domRef.current
+        : null;
+
+    if (this.groupToolbar.current && allowTargetChange) {
+      const groupToolbarRegion = Region.from(groupToolbarNode);
       if (
         dragBoxRegion.top + dragBoxRegion.height / 2 <
         groupToolbarRegion.bottom

@@ -6,7 +6,6 @@
  */
 import React, { cloneElement } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Region from '../../../packages/region';
 import shallowequal, { equalReturnKey } from '../../../packages/shallowequal';
 import autoBind from '../../../packages/react-class/autoBind';
@@ -925,11 +924,7 @@ export default class InovuaDataGridCell extends React.Component {
     }
     showContextMenu(menuTool, onHide) {
         if (this.props.showColumnContextMenu) {
-            this.props.showColumnContextMenu(menuTool
-                ? menuTool.domRef
-                    ? menuTool.domRef.current
-                    : findDOMNode(menuTool)
-                : null, this.getProps(), this, onHide);
+            this.props.showColumnContextMenu(menuTool ? (menuTool.domRef ? menuTool.domRef.current : null) : null, this.getProps(), this, onHide);
         }
     }
     getProxyRegion() {

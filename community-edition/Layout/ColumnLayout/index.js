@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React from 'react';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Region from '../../packages/region';
 import ResizeOverlay from './ResizeOverlay';
 import setupColumnResize from './setupColumnResize';
@@ -21,6 +20,9 @@ export default class InovuaDataGridColumnLayout extends React.Component {
     constructor(props) {
         super(props);
         this.scrollTop = 0;
+        this.getDOMNode = () => {
+            return this.columnLayoutRef.current;
+        };
         this.getContentRows = () => {
             return this.content.getRows();
         };
@@ -28,7 +30,7 @@ export default class InovuaDataGridColumnLayout extends React.Component {
             return this.scrollTop || 0;
         };
         this.renderHeaderLayout = computedProps => {
-            return (React.createElement(HeaderLayout, Object.assign({}, computedProps, { onResizeMouseDown: this.onResizeMouseDown.bind(this, computedProps), onResizeTouchStart: this.onResizeTouchStart.bind(this, computedProps), onFilterValueChange: computedProps.computedOnColumnFilterValueChange, ref: this.refHeaderLayout, getScrollLeftMax: this.getScrollLeftMax, setScrollLeft: this.setScrollLeft })));
+            return (React.createElement(HeaderLayout, Object.assign({}, computedProps, { onResizeMouseDown: this.onResizeMouseDown.bind(this, computedProps), onResizeTouchStart: this.onResizeTouchStart.bind(this, computedProps), onFilterValueChange: computedProps.computedOnColumnFilterValueChange, ref: this.headerLayout, getScrollLeftMax: this.getScrollLeftMax, setScrollLeft: this.setScrollLeft })));
         };
         this.renderContent = computedProps => {
             const { groupBy } = computedProps;
@@ -54,8 +56,8 @@ export default class InovuaDataGridColumnLayout extends React.Component {
             return (React.createElement(ResizeOverlay, { resizeProxyStyle: computedProps.resizeProxyStyle, columnResizeProxyWidth: computedProps.columnResizeProxyWidth, columnResizeHandleWidth: computedProps.columnResizeHandleWidth, rtl: computedProps.rtl, ref: this.refResizeOverlay }));
         };
         this.onColumnRenderStartIndexChange = columnRenderStartIndex => {
-            if (this.headerLayout) {
-                this.headerLayout.setColumnRenderStartIndex(columnRenderStartIndex);
+            if (this.headerLayout.current) {
+                this.headerLayout.current.setColumnRenderStartIndex(columnRenderStartIndex);
             }
         };
         this.onContainerScrollVertical = (computedProps, scrollTop) => {
@@ -73,8 +75,8 @@ export default class InovuaDataGridColumnLayout extends React.Component {
         };
         this.onContainerScrollHorizontal = (computedProps, scrollLeft) => {
             this.scrollLeft = scrollLeft;
-            if (this.headerLayout) {
-                this.headerLayout.onContainerScrollHorizontal(scrollLeft);
+            if (this.headerLayout.current) {
+                this.headerLayout.current.onContainerScrollHorizontal(scrollLeft);
             }
             if (computedProps.onScroll) {
                 computedProps.onScroll();
@@ -127,19 +129,19 @@ export default class InovuaDataGridColumnLayout extends React.Component {
             return this.content.getRenderRange();
         };
         this.getHeaderLayout = () => {
-            return this.headerLayout;
+            return this.headerLayout?.current;
         };
         this.getHeaderCells = () => {
             return this.getHeaderLayout().getHeaderCells();
         };
         this.getHeader = () => {
-            return this.headerLayout.getHeader();
+            return this.headerLayout?.current.getHeader();
         };
         this.getGroupToolbar = () => {
-            return this.headerLayout.getGroupToolbar();
+            return this.headerLayout?.current.getGroupToolbar();
         };
         this.getDOMColumnHeaderAt = index => {
-            return this.headerLayout.getCellDOMNodeAt(index);
+            return this.headerLayout?.current.getCellDOMNodeAt(index);
         };
         this.onResizeMouseDown = (...args) => {
             if (isMobile) {
@@ -178,7 +180,7 @@ export default class InovuaDataGridColumnLayout extends React.Component {
                 return index;
             }, -1);
             const index = visibleIndex;
-            const headerRegion = Region.from(findDOMNode(this.getHeaderLayout()));
+            const headerRegion = Region.from(this.getHeaderLayout().headerDomNode.current);
             const constrainTo = Region.from(headerRegion.get());
             // allow resizing the width to the right without limiting to the grid viewport
             constrainTo.set({
@@ -286,7 +288,8 @@ export default class InovuaDataGridColumnLayout extends React.Component {
             }, event);
         };
         this.onResizeDragInit = (computedProps, { offset, constrained }) => {
-            const offsetTop = findDOMNode(this.getHeaderLayout().getHeader()).offsetTop;
+            const offsetTop = this.getHeaderLayout().getHeader().domRef.current
+                .offsetTop;
             this.props.coverHandleRef.current.setActive(true);
             this.resizeOverlay
                 .setOffset(offset)
@@ -322,9 +325,8 @@ export default class InovuaDataGridColumnLayout extends React.Component {
         this.refResizeOverlay = r => {
             this.resizeOverlay = r;
         };
-        this.refHeaderLayout = layout => {
-            this.headerLayout = layout;
-        };
+        this.headerLayout = createRef();
+        this.columnLayoutRef = createRef();
         this.refContent = c => {
             this.content = c;
         };
@@ -338,11 +340,11 @@ export default class InovuaDataGridColumnLayout extends React.Component {
             let flexIndex = 1;
             let { useNativeFlex } = computedProps;
             this.lastComputedProps = computedProps;
-            return (React.createElement("div", { className: className, style: {
+            return (React.createElement("div", { ref: this.columnLayoutRef, className: className, style: {
                     ...height100,
                     ...this.props.style,
                 } },
-                React.createElement(FakeFlex, { useNativeFlex: useNativeFlex, flexIndex: flexIndex },
+                React.createElement(FakeFlex, { useNativeFlex: useNativeFlex, flexIndex: flexIndex, getNode: this.getDOMNode },
                     this.renderHeaderLayout(computedProps),
                     this.renderContent(computedProps)),
                 this.renderReorderRowProxy(computedProps),

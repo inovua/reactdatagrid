@@ -6,7 +6,6 @@
  */
 import React, { cloneElement } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Region from '../../../../packages/region';
 import join from '../../../../packages/join';
 import humanize from '../../../../utils/humanize';
@@ -75,7 +74,7 @@ export default class HeaderGroup extends React.Component {
             return style;
         };
         this.getProxyRegion = () => {
-            const node = findDOMNode(this);
+            const node = this.domRef ? this.domRef.current : null;
             const region = Region.from(node);
             if (this.props.filterable) {
                 const filterWrapper = node.querySelector('.InovuaReactDataGrid__column-header__filter-wrapper');

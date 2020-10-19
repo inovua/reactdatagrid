@@ -5,13 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { cloneElement, MouseEvent } from 'react';
+import React, { cloneElement } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Region from '../../../packages/region';
 
 import shallowequal, { equalReturnKey } from '../../../packages/shallowequal';
-import diff from '../../../packages/shallow-changes';
 
 import autoBind from '../../../packages/react-class/autoBind';
 
@@ -28,7 +26,7 @@ import renderSortTool from './renderSortTool';
 import { id as REORDER_COLUMN_ID } from '../../../normalizeColumns/defaultRowReorderColumnId';
 import TextEditor from './editors/Text';
 import Renderable from '../../../types/TypeRenderable';
-import { CellProps, EnhancedCellProps, CellRenderObject } from './CellProps';
+import { EnhancedCellProps, CellRenderObject } from './CellProps';
 
 const cellBem = bemFactory('InovuaReactDataGrid__cell');
 const headerBem = bemFactory('InovuaReactDataGrid__column-header');
@@ -1353,11 +1351,7 @@ export default class InovuaDataGridCell extends React.Component {
   showContextMenu(menuTool, onHide) {
     if (this.props.showColumnContextMenu) {
       this.props.showColumnContextMenu(
-        menuTool
-          ? menuTool.domRef
-            ? menuTool.domRef.current
-            : findDOMNode(menuTool)
-          : null,
+        menuTool ? (menuTool.domRef ? menuTool.domRef.current : null) : null,
         this.getProps(),
         this,
         onHide

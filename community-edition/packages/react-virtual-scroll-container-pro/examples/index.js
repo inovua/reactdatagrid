@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import React from 'react';
-import { render, findDOMNode } from 'react-dom';
+import { render } from 'react-dom';
 import VirtualScrollContainer, { NativeScrollContainer } from '../src';
 import '../style/index.scss';
 global.React = React;
@@ -60,7 +60,6 @@ class App extends React.Component {
                 `${this.state.rtl}`),
             React.createElement(ScrollerFactory, { autoHide: false, rtl: this.state.rtl, nativeScroll: this.state.nativeScroll, ref: x => {
                     global.scroller = x;
-                    global.scrollerNode = findDOMNode(x);
                 }, style: {
                     position: 'relative',
                     height: 400,

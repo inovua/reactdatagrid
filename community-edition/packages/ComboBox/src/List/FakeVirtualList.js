@@ -17,7 +17,7 @@ class FakeVirtualList extends Component {
 
     this.handleOnScroll = this.handleOnScroll.bind(this);
 
-    this.targetRef = createRef();
+    this.targetNode = createRef();
   }
   render() {
     const { props } = this;
@@ -31,7 +31,7 @@ class FakeVirtualList extends Component {
     }
 
     const listProps = {
-      ref: this.targetRef,
+      ref: this.targetNode,
       children: list,
       ...cleanProps(props, FakeVirtualList.propTypes),
       onScroll: this.handleOnScroll,
@@ -51,9 +51,9 @@ class FakeVirtualList extends Component {
   }
 
   getContainerNode() {
-    return this.targetNode && this.targetNode.getContainerTargetNode
-      ? this.targetNode.getContainerTargetNode()
-      : this.targetNode;
+    return this.targetNode && this.targetNode.current.getContainerTargetNode
+      ? this.targetNode.current.getContainerTargetNode()
+      : this.targetNode.current;
   }
 
   getRootNode() {

@@ -7,7 +7,6 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import contains from '../../../packages/contains';
 
 import cleanupProps from '../../../packages/react-clean-props';
@@ -1313,9 +1312,7 @@ export default class InovuaVirtualList extends Component<TypeProps> {
 
     const activeElement = global.document.activeElement;
     const theRow = this.getRowAt(index);
-    const rowNode = theRow.getDOMNode
-      ? theRow.getDOMNode()
-      : findDOMNode(theRow);
+    const rowNode = theRow.getDOMNode ? theRow.getDOMNode() : theRow.node;
 
     if (!activeElement || !contains(rowNode, activeElement)) {
       // the current focused element is not inside the row
@@ -1379,7 +1376,7 @@ export default class InovuaVirtualList extends Component<TypeProps> {
         const nextRow = this.getRowAt(index);
         const nextRowNode = nextRow.getDOMNode
           ? nextRow.getDOMNode()
-          : findDOMNode(nextRow);
+          : nextRow.node;
 
         const elements = this.props.getRowFocusableElements
           ? this.props.getRowFocusableElements(index, nextRowNode)

@@ -4,7 +4,7 @@
  * This source code is licensed under the Commercial License found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React from 'react';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
 import cleanProps from '@inovua/reactdatagrid-community/packages/react-clean-props';
 import renderSortTool from '@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/renderSortTool';
@@ -101,6 +101,7 @@ export default class GroupToolbarItem extends React.Component {
             return this.props.column.computedVisibleIndex;
         };
         this.state = { dragging: false };
+        this.domRef = createRef();
     }
     render() {
         const { props, state } = this;
@@ -125,6 +126,7 @@ export default class GroupToolbarItem extends React.Component {
             : {};
         const domProps = {
             ...divProps,
+            ref: this.domRef,
             style: { ...props.style, ...style },
             className,
             onClick,

@@ -5,15 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import ReactDOM, { findDOMNode } from 'react-dom';
+import React, { createRef } from 'react';
+import ReactDOM from 'react-dom';
 
-import { fireEvent } from 'dom-testing-library';
 import VirtualList from '../index';
 import RowHeightManager from '../RowHeightManager';
 import '../../style/index.scss';
-
-const rowHeightManager = new RowHeightManager(40, {});
 
 const scrollTo = (scrollTop, { instance }) => {
   instance.applyScrollStyle({ scrollTop }, instance.getScrollerNode());
@@ -23,31 +20,28 @@ const render = cmp => {
   const node = document.createElement('div');
   document.body.appendChild(node);
 
-  let cmpInstance;
-  const ref = c => {
-    cmpInstance = c;
-  };
+  let cmpInstance = createRef();
 
   ReactDOM.render(
     React.cloneElement(cmp, {
-      ref,
+      ref: cmpInstance,
     }),
     node
   );
 
   return {
     get instance() {
-      return cmpInstance;
+      return cmpInstance.current;
     },
     get node() {
-      return findDOMNode(cmpInstance);
+      return cmpInstance.current;
     },
     rerender: cmp => {
       ReactDOM.render(cmp, node);
     },
     destroy: () => {
       ReactDOM.unmountComponentAtNode(node);
-      cmpInstance = null;
+      cmpInstance.current = null;
     },
   };
 };

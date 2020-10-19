@@ -5,17 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
-import cleanProps from '../../common/cleanProps';
+import cleanProps from '../../../common/cleanProps';
 import DropdownButton from '../../DropdownButton';
 import Button from '../../Button';
-import join from '../../common/join';
+import join from '../../../common/join';
 
 class InovuaSplitButton extends Component {
   constructor(props) {
     super(props);
+
+    this.buttonRef = createRef();
 
     this.state = {
       focused: false,
@@ -79,6 +80,7 @@ class InovuaSplitButton extends Component {
     return (
       <div
         {...cleanProps(props, InovuaSplitButton.propTypes)}
+        ref={this.buttonRef}
         className={className}
       >
         <Button {...this.getCommonProps()} {...this.getButtonProps()} />
@@ -130,7 +132,7 @@ class InovuaSplitButton extends Component {
     return {
       ...props.dropdownButtonWrapperProps,
       getAlignNode: () => {
-        const node = findDOMNode(this);
+        const node = this.buttonRef.current;
 
         return node;
       },

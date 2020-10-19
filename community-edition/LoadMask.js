@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { cloneElement } from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
 
 import LoadMask from './packages/LoadMask';
@@ -49,13 +48,15 @@ export default class DataGridLoadMask extends React.Component {
     super(props);
 
     this.visible = props.visible;
+
+    this.maskRef = createRef();
   }
 
   setVisible(visible) {
     if (this.props.livePagination) {
       this.visible = visible;
       const fn = () => {
-        const node = findDOMNode(this);
+        const node = this.maskRef.current;
         if (!node || !this.scroller) {
           return;
         }
@@ -95,6 +96,7 @@ export default class DataGridLoadMask extends React.Component {
     return (
       <LoadMask
         {...cleanProps}
+        ref={this.maskRef}
         style={style}
         visible={visible}
         className={className}

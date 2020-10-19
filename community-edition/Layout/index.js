@@ -17,6 +17,9 @@ const stopPropagation = e => e.stopPropagation();
 class InovuaDataGridLayout extends Component {
     constructor(props) {
         super(props);
+        this.getDOMNode = () => {
+            return this.domNode;
+        };
         this.renderPageList = list => {
             if (!createPortal) {
                 return list;
@@ -62,15 +65,12 @@ class InovuaDataGridLayout extends Component {
     shouldComponentUpdate(nextProps, nextState) {
         return shouldComponentUpdate(this, nextProps, nextState);
     }
-    getDOMNode() {
-        return this.domNode;
-    }
     render() {
         const Footer = this.props.Footer;
         return (React.createElement(Consumer, null, computedProps => {
             const ColumnLayoutCmp = computedProps.ColumnLayout || ColumnLayout; // can be injected from enterprise edition
             return (React.createElement("div", { className: 'InovuaReactDataGrid__body', ref: this.ref },
-                React.createElement(FakeFlex, { flexIndex: 0, useNativeFlex: computedProps.useNativeFlex },
+                React.createElement(FakeFlex, { flexIndex: 0, getNode: this.getDOMNode, useNativeFlex: computedProps.useNativeFlex },
                     React.createElement(ColumnLayoutCmp, { key: "collayout", ref: this.refColumnLayout, rtl: computedProps.rtl, coverHandleRef: computedProps.coverHandleRef }),
                     this.renderPaginationToolbar(computedProps),
                     computedProps.computedFooterRows && Footer ? (React.createElement(Footer, { key: "footer", rows: computedProps.computedFooterRows })) : null)));

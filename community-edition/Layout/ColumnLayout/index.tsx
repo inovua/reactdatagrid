@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { MouseEvent, ReactNode } from 'react';
+import React, { MouseEvent, ReactNode, createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Region from '../../packages/region';
 
 import ResizeOverlay from './ResizeOverlay';
@@ -17,7 +16,6 @@ import FakeFlex from '../../FakeFlex';
 
 import HeaderLayout from './HeaderLayout';
 import Content from './Content';
-import LockedRows from './LockedRows';
 
 import { Consumer } from '../../context';
 
@@ -29,6 +27,7 @@ const height100 = { height: '100%' };
 export default class InovuaDataGridColumnLayout extends React.Component {
   private scrollTop: number = 0;
   lastComputedProps?: TypeComputedProps | null;
+  headerLayout: React.RefObject<HTMLDivElement> | null;
 
   constructor(props) {
     super(props);
@@ -37,9 +36,8 @@ export default class InovuaDataGridColumnLayout extends React.Component {
       this.resizeOverlay = r;
     };
 
-    this.refHeaderLayout = layout => {
-      this.headerLayout = layout;
-    };
+    this.headerLayout = createRef();
+    this.columnLayoutRef = createRef();
 
     this.refContent = c => {
       this.content = c;
@@ -62,13 +60,18 @@ export default class InovuaDataGridColumnLayout extends React.Component {
           this.lastComputedProps = computedProps;
           return (
             <div
+              ref={this.columnLayoutRef}
               className={className}
               style={{
                 ...height100,
                 ...this.props.style,
               }}
             >
-              <FakeFlex useNativeFlex={useNativeFlex} flexIndex={flexIndex}>
+              <FakeFlex
+                useNativeFlex={useNativeFlex}
+                flexIndex={flexIndex}
+                getNode={this.getDOMNode}
+              >
                 {this.renderHeaderLayout(computedProps)}
                 {this.renderContent(computedProps)}
               </FakeFlex>
@@ -81,6 +84,10 @@ export default class InovuaDataGridColumnLayout extends React.Component {
       </Consumer>
     );
   }
+
+  getDOMNode = () => {
+    return this.columnLayoutRef.current;
+  };
 
   renderReorderRowProxy(): ReactNode {
     return null; // implemented in enterprise
@@ -104,7 +111,7 @@ export default class InovuaDataGridColumnLayout extends React.Component {
         onResizeMouseDown={this.onResizeMouseDown.bind(this, computedProps)}
         onResizeTouchStart={this.onResizeTouchStart.bind(this, computedProps)}
         onFilterValueChange={computedProps.computedOnColumnFilterValueChange}
-        ref={this.refHeaderLayout}
+        ref={this.headerLayout}
         getScrollLeftMax={this.getScrollLeftMax}
         setScrollLeft={this.setScrollLeft}
       />
@@ -172,8 +179,10 @@ export default class InovuaDataGridColumnLayout extends React.Component {
   };
 
   onColumnRenderStartIndexChange = columnRenderStartIndex => {
-    if (this.headerLayout) {
-      this.headerLayout.setColumnRenderStartIndex(columnRenderStartIndex);
+    if (this.headerLayout.current) {
+      this.headerLayout.current.setColumnRenderStartIndex(
+        columnRenderStartIndex
+      );
     }
   };
 
@@ -205,8 +214,8 @@ export default class InovuaDataGridColumnLayout extends React.Component {
   onContainerScrollHorizontal = (computedProps, scrollLeft) => {
     this.scrollLeft = scrollLeft;
 
-    if (this.headerLayout) {
-      this.headerLayout.onContainerScrollHorizontal(scrollLeft);
+    if (this.headerLayout.current) {
+      this.headerLayout.current.onContainerScrollHorizontal(scrollLeft);
     }
 
     if (computedProps.onScroll) {
@@ -279,7 +288,7 @@ export default class InovuaDataGridColumnLayout extends React.Component {
   };
 
   getHeaderLayout = () => {
-    return this.headerLayout;
+    return this.headerLayout?.current;
   };
 
   getHeaderCells = () => {
@@ -287,15 +296,15 @@ export default class InovuaDataGridColumnLayout extends React.Component {
   };
 
   getHeader = () => {
-    return this.headerLayout.getHeader();
+    return this.headerLayout?.current.getHeader();
   };
 
   getGroupToolbar = () => {
-    return this.headerLayout.getGroupToolbar();
+    return this.headerLayout?.current.getGroupToolbar();
   };
 
   getDOMColumnHeaderAt = index => {
-    return this.headerLayout.getCellDOMNodeAt(index);
+    return this.headerLayout?.current.getCellDOMNodeAt(index);
   };
 
   onResizeMouseDown = (...args) => {
@@ -308,6 +317,7 @@ export default class InovuaDataGridColumnLayout extends React.Component {
     }
     this.onResizeDownAction(...args);
   };
+
   onResizeDownAction = (
     computedProps,
     config,
@@ -323,6 +333,7 @@ export default class InovuaDataGridColumnLayout extends React.Component {
       event,
     });
   };
+
   onResizeTouchStart = (...args) => {
     this.onResizeDownAction(...args);
   };
@@ -352,7 +363,9 @@ export default class InovuaDataGridColumnLayout extends React.Component {
 
     const index = visibleIndex;
 
-    const headerRegion = Region.from(findDOMNode(this.getHeaderLayout()));
+    const headerRegion = Region.from(
+      this.getHeaderLayout().headerDomNode.current
+    );
     const constrainTo = Region.from(headerRegion.get());
 
     // allow resizing the width to the right without limiting to the grid viewport
@@ -485,7 +498,9 @@ export default class InovuaDataGridColumnLayout extends React.Component {
   };
 
   onResizeDragInit = (computedProps, { offset, constrained }) => {
-    const offsetTop = findDOMNode(this.getHeaderLayout().getHeader()).offsetTop;
+    const offsetTop = this.getHeaderLayout().getHeader().domRef.current
+      .offsetTop;
+
     this.props.coverHandleRef.current.setActive(true);
     this.resizeOverlay
       .setOffset(offset)

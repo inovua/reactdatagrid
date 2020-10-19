@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component, cloneElement } from 'react';
+import React, { Component, cloneElement, createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 
 import RO from 'resize-observer-polyfill';
 
@@ -47,6 +46,8 @@ class FakeFlex extends Component {
     this.state = {
       flexHeight: null,
     };
+
+    this.flexRef = createRef();
   }
   onResize(size) {
     if (this.props.useNativeFlex) {
@@ -108,17 +109,23 @@ class FakeFlex extends Component {
       });
     }
   }
+
   getNode() {
-    if (!this.node) {
-      const node = findDOMNode(this);
-      this.node = useFragment ? node.parentNode : node;
+    if (this.node) {
+      return this.node;
+    }
+
+    if (this.props.getNode) {
+      this.node = this.props.getNode();
     }
 
     return this.node;
   }
 
   componentDidMount() {
-    this.setupObservers();
+    requestAnimationFrame(() => {
+      this.setupObservers();
+    });
   }
 
   componentDidUpdate() {
@@ -244,7 +251,10 @@ class FakeFlex extends Component {
     }
 
     return (
-      <div style={useNativeFlex ? nativeFlexCoverStyle : coverStyle}>
+      <div
+        ref={this.flexRef}
+        style={useNativeFlex ? nativeFlexCoverStyle : coverStyle}
+      >
         {children}
         {resizer}
       </div>
@@ -254,6 +264,7 @@ class FakeFlex extends Component {
 
 FakeFlex.propTypes = {
   flexIndex: PropTypes.number.isRequired,
+  getNode: PropTypes.func.isRequired,
   useNativeFlex: PropTypes.bool,
 };
 

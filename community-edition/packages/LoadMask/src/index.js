@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
 import cleanProps from '../../../common/cleanProps';
@@ -16,64 +16,61 @@ import SpinLoader from './SpinLoader';
 
 const DEFAULT_CLASS_NAME = 'inovua-react-toolkit-load-mask';
 
-export default class InovuaLoadMask extends React.Component {
-  render() {
-    const props = this.props;
+const InovuaLoadMask = forwardRef((props, ref) => {
+  const visibleClassName = props.visible
+    ? `${props.rootClassName}--visible`
+    : '';
+  const className = join(
+    props.className,
+    props.rootClassName,
+    visibleClassName,
+    props.theme && `${props.rootClassName}--theme-${props.theme}`
+  );
+  const layerClassName = join(
+    props.backgroundLayerClassName,
+    `${props.rootClassName}__background-layer`
+  );
+  const style = { ...props.style };
+  const layerStyle = { ...props.backgroundLayerStyle };
 
-    const visibleClassName = props.visible
-      ? `${props.rootClassName}--visible`
-      : '';
-    const className = join(
-      props.className,
-      props.rootClassName,
-      visibleClassName,
-      props.theme && `${props.rootClassName}--theme-${props.theme}`
-    );
-    const layerClassName = join(
-      props.backgroundLayerClassName,
-      `${props.rootClassName}__background-layer`
-    );
-    const style = { ...this.props.style };
-    const layerStyle = { ...this.props.backgroundLayerStyle };
-
-    if (this.props.zIndex != null) {
-      style.zIndex = this.props.zIndex;
-    }
-
-    if (props.background !== true) {
-      layerStyle.background =
-        props.background === false ? 'transparent' : props.background;
-    }
-    if (props.backgroundOpacity != null) {
-      layerStyle.opacity = props.backgroundOpacity;
-    }
-
-    const { pointerEvents } = this.props;
-    if (pointerEvents !== true) {
-      style.pointerEvents = pointerEvents === false ? 'none' : pointerEvents;
-    }
-
-    const Loader = props.svgLoader ? SvgLoader : SpinLoader;
-
-    return (
-      <div
-        {...cleanProps(props, InovuaLoadMask.propTypes)}
-        className={className}
-        style={style}
-      >
-        <div style={layerStyle} className={layerClassName} />
-        <div className={`${props.rootClassName}__loader-container`}>
-          <Loader
-            size={props.size}
-            theme={props.theme}
-            animationDuration={props.animationDuration}
-          />
-          {this.props.children}
-        </div>
-      </div>
-    );
+  if (props.zIndex != null) {
+    style.zIndex = props.zIndex;
   }
-}
+
+  if (props.background !== true) {
+    layerStyle.background =
+      props.background === false ? 'transparent' : props.background;
+  }
+  if (props.backgroundOpacity != null) {
+    layerStyle.opacity = props.backgroundOpacity;
+  }
+
+  const { pointerEvents } = props;
+  if (pointerEvents !== true) {
+    style.pointerEvents = pointerEvents === false ? 'none' : pointerEvents;
+  }
+
+  const Loader = props.svgLoader ? SvgLoader : SpinLoader;
+
+  return (
+    <div
+      ref={ref}
+      {...cleanProps(props, InovuaLoadMask.propTypes)}
+      className={className}
+      style={style}
+    >
+      <div style={layerStyle} className={layerClassName} />
+      <div className={`${props.rootClassName}__loader-container`}>
+        <Loader
+          size={props.size}
+          theme={props.theme}
+          animationDuration={props.animationDuration}
+        />
+        {props.children}
+      </div>
+    </div>
+  );
+});
 
 InovuaLoadMask.defaultProps = {
   visible: true,
@@ -100,3 +97,5 @@ InovuaLoadMask.propTypes = {
   backgroundLayerStyle: PropTypes.object,
   rootClassName: PropTypes.string,
 };
+
+export default InovuaLoadMask;

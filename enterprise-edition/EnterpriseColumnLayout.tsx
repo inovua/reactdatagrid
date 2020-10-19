@@ -7,7 +7,6 @@
 
 import React, { MouseEvent, ReactNode } from 'react';
 
-import { findDOMNode } from 'react-dom';
 import Region from '@inovua/reactdatagrid-community/packages/region';
 
 import InovuaDataGridColumnLayout from '@inovua/reactdatagrid-community/Layout/ColumnLayout';
@@ -167,8 +166,13 @@ export default class InovuaDataGridEnterpriseColumnLayout extends InovuaDataGrid
       return;
     }
 
-    const contentRegion = Region.from(findDOMNode(this.content));
-    const headerRegion = Region.from(findDOMNode(this.headerLayout));
+    const contentNode = this.content.getDOMNode();
+    const headerNode = this.headerLayout.current
+      ? this.headerLayout?.current.headerDomNode.current
+      : null;
+
+    const contentRegion = Region.from(contentNode);
+    const headerRegion = Region.from(headerNode);
     const headerHeight: number = headerRegion.getHeight();
 
     const node = cellNode && cellNode.current;
@@ -210,10 +214,11 @@ export default class InovuaDataGridEnterpriseColumnLayout extends InovuaDataGrid
     });
 
     const dragBox = this.getDragRowInstance(dragIndex);
+    const dragBoxNode = dragBox.domRef ? dragBox.domRef.current : null;
 
     let dragBoxInitialRegion;
     if (dragBox) {
-      dragBoxInitialRegion = Region.from(findDOMNode(dragBox));
+      dragBoxInitialRegion = Region.from(dragBoxNode);
     }
 
     this.dragBoxInitialHeight =

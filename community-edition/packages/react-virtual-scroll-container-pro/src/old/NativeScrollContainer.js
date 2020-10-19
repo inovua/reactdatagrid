@@ -6,7 +6,6 @@
  */
 
 import React from 'react';
-import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 
 import { propTypes as scrollContainerPropTypes } from '../../../../packages/react-scroll-container-pro/src';
@@ -33,8 +32,10 @@ const onScrollbarsChange = function(scrollbars) {
     // normally, browsers have the vertical scrollbar on the left for RTL
     // but there is an exception of course, which is SAFARI,
     // which has the vertical scrollbar on the right
-    style[rtl && !isSafari() ? 'left' : 'right'] = `${right}px`;
-    style.bottom = `${bottom}px`;
+    style
+      ? (style[rtl && !isSafari() ? 'left' : 'right'] = `${right}px`)
+      : null;
+    style ? (style.bottom = `${bottom}px`) : null;
   }
 
   if (this.props.onScrollbarsChange) {
@@ -141,7 +142,6 @@ const InovuaNativeScrollContainer = ScrollerFactory(
     init(props) {
       this.refScroller = s => {
         this.scroller = s;
-        this.scrollerNode = s ? findDOMNode(s) : s;
       };
 
       this.onStop = debounce(onStop.bind(this), props.scrollStopDelay, {

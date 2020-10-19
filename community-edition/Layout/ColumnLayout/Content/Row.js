@@ -4,8 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
 import autoBind from '../../../packages/react-class/autoBind';
 import cleanProps from '../../../packages/react-clean-props';
@@ -74,7 +73,7 @@ export default class DataGridRow extends React.Component {
             }
             this.cells.push(c);
         };
-        this.domRef = React.createRef();
+        this.domRef = createRef();
         this.cells = [];
         autoBind(this);
     }
@@ -98,13 +97,6 @@ export default class DataGridRow extends React.Component {
             style: 1,
         });
         if (!areEqual.result) {
-            // console.log(
-            //   'UPDATE ROW',
-            //   areEqual.key,
-            //   // this.props[areEqual.key!],
-            //   // nextProps[areEqual.key!],
-            //   diff(rowClean(nextProps), rowClean(this.props))
-            // );
             return true;
         }
         if (this.props.active !== nextProps.active) {
@@ -237,7 +229,7 @@ export default class DataGridRow extends React.Component {
     }
     setScrolling(scrolling) {
         const node = (this.getDOMNode() ||
-            findDOMNode(this));
+            this.domRef.current);
         let scrollingDirection = this.scrollingDirection;
         if (scrolling !== false) {
             scrollingDirection = scrolling;
@@ -1246,7 +1238,7 @@ export default class DataGridRow extends React.Component {
                 cell = this.props.cellFactory(cProps);
             }
             if (cell === undefined) {
-                cell = React.createElement(Cell, Object.assign({}, cProps, { key: key }));
+                cell = React.createElement(Cell, Object.assign({}, cProps, { key: key, index: index }));
             }
             return cell;
         });

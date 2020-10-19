@@ -4,7 +4,7 @@
  * This source code is licensed under the Commercial License found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React from 'react';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
 import cleanProps from '@inovua/reactdatagrid-community/packages/react-clean-props';
 import join from '@inovua/reactdatagrid-community/packages/join';
@@ -73,6 +73,7 @@ export default class GroupToolbar extends React.Component {
         this.refGroupItem = (column, groupItem) => {
             this.groupItems[column.id] = groupItem;
         };
+        this.domRef = createRef();
     }
     render() {
         const props = (this.p = Object.assign({}, this.props));
@@ -87,7 +88,7 @@ export default class GroupToolbar extends React.Component {
             content = (React.createElement(GroupItem, { theme: this.props.theme, rtl: this.props.rtl, placeholder: true, style: { cursor: 'auto' } }, this.props.placeholder));
         }
         const divProps = cleanProps(props, GroupToolbar.propTypes);
-        return (React.createElement("div", Object.assign({}, divProps, { className: className }),
+        return (React.createElement("div", Object.assign({ ref: this.domRef }, divProps, { className: className }),
             content,
             this.state.insertIndex == groupBy.length && this.renderArrow()));
     }

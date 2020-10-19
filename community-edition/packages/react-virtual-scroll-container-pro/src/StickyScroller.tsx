@@ -7,8 +7,7 @@
 
 // @ts-nocheck
 
-import React from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
 
 import InovuaScrollContainer from '../../react-scroll-container-pro/src';
@@ -47,9 +46,9 @@ const IS_EDGE = ua.indexOf('Edge/') !== -1;
 class StickyVirtualScrollContainer extends React.Component {
   constructor(props) {
     super(props);
-    this.refView = c => {
-      this.viewNode = c ? findDOMNode(c) : null;
-    };
+
+    this.viewNode = createRef();
+
     this.refScroller = s => {
       this.scroller = s;
       this.scrollerNode = s ? s.getScrollerNode() : null;
@@ -181,7 +180,7 @@ class StickyVirtualScrollContainer extends React.Component {
   };
 
   getTransformNode = () => {
-    return this.viewNode.children[0].children[0];
+    return this.viewNode.current.children[0].children[0];
   };
 
   getScrollSize = () => {
@@ -433,7 +432,7 @@ class StickyVirtualScrollContainer extends React.Component {
 
     const renderView = viewProps => {
       const viewDOMProps = {
-        ref: this.refView,
+        ref: this.viewNode,
         style: stickyStyle,
         key: 'view',
         'data-name': 'view',

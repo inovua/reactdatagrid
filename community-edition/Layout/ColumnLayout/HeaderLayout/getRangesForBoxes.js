@@ -5,12 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { findDOMNode } from 'react-dom';
 import Region from '../../../packages/region';
 
 export default (cells, getIndex) => {
   return cells.map((c, i) => {
-    const node = findDOMNode(c);
+    const node = c.domRef ? c.domRef.current : null;
     const reg = Region.from(node);
 
     const isCell = typeof c.getProps === 'function';

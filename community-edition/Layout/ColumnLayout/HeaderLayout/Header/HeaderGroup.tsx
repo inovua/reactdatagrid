@@ -7,7 +7,6 @@
 
 import React, { cloneElement, RefObject } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import Region from '../../../../packages/region';
 
 import join from '../../../../packages/join';
@@ -221,7 +220,7 @@ export default class HeaderGroup extends React.Component {
   }
 
   getProxyRegion = () => {
-    const node = findDOMNode(this);
+    const node = this.domRef ? this.domRef.current : null;
 
     const region = Region.from(node);
 

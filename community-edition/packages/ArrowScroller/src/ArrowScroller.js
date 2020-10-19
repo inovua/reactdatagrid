@@ -7,7 +7,6 @@
 
 import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 
 import isMobile from '../../../common/isMobile';
 
@@ -694,8 +693,7 @@ class InovuaArrowScroller extends Component {
   }
 
   onScrollContainerDidMount = (scrollContainer, domNode, notifyResizer) => {
-    const scrollContainerNode = findDOMNode(scrollContainer);
-    this._unobserve = observe(scrollContainerNode, () => {
+    this._unobserve = observe(domNode, () => {
       // fixes https://inovua.freshdesk.com/a/tickets/238
       if (notifyResizer && notifyResizer.checkResize) {
         notifyResizer.checkResize();

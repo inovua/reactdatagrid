@@ -4,7 +4,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { Component, createElement, HTMLAttributes } from 'react';
+import React, {
+  Component,
+  createElement,
+  HTMLAttributes,
+  createRef,
+} from 'react';
 import PropTypes from 'prop-types';
 
 import debounce from '../../../packages/debounce';
@@ -72,6 +77,8 @@ export default class InovuaScrollContainer extends Component<
   scrollerScrollSize: { width?: number; height?: number };
   scrollerClientSize: { width?: number; height?: number };
 
+  private domNode: React.RefObject<HTMLElement>;
+
   constructor(props: ScrollContainerProps) {
     super(props);
     autoBind(this, {
@@ -135,9 +142,7 @@ export default class InovuaScrollContainer extends Component<
       },
     };
 
-    this.refThis = c => {
-      this.domNode = c;
-    };
+    this.domNode = createRef();
 
     this.refWrapper = c => {
       if (c) {
@@ -277,7 +282,7 @@ export default class InovuaScrollContainer extends Component<
         : 'flex',
       flexFlow: 'column',
 
-      ...this.ensureNonStaticStyle(style, this.domNode),
+      ...this.ensureNonStaticStyle(style, this.domNode.current),
     };
 
     if (contain) {
@@ -462,7 +467,7 @@ export default class InovuaScrollContainer extends Component<
     return Factory ? (
       <Factory
         {...factoryProps}
-        ref={this.refThis}
+        ref={this.domNode}
         style={style}
         className={className}
         children={children}
@@ -470,7 +475,7 @@ export default class InovuaScrollContainer extends Component<
     ) : (
       createElement(props.tagName, {
         ...factoryProps,
-        ref: this.refThis,
+        ref: this.domNode,
         style,
         className,
         children,
@@ -534,7 +539,7 @@ export default class InovuaScrollContainer extends Component<
   }
 
   getDOMNode() {
-    return this.domNode;
+    return this.domNode.current;
   }
 
   set scrollTop(value) {

@@ -6,7 +6,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
 import cleanProps from '../../../../packages/react-clean-props';
 import uglified from '../../../../packages/uglified';
 import Cell from '../../Cell';
@@ -456,7 +455,7 @@ export default class InovuaDataGridHeader extends React.Component {
                 result.push(...lockedEndCells);
             }
             result = result.map((cProps, index) => {
-                return React.createElement(Cell, Object.assign({}, cProps, { key: index }));
+                return React.createElement(Cell, Object.assign({}, cProps, { key: index, index: index }));
             });
             return renderCellsMaybeLocked(result, this.props, props.scrollLeft, {
                 isHeader: true,
@@ -475,7 +474,11 @@ export default class InovuaDataGridHeader extends React.Component {
             if (!cell && showWarnings) {
                 console.error(`Cannot find dom cell at ${index}.`);
             }
-            return cell.getDOMNode ? cell.getDOMNode() : findDOMNode(cell);
+            return cell.getDOMNode
+                ? cell.getDOMNode()
+                : cell.domRef
+                    ? cell.domRef.current
+                    : null;
         };
         this.renderHeaderGroup = (groupName, groupItems) => {
             const { computedGroupsMap: groups, columnsMap, hasLockedStart, hasLockedEnd, lockedStartColumns, lockedEndColumns, firstLockedEndIndex, lastLockedStartIndex, lastLockedEndIndex, firstUnlockedIndex, lastUnlockedIndex, resizeProxyStyle, rtl, } = this.props;
@@ -555,7 +558,7 @@ export default class InovuaDataGridHeader extends React.Component {
                 this.props.onResizeMouseDown({ visibleIndex, computedVisibleIndex: visibleIndex }, {
                     colHeaderNode: headerGroupInstance.domRef
                         ? headerGroupInstance.domRef.current
-                        : findDOMNode(headerGroupInstance),
+                        : null,
                     event,
                     groupColumns: groupProps.columns,
                 });
@@ -568,7 +571,7 @@ export default class InovuaDataGridHeader extends React.Component {
                 this.props.onResizeTouchStart({ visibleIndex }, {
                     colHeaderNode: headerGroupInstance.domRef
                         ? headerGroupInstance.domRef.current
-                        : findDOMNode(headerGroupInstance),
+                        : null,
                     event,
                     groupColumns: groupProps.columns,
                 });

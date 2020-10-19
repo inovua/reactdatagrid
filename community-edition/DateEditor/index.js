@@ -6,7 +6,6 @@
  */
 
 import React from 'react';
-import { findDOMNode } from 'react-dom';
 import selectParent from '../packages/select-parent';
 
 import DateField from '../packages/Calendar/DateInput';
@@ -33,8 +32,9 @@ export default class DateEditor extends React.Component {
 
   UNSAFE_componentWillMount() {
     const { cell } = this.props;
+
     const cellNode =
-      cell && cell.getDOMNode() ? cell.getDOMNode() : findDOMNode(cell);
+      cell && cell.getDOMNode() ? cell.getDOMNode() : cell.domRef.current;
     const gridNode = selectParent('.inovua-react-virtual-list', cellNode);
 
     const gridRect = gridNode.getBoundingClientRect();

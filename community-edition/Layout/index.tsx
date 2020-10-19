@@ -41,9 +41,9 @@ class InovuaDataGridLayout extends Component<LayoutProps> {
     return shouldComponentUpdate(this, nextProps, nextState);
   }
 
-  getDOMNode() {
+  getDOMNode = () => {
     return this.domNode;
-  }
+  };
 
   render() {
     const Footer = this.props.Footer;
@@ -55,6 +55,7 @@ class InovuaDataGridLayout extends Component<LayoutProps> {
             <div className={'InovuaReactDataGrid__body'} ref={this.ref}>
               <FakeFlex
                 flexIndex={0}
+                getNode={this.getDOMNode}
                 useNativeFlex={computedProps.useNativeFlex}
               >
                 <ColumnLayoutCmp

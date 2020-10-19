@@ -13,6 +13,8 @@ import DateFilter from '../../../enterprise-edition/DateFilter';
 import NumberFilter from '../../../enterprise-edition/NumberFilter';
 import SelectFilter from '../../../enterprise-edition/SelectFilter';
 
+import DateEditor from '../../../community-edition/DateEditor';
+
 import CheckBox from '../../../community-edition/packages/CheckBox';
 import Button from '../../../community-edition/packages/Button';
 import ComboBox from '../../../community-edition/packages/ComboBox';
@@ -262,6 +264,7 @@ const columns = [
     defaultWidth: 200,
     renderGroupTitle: renderDateTime,
     filterEditor: DateFilter,
+    editor: DateEditor,
     filterEditorProps: {
       dateFormat: 'MM-DD-YYYY',
       cancelButton: false,
@@ -348,7 +351,7 @@ const App = () => {
     };
   };
 
-  console.log('initialData', initialData);
+  const groups = [{ name: 'personalInfo', header: 'Personal info' }];
 
   return (
     <div style={{ padding: 20 }}>
@@ -389,17 +392,22 @@ const App = () => {
       <DataGrid
         theme={theme}
         key={`grid-${theme}-${groups}`}
-        licenseKey=""
+        licenseKey="AppName=multi_app,Company=Inovua,ExpiryDate=2021-06-30,LicenseDeveloperCount=1,LicenseType=multi_app,Ref=InovuaInternalLicense,Z=2079651297692410523-815143099-20883147292079651297-1554216385"
         style={gridStyle}
         dataSource={rowReorder ? initialData : dataSource}
         columns={columns}
         pagination
+        // livePagination
+        rowIndexColumn
         multiSelect
         rtl={rtl}
         onRowReorder={rowReorder}
         checkboxColumn
+        resizable={false}
         defaultFilterValue={defaultFilterValue}
         defaultGroupBy={[]}
+        editable={true}
+        groups={groups}
       />
     </div>
   );

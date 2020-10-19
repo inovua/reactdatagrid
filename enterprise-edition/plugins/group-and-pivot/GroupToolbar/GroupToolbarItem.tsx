@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { createRef } from 'react';
 import PropTypes from 'prop-types';
 import cleanProps from '@inovua/reactdatagrid-community/packages/react-clean-props';
 
@@ -48,10 +48,14 @@ const getItemContent = column => {
 const emptyObject = {};
 
 export default class GroupToolbarItem extends React.Component {
+  domRef: React.RefObject<HTMLDivElement>;
+
   constructor(props) {
     super(props);
 
     this.state = { dragging: false };
+
+    this.domRef = createRef();
   }
   render() {
     const { props, state } = this;
@@ -93,6 +97,7 @@ export default class GroupToolbarItem extends React.Component {
 
     const domProps = {
       ...divProps,
+      ref: this.domRef,
       style: { ...props.style, ...style },
       className,
       onClick,

@@ -5,17 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { render, findDOMNode, unmountComponentAtNode } from 'react-dom';
+import { createRef } from 'react';
+import { render, unmountComponentAtNode } from 'react-dom';
 
 const renderInDOM = (comp, domTarget = document.body) => {
   const target = document.createElement('div');
   domTarget.appendChild(target);
 
-  const wrapper = render(comp, target);
+  const Cmp = comp;
+  const cmpRef = createRef();
+
+  const wrapper = render(<Cmp ref={cmpRef} />, target);
 
   return {
     wrapper,
-    wrapperNode: findDOMNode(wrapper),
+    wrapperNode: cmpRef.current,
     target,
     unmount: () => {
       unmountComponentAtNode(target);
