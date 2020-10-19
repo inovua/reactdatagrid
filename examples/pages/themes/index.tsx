@@ -392,7 +392,7 @@ const App = () => {
       <DataGrid
         theme={theme}
         key={`grid-${theme}-${groups}`}
-        licenseKey="AppName=multi_app,Company=Inovua,ExpiryDate=2021-06-30,LicenseDeveloperCount=1,LicenseType=multi_app,Ref=InovuaInternalLicense,Z=2079651297692410523-815143099-20883147292079651297-1554216385"
+        licenseKey=""
         style={gridStyle}
         dataSource={rowReorder ? initialData : dataSource}
         columns={columns}
