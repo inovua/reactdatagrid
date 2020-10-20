@@ -167,8 +167,8 @@ export default class InovuaDataGridEnterpriseColumnLayout extends InovuaDataGrid
     }
 
     const contentNode = this.content.getDOMNode();
-    const headerNode = this.headerLayout.current
-      ? this.headerLayout?.current.headerDomNode.current
+    const headerNode = this.headerLayout
+      ? this.headerLayout.headerDomNode.current
       : null;
 
     const contentRegion = Region.from(contentNode);

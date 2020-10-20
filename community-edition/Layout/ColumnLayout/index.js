@@ -20,6 +20,7 @@ export default class InovuaDataGridColumnLayout extends React.Component {
     constructor(props) {
         super(props);
         this.scrollTop = 0;
+        this.headerLayout = null;
         this.getDOMNode = () => {
             return this.columnLayoutRef.current;
         };
@@ -30,7 +31,7 @@ export default class InovuaDataGridColumnLayout extends React.Component {
             return this.scrollTop || 0;
         };
         this.renderHeaderLayout = computedProps => {
-            return (React.createElement(HeaderLayout, Object.assign({}, computedProps, { onResizeMouseDown: this.onResizeMouseDown.bind(this, computedProps), onResizeTouchStart: this.onResizeTouchStart.bind(this, computedProps), onFilterValueChange: computedProps.computedOnColumnFilterValueChange, ref: this.headerLayout, getScrollLeftMax: this.getScrollLeftMax, setScrollLeft: this.setScrollLeft })));
+            return (React.createElement(HeaderLayout, Object.assign({}, computedProps, { onResizeMouseDown: this.onResizeMouseDown.bind(this, computedProps), onResizeTouchStart: this.onResizeTouchStart.bind(this, computedProps), onFilterValueChange: computedProps.computedOnColumnFilterValueChange, ref: this.refHeaderLayout, getScrollLeftMax: this.getScrollLeftMax, setScrollLeft: this.setScrollLeft })));
         };
         this.renderContent = computedProps => {
             const { groupBy } = computedProps;
@@ -56,8 +57,8 @@ export default class InovuaDataGridColumnLayout extends React.Component {
             return (React.createElement(ResizeOverlay, { resizeProxyStyle: computedProps.resizeProxyStyle, columnResizeProxyWidth: computedProps.columnResizeProxyWidth, columnResizeHandleWidth: computedProps.columnResizeHandleWidth, rtl: computedProps.rtl, ref: this.refResizeOverlay }));
         };
         this.onColumnRenderStartIndexChange = columnRenderStartIndex => {
-            if (this.headerLayout.current) {
-                this.headerLayout.current.setColumnRenderStartIndex(columnRenderStartIndex);
+            if (this.headerLayout) {
+                this.headerLayout.setColumnRenderStartIndex(columnRenderStartIndex);
             }
         };
         this.onContainerScrollVertical = (computedProps, scrollTop) => {
@@ -75,8 +76,8 @@ export default class InovuaDataGridColumnLayout extends React.Component {
         };
         this.onContainerScrollHorizontal = (computedProps, scrollLeft) => {
             this.scrollLeft = scrollLeft;
-            if (this.headerLayout.current) {
-                this.headerLayout.current.onContainerScrollHorizontal(scrollLeft);
+            if (this.headerLayout) {
+                this.headerLayout.onContainerScrollHorizontal(scrollLeft);
             }
             if (computedProps.onScroll) {
                 computedProps.onScroll();
@@ -129,19 +130,19 @@ export default class InovuaDataGridColumnLayout extends React.Component {
             return this.content.getRenderRange();
         };
         this.getHeaderLayout = () => {
-            return this.headerLayout?.current;
+            return this.headerLayout;
         };
         this.getHeaderCells = () => {
             return this.getHeaderLayout().getHeaderCells();
         };
         this.getHeader = () => {
-            return this.headerLayout?.current.getHeader();
+            return this.headerLayout.getHeader();
         };
         this.getGroupToolbar = () => {
-            return this.headerLayout?.current.getGroupToolbar();
+            return this.headerLayout.getGroupToolbar();
         };
         this.getDOMColumnHeaderAt = index => {
-            return this.headerLayout?.current.getCellDOMNodeAt(index);
+            return this.headerLayout.getCellDOMNodeAt(index);
         };
         this.onResizeMouseDown = (...args) => {
             if (isMobile) {
@@ -325,7 +326,9 @@ export default class InovuaDataGridColumnLayout extends React.Component {
         this.refResizeOverlay = r => {
             this.resizeOverlay = r;
         };
-        this.headerLayout = createRef();
+        this.refHeaderLayout = layout => {
+            this.headerLayout = layout;
+        };
         this.columnLayoutRef = createRef();
         this.refContent = c => {
             this.content = c;

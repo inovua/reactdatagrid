@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component, cloneElement, createRef } from 'react';
+import React, { Component, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 import cleanProps from '../../../common/cleanProps';
 import { NotifyResize } from '../../NotifyResize';
@@ -105,9 +105,9 @@ class InovuaComboBox extends Component {
     this.addTextInputRef = ref => {
       this.textInput = ref;
     };
-
-    this.comboNode = createRef();
-
+    this.addRootRef = ref => {
+      this.comboNode = ref;
+    };
     this.addListRef = ref => {
       this.listNode = ref;
     };
@@ -247,7 +247,7 @@ class InovuaComboBox extends Component {
         onBlur={this.handleComboBlur}
         className={className}
         style={style}
-        ref={this.comboNode}
+        ref={this.addRootRef}
         onMouseEnter={this.handleMouseEnter}
         onMouseLeave={this.handleMouseLeave}
       >
@@ -1366,7 +1366,7 @@ class InovuaComboBox extends Component {
       this.isFocused() &&
       event &&
       event.relatedTarget &&
-      containsNode(this.comboNode.current, event.relatedTarget)
+      containsNode(this.comboNode, event.relatedTarget)
     ) {
       global.requestAnimationFrame(() => {
         this.focus();
@@ -1822,7 +1822,7 @@ class InovuaComboBox extends Component {
       ? this.toolsNode.getBoundingClientRect()
       : { width: 0, height: 0 }
   ) {
-    const node = this.comboNode.current;
+    const node = this.comboNode;
     const computedStyle = global.getComputedStyle(node);
 
     const width =
@@ -1953,7 +1953,7 @@ class InovuaComboBox extends Component {
   }
 
   getComboNode() {
-    return this.comboNode.current;
+    return this.comboNode;
   }
 
   getListNode() {

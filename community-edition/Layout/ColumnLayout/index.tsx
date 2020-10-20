@@ -27,7 +27,7 @@ const height100 = { height: '100%' };
 export default class InovuaDataGridColumnLayout extends React.Component {
   private scrollTop: number = 0;
   lastComputedProps?: TypeComputedProps | null;
-  headerLayout: React.RefObject<HTMLDivElement> | null;
+  headerLayout: HTMLDivElement | null = null;
 
   constructor(props) {
     super(props);
@@ -36,7 +36,9 @@ export default class InovuaDataGridColumnLayout extends React.Component {
       this.resizeOverlay = r;
     };
 
-    this.headerLayout = createRef();
+    this.refHeaderLayout = layout => {
+      this.headerLayout = layout;
+    };
     this.columnLayoutRef = createRef();
 
     this.refContent = c => {
@@ -111,7 +113,7 @@ export default class InovuaDataGridColumnLayout extends React.Component {
         onResizeMouseDown={this.onResizeMouseDown.bind(this, computedProps)}
         onResizeTouchStart={this.onResizeTouchStart.bind(this, computedProps)}
         onFilterValueChange={computedProps.computedOnColumnFilterValueChange}
-        ref={this.headerLayout}
+        ref={this.refHeaderLayout}
         getScrollLeftMax={this.getScrollLeftMax}
         setScrollLeft={this.setScrollLeft}
       />
@@ -179,10 +181,8 @@ export default class InovuaDataGridColumnLayout extends React.Component {
   };
 
   onColumnRenderStartIndexChange = columnRenderStartIndex => {
-    if (this.headerLayout.current) {
-      this.headerLayout.current.setColumnRenderStartIndex(
-        columnRenderStartIndex
-      );
+    if (this.headerLayout) {
+      this.headerLayout.setColumnRenderStartIndex(columnRenderStartIndex);
     }
   };
 
@@ -214,8 +214,8 @@ export default class InovuaDataGridColumnLayout extends React.Component {
   onContainerScrollHorizontal = (computedProps, scrollLeft) => {
     this.scrollLeft = scrollLeft;
 
-    if (this.headerLayout.current) {
-      this.headerLayout.current.onContainerScrollHorizontal(scrollLeft);
+    if (this.headerLayout) {
+      this.headerLayout.onContainerScrollHorizontal(scrollLeft);
     }
 
     if (computedProps.onScroll) {
@@ -288,7 +288,7 @@ export default class InovuaDataGridColumnLayout extends React.Component {
   };
 
   getHeaderLayout = () => {
-    return this.headerLayout?.current;
+    return this.headerLayout;
   };
 
   getHeaderCells = () => {
@@ -296,15 +296,15 @@ export default class InovuaDataGridColumnLayout extends React.Component {
   };
 
   getHeader = () => {
-    return this.headerLayout?.current.getHeader();
+    return this.headerLayout.getHeader();
   };
 
   getGroupToolbar = () => {
-    return this.headerLayout?.current.getGroupToolbar();
+    return this.headerLayout.getGroupToolbar();
   };
 
   getDOMColumnHeaderAt = index => {
-    return this.headerLayout?.current.getCellDOMNodeAt(index);
+    return this.headerLayout.getCellDOMNodeAt(index);
   };
 
   onResizeMouseDown = (...args) => {

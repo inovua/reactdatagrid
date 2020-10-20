@@ -97,10 +97,12 @@ class InovuaArrowScroller extends Component {
       this.scrollerTarget = scrollContainer;
     };
 
-    this.root = createRef();
-    if (!this.props.nativeScroll) {
-      this.scrollerTarget = this.root;
-    }
+    this.setRootRef = ref => {
+      this.root = ref;
+      if (!this.props.nativeScroll) {
+        this.scrollerTarget = this.root;
+      }
+    };
   }
 
   componentDidMount() {
@@ -118,7 +120,7 @@ class InovuaArrowScroller extends Component {
 
       this.inertialManager = new InertialManager({
         arrowSelector: `.${this.props.rootClassName}__arrow`,
-        node: this.root.current,
+        node: this.root,
         viewNode: this.strip.current,
         setScrollPosition: () => raf(() => this.setScrollPosition()),
         enableMouseDrag: false,
@@ -277,7 +279,7 @@ class InovuaArrowScroller extends Component {
     return (
       <Flex
         {...cleanProps(props, InovuaArrowScroller.propTypes)}
-        ref={this.root}
+        ref={this.setRootRef}
         className={className}
         alignItems="start"
         children={finalChildren}
@@ -398,7 +400,7 @@ class InovuaArrowScroller extends Component {
     return this.props.vertical ? 'offsetHeight' : 'offsetWidth';
   }
 
-  getBorderAndPaddingSize(node = this.root.current, side) {
+  getBorderAndPaddingSize(node = this.root, side) {
     const computedStyle = getCompStyle(node);
 
     let start;
@@ -431,7 +433,7 @@ class InovuaArrowScroller extends Component {
    */
   getAvailableSize() {
     // if there is no wrapper it will take the root node as wrapper
-    if (!this.root.current) {
+    if (!this.root) {
       return null;
     }
     let size =
@@ -440,8 +442,7 @@ class InovuaArrowScroller extends Component {
         ? this.props.vertical
           ? this.scrollerTarget.scrollTopMax
           : this.scrollerTarget.scrollLeftMax
-        : this.root.current[this.getOffsetSizeName()] -
-          this.getBorderAndPaddingSize());
+        : this.root[this.getOffsetSizeName()] - this.getBorderAndPaddingSize());
 
     if (this.props.rtl && size < 0) {
       size = -size;
@@ -645,7 +646,7 @@ class InovuaArrowScroller extends Component {
   }
 
   scrollIntoView(domNode) {
-    const rootNode = this.root.current;
+    const rootNode = this.root;
     if (!domNode || !rootNode) {
       return;
     }

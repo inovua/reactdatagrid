@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component, createRef } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cleanProps from '../../../../common/cleanProps';
 /**
@@ -16,8 +16,12 @@ class FakeVirtualList extends Component {
     super(props);
 
     this.handleOnScroll = this.handleOnScroll.bind(this);
-
-    this.targetNode = createRef();
+    this.targetRef = node => {
+      if (!node) {
+        this.targetNode = null;
+      }
+      this.targetNode = node;
+    };
   }
   render() {
     const { props } = this;
@@ -31,7 +35,7 @@ class FakeVirtualList extends Component {
     }
 
     const listProps = {
-      ref: this.targetNode,
+      ref: this.targetRef,
       children: list,
       ...cleanProps(props, FakeVirtualList.propTypes),
       onScroll: this.handleOnScroll,
@@ -51,13 +55,13 @@ class FakeVirtualList extends Component {
   }
 
   getContainerNode() {
-    return this.targetNode && this.targetNode.current.getContainerTargetNode
-      ? this.targetNode.current.getContainerTargetNode()
-      : this.targetNode.current;
+    return this.targetNode && this.targetNode.getContainerTargetNode
+      ? this.targetNode.getContainerTargetNode()
+      : this.targetNode;
   }
 
   getRootNode() {
-    return this.targetNode.current;
+    return this.targetNode;
   }
 
   getScrollerNode() {

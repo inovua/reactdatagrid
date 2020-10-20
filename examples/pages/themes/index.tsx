@@ -16,6 +16,10 @@ import SelectFilter from '../../../enterprise-edition/SelectFilter';
 import DateEditor from '../../../community-edition/DateEditor';
 
 import CheckBox from '../../../community-edition/packages/CheckBox';
+import Calendar, {
+  TransitionView,
+} from '../../../community-edition/packages/Calendar';
+import '../../../community-edition/packages/Calendar/style/index.scss';
 import Button from '../../../community-edition/packages/Button';
 import ComboBox from '../../../community-edition/packages/ComboBox';
 
@@ -365,6 +369,9 @@ const App = () => {
           onChange={(value: string) => setTheme(value)}
         />
         {WHITESPACE}
+        <TransitionView>
+          <Calendar theme="default-dark" />
+        </TransitionView>
         <CheckBox
           theme={`default-dark`}
           checked={rtl}
@@ -403,7 +410,6 @@ const App = () => {
         rtl={rtl}
         onRowReorder={rowReorder}
         checkboxColumn
-        resizable={false}
         defaultFilterValue={defaultFilterValue}
         defaultGroupBy={[]}
         editable={true}

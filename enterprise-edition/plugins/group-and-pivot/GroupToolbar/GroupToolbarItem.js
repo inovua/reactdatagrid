@@ -101,6 +101,7 @@ export default class GroupToolbarItem extends React.Component {
             return this.props.column.computedVisibleIndex;
         };
         this.state = { dragging: false };
+        // needed for d&d
         this.domRef = createRef();
     }
     render() {

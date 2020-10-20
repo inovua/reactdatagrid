@@ -31,6 +31,10 @@ export default class Calendar extends Component {
     this.state = { timeFocused: false };
   }
 
+  getDOMNode() {
+    return this.view ? this.view.getDOMNode() : null;
+  }
+
   prepareDate(props) {
     return toMoment(props.date, props);
   }

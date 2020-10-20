@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { createRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+
 import Component from '../../react-class';
 import { Flex } from '../../Flex';
 
@@ -65,8 +66,6 @@ export default class TransitionView extends Component {
       rendered: false,
       viewDate: this.toMoment(viewDate, { dateFormat, locale }),
     };
-
-    this.view = createRef();
   }
 
   toMoment(value, props) {
@@ -112,8 +111,8 @@ export default class TransitionView extends Component {
   }
 
   prepareChildProps(child, extraProps) {
-    if (this.view.current) {
-      return this.view.current.p;
+    if (this.view) {
+      return this.view.p;
     }
 
     child = child || this.getViewChild();
@@ -150,7 +149,9 @@ export default class TransitionView extends Component {
     // TODO make transition view pass all props, as is to child component
     const newProps = {
       key: 'picker',
-      ref: this.view,
+      ref: v => {
+        this.view = v;
+      },
 
       viewDate: this.viewDate,
       onViewDateChange,
@@ -261,10 +262,7 @@ export default class TransitionView extends Component {
     let footer;
 
     if (props.footer) {
-      footer = renderFooter(
-        props,
-        props.insideField ? props : this.view.current
-      );
+      footer = renderFooter(props, props.insideField ? props : this.view);
     }
 
     if (multiView) {
@@ -478,13 +476,13 @@ export default class TransitionView extends Component {
   }
 
   getViewSize() {
-    return this.view.current && this.view.current.getViewSize
-      ? this.view.current.getViewSize() || 1
+    return this.view && this.view.getViewSize
+      ? this.view.getViewSize() || 1
       : 1;
   }
 
   renderAt(index, { multiView, navBarProps }) {
-    if (!this.state.rendered || !this.view.current) {
+    if (!this.state.rendered || !this.view) {
       return null;
     }
 
@@ -559,11 +557,11 @@ export default class TransitionView extends Component {
   }
 
   getView() {
-    return this.view.current;
+    return this.view;
   }
 
   isInView(...args) {
-    return this.view.current.isInView(...args);
+    return this.view.isInView(...args);
   }
 
   onViewDateChange(dateString, { dateMoment }) {
@@ -612,8 +610,8 @@ export default class TransitionView extends Component {
       },
       () => {
         setTimeout(() => {
-          // in order to allow this.view.current.p to update
-          if (!this.view.current) {
+          // in order to allow this.view.p to update
+          if (!this.getViewDOMNode()) {
             return;
           }
 
@@ -629,8 +627,12 @@ export default class TransitionView extends Component {
     );
   }
 
+  getViewDOMNode() {
+    return this.view.getDOMNode ? this.view.getDOMNode() : null;
+  }
+
   addTransitionEnd() {
-    const dom = this.view.current;
+    const dom = this.getViewDOMNode();
 
     if (dom) {
       dom.addEventListener(getTransitionEnd(), this.onTransitionEnd, false);
@@ -638,7 +640,7 @@ export default class TransitionView extends Component {
   }
 
   removeTransitionEnd(dom) {
-    dom = dom || this.view.current;
+    dom = dom || this.getViewDOMNode();
 
     if (dom) {
       dom.removeEventListener(getTransitionEnd(), this.onTransitionEnd);

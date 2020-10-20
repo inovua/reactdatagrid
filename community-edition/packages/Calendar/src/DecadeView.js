@@ -597,6 +597,10 @@ export default class DecadeView extends Component {
     return onChange.call(this, { dateMoment, timestamp }, event);
   }
 
+  getDOMNode() {
+    return this.decadeViewRef.current;
+  }
+
   focus() {
     this.decadeViewRef.current.focus();
   }

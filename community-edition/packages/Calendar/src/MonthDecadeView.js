@@ -309,6 +309,9 @@ export default class MonthDecadeView extends Component {
     }
   }
 
+  getDOMNode() {
+    return this.decadeView;
+  }
   onYearViewMouseDown(e) {
     preventDefault(e);
 

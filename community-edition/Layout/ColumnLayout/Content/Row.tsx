@@ -12,6 +12,7 @@ import autoBind from '../../../packages/react-class/autoBind';
 import cleanProps from '../../../packages/react-clean-props';
 import shallowequal, { equalReturnKey } from '../../../packages/shallowequal';
 
+import diff from '../../../packages/shallow-changes';
 import join from '../../../packages/join';
 import clamp from '../../../utils/clamp';
 
@@ -110,6 +111,13 @@ export default class DataGridRow extends React.Component<RowProps> {
     });
 
     if (!areEqual.result) {
+      // console.log(
+      //   'UPDATE ROW',
+      //   areEqual.key,
+      //   // this.props[areEqual.key!],
+      //   // nextProps[areEqual.key!],
+      //   diff(rowClean(nextProps), rowClean(this.props))
+      // );
       return true;
     }
 
@@ -1788,7 +1796,7 @@ export default class DataGridRow extends React.Component<RowProps> {
       }
 
       if (cell === undefined) {
-        cell = <Cell {...cProps} key={key} index={index} />;
+        cell = <Cell {...cProps} key={key} />;
       }
 
       return cell;

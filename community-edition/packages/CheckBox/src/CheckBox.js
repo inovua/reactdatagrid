@@ -463,6 +463,7 @@ class InovuaCheckBox extends Component {
       ...eventHandlers,
       className,
       style,
+      ref: this.checkboxRef,
       tabIndex: props.disabled === true ? null : tabIndex,
     };
 

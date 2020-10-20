@@ -117,6 +117,8 @@ class FakeFlex extends Component {
 
     if (this.props.getNode) {
       this.node = this.props.getNode();
+    } else {
+      this.node = this.flexRef.current;
     }
 
     return this.node;

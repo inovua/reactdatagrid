@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { createRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import Component from '../../../react-class';
@@ -58,8 +58,6 @@ export default class DateInput extends Component {
       expanded: props.defaultExpanded || false,
       focused: false,
     };
-
-    this.field = createRef();
   }
 
   componentWillUnmount() {
@@ -390,7 +388,9 @@ export default class DateInput extends Component {
     const onKeyDown = joinFunctions(inputProps.onKeyDown, this.onFieldKeyDown);
 
     const newInputProps = assign({}, inputProps, {
-      ref: this.field,
+      ref: f => {
+        this.field = f;
+      },
       date: props.date,
 
       onFocus,
@@ -773,7 +773,7 @@ export default class DateInput extends Component {
   }
 
   getInput() {
-    return this.field.current;
+    return this.field;
   }
 
   isFocused() {
@@ -1049,7 +1049,7 @@ export default class DateInput extends Component {
   }
 
   focusField() {
-    const input = this.field.current;
+    const input = this.field;
 
     if (input) {
       input.focus();

@@ -509,11 +509,15 @@ export default class MonthView extends Component {
   }
 
   focus() {
-    const domNode = this.monthViewRef.current;
+    const domNode = this.getDOMNode();
 
     if (domNode) {
       domNode.focus();
     }
+  }
+
+  getDOMNode() {
+    return this.monthViewRef.current;
   }
 
   onDayTextMouseEnter({ dateMoment, timestamp }) {

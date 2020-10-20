@@ -73,6 +73,7 @@ export default class GroupToolbar extends React.Component {
         this.refGroupItem = (column, groupItem) => {
             this.groupItems[column.id] = groupItem;
         };
+        // needed for d&d
         this.domRef = createRef();
     }
     render() {

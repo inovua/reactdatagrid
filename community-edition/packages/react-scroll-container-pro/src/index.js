@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { Component, createElement, createRef, } from 'react';
+import React, { Component, createElement } from 'react';
 import PropTypes from 'prop-types';
 import debounce from '../../../packages/debounce';
 import autoBind from '../../../packages/react-class/autoBind';
@@ -96,7 +96,9 @@ export default class InovuaScrollContainer extends Component {
                 }
             },
         };
-        this.domNode = createRef();
+        this.refThis = c => {
+            this.domNode = c;
+        };
         this.refWrapper = c => {
             if (c) {
                 this.setupWrapperPassiveScrollListener(c);
@@ -209,7 +211,7 @@ export default class InovuaScrollContainer extends Component {
                     ? 'inline-flex'
                     : 'flex',
             flexFlow: 'column',
-            ...this.ensureNonStaticStyle(style, this.domNode.current),
+            ...this.ensureNonStaticStyle(style, this.domNode),
         };
         if (contain) {
             if (contain === true) {
@@ -324,9 +326,9 @@ export default class InovuaScrollContainer extends Component {
             factoryProps.onMouseEnter = this.onMouseEnter;
             factoryProps.onMouseLeave = this.onMouseLeave;
         }
-        return Factory ? (React.createElement(Factory, Object.assign({}, factoryProps, { ref: this.domNode, style: style, className: className, children: children }))) : (createElement(props.tagName, {
+        return Factory ? (React.createElement(Factory, Object.assign({}, factoryProps, { ref: this.refThis, style: style, className: className, children: children }))) : (createElement(props.tagName, {
             ...factoryProps,
-            ref: this.domNode,
+            ref: this.refThis,
             style,
             className,
             children,
@@ -380,7 +382,7 @@ export default class InovuaScrollContainer extends Component {
         }
     }
     getDOMNode() {
-        return this.domNode.current;
+        return this.domNode;
     }
     set scrollTop(value) {
         this.getScrollerNode().scrollTop = value;

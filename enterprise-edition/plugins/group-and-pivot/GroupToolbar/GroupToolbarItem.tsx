@@ -55,6 +55,7 @@ export default class GroupToolbarItem extends React.Component {
 
     this.state = { dragging: false };
 
+    // needed for d&d
     this.domRef = createRef();
   }
   render() {

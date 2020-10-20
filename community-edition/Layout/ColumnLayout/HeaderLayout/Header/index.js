@@ -455,7 +455,7 @@ export default class InovuaDataGridHeader extends React.Component {
                 result.push(...lockedEndCells);
             }
             result = result.map((cProps, index) => {
-                return React.createElement(Cell, Object.assign({}, cProps, { key: index, index: index }));
+                return React.createElement(Cell, Object.assign({}, cProps, { key: index }));
             });
             return renderCellsMaybeLocked(result, this.props, props.scrollLeft, {
                 isHeader: true,

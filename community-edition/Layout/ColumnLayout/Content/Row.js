@@ -97,6 +97,13 @@ export default class DataGridRow extends React.Component {
             style: 1,
         });
         if (!areEqual.result) {
+            // console.log(
+            //   'UPDATE ROW',
+            //   areEqual.key,
+            //   // this.props[areEqual.key!],
+            //   // nextProps[areEqual.key!],
+            //   diff(rowClean(nextProps), rowClean(this.props))
+            // );
             return true;
         }
         if (this.props.active !== nextProps.active) {
@@ -1238,7 +1245,7 @@ export default class DataGridRow extends React.Component {
                 cell = this.props.cellFactory(cProps);
             }
             if (cell === undefined) {
-                cell = React.createElement(Cell, Object.assign({}, cProps, { key: key, index: index }));
+                cell = React.createElement(Cell, Object.assign({}, cProps, { key: key }));
             }
             return cell;
         });

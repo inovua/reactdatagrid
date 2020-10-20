@@ -292,6 +292,10 @@ export default class YearView extends Component {
   focus() {
     this.yearViewRef.current.focus();
   }
+
+  getDOMNode() {
+    return this.yearViewRef.current;
+  }
 }
 
 YearView.defaultProps = {

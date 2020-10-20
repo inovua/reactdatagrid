@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { cloneElement, CSSProperties, createRef } from 'react';
+import React, { cloneElement, CSSProperties } from 'react';
 import PropTypes from 'prop-types';
 
 import shouldComponentUpdate from '../../../packages/shouldComponentUpdate';
@@ -57,11 +57,13 @@ export default class InovuaVirtualListRow extends React.Component<
   constructor(props: TypeVirtualListRow) {
     super(props);
 
-    this.row = createRef();
+    this.ref = r => {
+      this.row = r;
+    };
   }
 
   getInstance() {
-    return this.row.current;
+    return this.row;
   }
 
   shouldComponentUpdate(
@@ -117,12 +119,10 @@ export default class InovuaVirtualListRow extends React.Component<
     if (this.node) {
       return this.node;
     }
-    if (!this.row.current) {
+    if (!this.row) {
       return null;
     }
-    this.node = this.row.current.domRef
-      ? this.row.current.domRef.current
-      : this.row.current;
+    this.node = this.row.domRef ? this.row.domRef.current : this.row;
     return this.node;
   }
 
@@ -246,7 +246,7 @@ export default class InovuaVirtualListRow extends React.Component<
       // the initial this.props.index, so as to reuse the same `div` (HTMLElement)
       // and not throw it away and replace with another HTMLElement
       key: this.props.index,
-      ref: this.row,
+      ref: this.ref,
       onFocus: onFocus ? onFocus.bind(null, index) : null,
       onKeyDown: onKeyDown ? onKeyDown.bind(null, index) : null,
       style: extraStyle,

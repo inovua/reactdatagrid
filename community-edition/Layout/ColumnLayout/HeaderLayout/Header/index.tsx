@@ -725,7 +725,7 @@ export default class InovuaDataGridHeader extends React.Component {
     }
 
     result = result.map((cProps, index) => {
-      return <Cell {...cProps} key={index} index={index} />;
+      return <Cell {...cProps} key={index} />;
     });
 
     return renderCellsMaybeLocked(result, this.props, props.scrollLeft, {
