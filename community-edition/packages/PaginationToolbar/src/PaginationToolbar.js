@@ -166,8 +166,6 @@ export default class InovuaPaginationToolbar extends React.Component {
       }
     }
 
-    console.log('PAGINATION', 'start', start, 'end', end, 'total', totalCount);
-
     return (
       <ToolBar
         {...domProps}
