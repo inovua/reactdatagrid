@@ -116,7 +116,7 @@ const hasPrevPage = ({ skip, limit, count, }) => {
     const currentPage = getCurrentPage({ skip, limit });
     return currentPage > 1 && currentPage - 1 < getPageCount({ count, limit });
 };
-const usePagination = ({ append, reload, setAppend, skip, limit, count, setSkip: silentSetSkip, setLimit: silentSetLimit, remotePagination, localPagination, pagination, lastSkipRef, lastLimitRef, livePagination, originalData, }, computedPropsRef) => {
+const usePagination = ({ append, reload, setAppend, skip, limit, count, setSkip: silentSetSkip, setLimit: silentSetLimit, remotePagination, localPagination, pagination, lastSkipRef, lastLimitRef, livePagination, originalData, data, }, computedPropsRef) => {
     const paginationCount = getDataCountForPagination({
         originalData,
         remotePagination,
@@ -189,6 +189,7 @@ const usePagination = ({ append, reload, setAppend, skip, limit, count, setSkip:
     const gotoFirstPage = () => gotoPage(1);
     const gotoLastPage = () => gotoPage(getPageCount({ count: paginationCount, limit }));
     let paginationProps;
+    const showingCount = data?.length || 0;
     if ((localPagination || remotePagination) && !livePagination) {
         paginationProps = {
             ...paginationProps,
@@ -210,6 +211,7 @@ const usePagination = ({ append, reload, setAppend, skip, limit, count, setSkip:
             gotoPrevPage,
             hasNextPage: hasNext,
             hasPrevPage: hasPrev,
+            showingCount,
         };
     }
     return {
@@ -545,6 +547,7 @@ export default (props, computedProps, computedPropsRef) => {
         localPagination: computedLocalPagination,
         remotePagination: computedRemotePagination,
         originalData,
+        data,
     }, computedPropsRef);
     const getRowIndexById = useCallback((rowId, data) => {
         const { current: computedProps } = computedPropsRef;

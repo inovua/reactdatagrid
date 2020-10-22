@@ -99,6 +99,7 @@ export default class InovuaPaginationToolbar extends React.Component {
       theme,
       rtl,
       remotePagination,
+      showingCount,
       rootClassName,
       changeButtonStyles,
     } = this.props;
@@ -119,7 +120,10 @@ export default class InovuaPaginationToolbar extends React.Component {
     const refresh = remotePagination ? this.renderIcon('REFRESH', false) : null;
 
     const start = totalCount ? skip + 1 : 0;
-    const end = Math.min(skip + limit, totalCount);
+    const end = Math.min(
+      skip + limit,
+      remotePagination ? totalCount : showingCount
+    );
 
     const className = join(
       this.props.className,
@@ -161,6 +165,8 @@ export default class InovuaPaginationToolbar extends React.Component {
         return result;
       }
     }
+
+    console.log('PAGINATION', 'start', start, 'end', end, 'total', totalCount);
 
     return (
       <ToolBar

@@ -303,6 +303,7 @@ const usePagination = (
     lastLimitRef,
     livePagination,
     originalData,
+    data,
   }: {
     append: boolean;
     setAppend: (append: boolean) => void;
@@ -323,6 +324,7 @@ const usePagination = (
     originalData: any[];
     dataSource?: TypeDataSource;
     paginationProps?: TypePaginationProps;
+    data?: any[];
   },
   computedPropsRef: MutableRefObject<TypeComputedProps>
 ): {
@@ -440,6 +442,8 @@ const usePagination = (
 
   let paginationProps: TypePaginationProps | undefined;
 
+  const showingCount: number = data?.length || 0;
+
   if ((localPagination || remotePagination) && !livePagination) {
     paginationProps = {
       ...paginationProps,
@@ -461,6 +465,7 @@ const usePagination = (
       gotoPrevPage,
       hasNextPage: hasNext,
       hasPrevPage: hasPrev,
+      showingCount,
     };
   }
 
@@ -988,6 +993,7 @@ export default (
       remotePagination: computedRemotePagination,
 
       originalData,
+      data,
     },
     computedPropsRef
   );
