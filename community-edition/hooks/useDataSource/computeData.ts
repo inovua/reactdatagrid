@@ -92,9 +92,10 @@ const computeData = (
   },
   computedProps: TypeComputedProps,
   batchUpdateQueue: TypeBatchUpdateQueue
-): any[] | undefined => {
+): { data: any[] | undefined; dataCountAfterFilter: number | undefined } => {
   const { columnsMap } = computedProps;
   let originalData = config.originalData || computedProps.originalData;
+  let dataCountAfterFilter: number | undefined = undefined;
   const loading =
     config.loading === undefined
       ? computedProps.computedLoading
@@ -139,7 +140,7 @@ const computeData = (
   const computedSummary: boolean = !!computedProps.summaryReducer;
 
   if (remoteData) {
-    return undefined;
+    return { data: undefined, dataCountAfterFilter };
   }
 
   const result = flow(
@@ -161,7 +162,7 @@ const computeData = (
     },
 
     // FILTER
-    (config: { data: any[] }) => {
+    (config: { data: any[]; dataCountAfterFilter: number | undefined }) => {
       // only filter locally for uncontrolled prop
       if (filterValue && !computedProps.filterValue) {
         filterValue = getFilterValueForColumns(filterValue, columnsMap);
@@ -172,6 +173,7 @@ const computeData = (
           remoteFilter,
           columnsMap,
         });
+        dataCountAfterFilter = config.data.length;
       }
       return config;
     },
@@ -285,7 +287,10 @@ const computeData = (
     }
   );
 
-  return result.data;
+  return {
+    data: result.data,
+    dataCountAfterFilter: dataCountAfterFilter || 0,
+  };
 };
 
 export default computeData;

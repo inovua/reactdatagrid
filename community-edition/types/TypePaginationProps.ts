@@ -14,7 +14,6 @@ export type TypePaginationProps = {
   remotePagination: boolean;
   localPagination: boolean;
   totalCount: number;
-  showingCount: number;
   gotoNextPage: () => void;
   reload: () => void;
   onRefresh: () => void;

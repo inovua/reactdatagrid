@@ -31,8 +31,8 @@ const countries = people.reduce((countries, p) => {
 }, []);
 
 const filterValue = [
-  { name: 'name', operator: 'startsWith', type: 'string', value: 'm' },
-  { name: 'age', operator: 'gte', type: 'number', value: 21 },
+  { name: 'name', operator: 'startsWith', type: 'string', value: '' },
+  { name: 'age', operator: 'gte', type: 'number', value: 10 },
   { name: 'city', operator: 'startsWith', type: 'string', value: '' },
   {
     name: 'birthDate',
@@ -104,6 +104,7 @@ const App = () => {
         style={gridStyle}
         defaultFilterValue={filterValue}
         columns={columns}
+        defaultLimit={5}
         dataSource={people}
         pagination
       />

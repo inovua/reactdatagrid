@@ -88,6 +88,7 @@ const useData = ({ dataSource, skip, limit, localPagination, }, context) => {
     let setOriginalData;
     [originalData, setOriginalData] = useNamedState(Array.isArray(dataSource) ? dataSource : [], context, 'originalData');
     let [count, setCount] = useNamedState(data.length, context, 'count');
+    let [dataCountAfterFilter, setDataCountAfterFilter] = useNamedState(0, context, 'dataCountAfterFilter');
     return {
         setDataMap,
         dataMap,
@@ -97,14 +98,18 @@ const useData = ({ dataSource, skip, limit, localPagination, }, context) => {
         setOriginalData,
         data,
         count,
+        dataCountAfterFilter,
         silentSetData,
+        setDataCountAfterFilter,
         setCount,
     };
 };
 const getDataCountForPagination = (props) => {
     const paginationCount = props.remotePagination
         ? props.count
-        : props.originalData.length;
+        : props.dataCountAfterFilter != null
+            ? props.dataCountAfterFilter
+            : props.originalData.length;
     return paginationCount;
 };
 const getCurrentPage = (props) => Math.floor(props.skip / props.limit) + 1;
@@ -116,11 +121,12 @@ const hasPrevPage = ({ skip, limit, count, }) => {
     const currentPage = getCurrentPage({ skip, limit });
     return currentPage > 1 && currentPage - 1 < getPageCount({ count, limit });
 };
-const usePagination = ({ append, reload, setAppend, skip, limit, count, setSkip: silentSetSkip, setLimit: silentSetLimit, remotePagination, localPagination, pagination, lastSkipRef, lastLimitRef, livePagination, originalData, data, }, computedPropsRef) => {
+const usePagination = ({ append, reload, setAppend, skip, limit, count, setSkip: silentSetSkip, setLimit: silentSetLimit, remotePagination, localPagination, pagination, lastSkipRef, lastLimitRef, dataCountAfterFilter, livePagination, originalData, data, }, computedPropsRef) => {
     const paginationCount = getDataCountForPagination({
         originalData,
         remotePagination,
         count,
+        dataCountAfterFilter,
     });
     const setLimitOrSkip = (computedProps, config, queue) => {
         return computeData({
@@ -189,10 +195,8 @@ const usePagination = ({ append, reload, setAppend, skip, limit, count, setSkip:
     const gotoFirstPage = () => gotoPage(1);
     const gotoLastPage = () => gotoPage(getPageCount({ count: paginationCount, limit }));
     let paginationProps;
-    const showingCount = data?.length || 0;
     if ((localPagination || remotePagination) && !livePagination) {
         paginationProps = {
-            ...paginationProps,
             onSkipChange: setSkip,
             onLimitChange: setLimit,
             reload,
@@ -211,7 +215,6 @@ const usePagination = ({ append, reload, setAppend, skip, limit, count, setSkip:
             gotoPrevPage,
             hasNextPage: hasNext,
             hasPrevPage: hasPrev,
-            showingCount,
         };
     }
     return {
@@ -333,7 +336,7 @@ export default (props, computedProps, computedPropsRef) => {
         const index = computedProps.getRowIndexById(id);
         setItemPropertyAt(index, property, value);
     };
-    const { data, dataMap, dataIndexMap, setDataIndexMap, setDataMap, count, silentSetData, setCount, originalData, setOriginalData, } = useData({
+    const { data, dataMap, dataIndexMap, setDataIndexMap, setDataMap, count, silentSetData, setCount, originalData, setOriginalData, dataCountAfterFilter, setDataCountAfterFilter, } = useData({
         dataSource: props.dataSource,
         skip: computedSkip,
         limit: computedLimit,
@@ -414,11 +417,12 @@ export default (props, computedProps, computedPropsRef) => {
                 originalData = prevOriginalData.concat(originalData);
                 data = originalData;
             }
-            data =
-                computeData({
-                    remoteData: false,
-                    originalData,
-                }, computedProps, queue) || originalData;
+            const computeDataResult = computeData({
+                remoteData: false,
+                originalData,
+            }, computedProps, queue);
+            data = computeDataResult.data || originalData;
+            let dataCountAfterFilter = computeDataResult.dataCountAfterFilter;
             let prevComputedSkip = lastSkipRef.current;
             lastSkipRef.current = computedSkip;
             lastFilterValueRef.current = computedFilterValue;
@@ -471,6 +475,12 @@ export default (props, computedProps, computedPropsRef) => {
                 computedProps.setDataIndexMap(dataIndexMap);
                 if (stickyGroupsIndexes && computedProps.setStickyGroupsIndexes) {
                     computedProps.setStickyGroupsIndexes(stickyGroupsIndexes);
+                }
+                setDataCountAfterFilter(dataCountAfterFilter);
+                if (dataCountAfterFilter != null &&
+                    computedSkip >= dataCountAfterFilter &&
+                    !computedRemoteData) {
+                    setSkip(0);
                 }
                 silentSetData(data || []);
                 computedProps.setLoading(false);
@@ -546,6 +556,7 @@ export default (props, computedProps, computedPropsRef) => {
         livePagination: computedLivePagination,
         localPagination: computedLocalPagination,
         remotePagination: computedRemotePagination,
+        dataCountAfterFilter,
         originalData,
         data,
     }, computedPropsRef);

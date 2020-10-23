@@ -187,9 +187,11 @@ const useData = (
   data: any[];
   originalData: any[];
   count: number;
+  dataCountAfterFilter: number | undefined;
   setOriginalData: (data: any[]) => void;
   silentSetData: (data: any[]) => void;
   setCount: (count: number) => void;
+  setDataCountAfterFilter: (count: number | undefined) => void;
   dataMap: null | { [key: string]: any };
   dataIndexMap: null | { [key: string]: number };
   setDataMap: (dataMap: null | { [key: string]: any }) => void;
@@ -215,6 +217,9 @@ const useData = (
   );
 
   let [count, setCount] = useNamedState<number>(data.length, context, 'count');
+  let [dataCountAfterFilter, setDataCountAfterFilter] = useNamedState<
+    number | undefined
+  >(0, context, 'dataCountAfterFilter');
 
   return {
     setDataMap,
@@ -225,7 +230,9 @@ const useData = (
     setOriginalData,
     data,
     count,
+    dataCountAfterFilter,
     silentSetData,
+    setDataCountAfterFilter,
     setCount,
   };
 };
@@ -234,9 +241,12 @@ const getDataCountForPagination = (props: {
   originalData: any[];
   remotePagination: boolean;
   count: number;
+  dataCountAfterFilter: number | undefined;
 }): number => {
   const paginationCount = props.remotePagination
     ? props.count
+    : props.dataCountAfterFilter != null
+    ? props.dataCountAfterFilter
     : props.originalData.length;
 
   return paginationCount;
@@ -301,6 +311,7 @@ const usePagination = (
     pagination,
     lastSkipRef,
     lastLimitRef,
+    dataCountAfterFilter,
     livePagination,
     originalData,
     data,
@@ -314,6 +325,7 @@ const usePagination = (
     skip: number;
     limit: number;
     count: number;
+    dataCountAfterFilter: number | undefined;
     setSkip: (skip: number) => void;
     setLimit: (limit: number) => void;
 
@@ -345,6 +357,7 @@ const usePagination = (
     originalData,
     remotePagination,
     count,
+    dataCountAfterFilter,
   });
 
   const setLimitOrSkip = (
@@ -442,11 +455,8 @@ const usePagination = (
 
   let paginationProps: TypePaginationProps | undefined;
 
-  const showingCount: number = data?.length || 0;
-
   if ((localPagination || remotePagination) && !livePagination) {
     paginationProps = {
-      ...paginationProps,
       onSkipChange: setSkip,
       onLimitChange: setLimit,
       reload,
@@ -465,7 +475,6 @@ const usePagination = (
       gotoPrevPage,
       hasNextPage: hasNext,
       hasPrevPage: hasPrev,
-      showingCount,
     };
   }
 
@@ -697,6 +706,8 @@ export default (
     setCount,
     originalData,
     setOriginalData,
+    dataCountAfterFilter,
+    setDataCountAfterFilter,
   } = useData(
     {
       dataSource: props.dataSource,
@@ -828,15 +839,16 @@ export default (
             data = originalData;
           }
 
-          data =
-            computeData(
-              {
-                remoteData: false,
-                originalData,
-              },
-              computedProps,
-              queue
-            ) || originalData;
+          const computeDataResult = computeData(
+            {
+              remoteData: false,
+              originalData,
+            },
+            computedProps,
+            queue
+          );
+          data = computeDataResult.data || originalData;
+          let dataCountAfterFilter = computeDataResult.dataCountAfterFilter;
 
           let prevComputedSkip = lastSkipRef.current;
           lastSkipRef.current = computedSkip;
@@ -907,6 +919,15 @@ export default (
             computedProps.setDataIndexMap(dataIndexMap);
             if (stickyGroupsIndexes && computedProps.setStickyGroupsIndexes) {
               computedProps.setStickyGroupsIndexes(stickyGroupsIndexes);
+            }
+
+            setDataCountAfterFilter(dataCountAfterFilter);
+            if (
+              dataCountAfterFilter != null &&
+              computedSkip >= dataCountAfterFilter &&
+              !computedRemoteData
+            ) {
+              setSkip(0);
             }
             silentSetData(data || []);
             computedProps.setLoading(false);
@@ -992,6 +1013,7 @@ export default (
       localPagination: computedLocalPagination,
       remotePagination: computedRemotePagination,
 
+      dataCountAfterFilter,
       originalData,
       data,
     },

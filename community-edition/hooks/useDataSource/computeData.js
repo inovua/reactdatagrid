@@ -33,6 +33,7 @@ const flow = ({ originalData, ...rest }, ...transforms) => {
 const computeData = (config, computedProps, batchUpdateQueue) => {
     const { columnsMap } = computedProps;
     let originalData = config.originalData || computedProps.originalData;
+    let dataCountAfterFilter = undefined;
     const loading = config.loading === undefined
         ? computedProps.computedLoading
         : config.loading;
@@ -64,7 +65,7 @@ const computeData = (config, computedProps, batchUpdateQueue) => {
     const pivot = computedProps.pivot;
     const computedSummary = !!computedProps.summaryReducer;
     if (remoteData) {
-        return undefined;
+        return { data: undefined, dataCountAfterFilter };
     }
     const result = flow({ originalData }, 
     // dataSourceCache
@@ -91,6 +92,7 @@ const computeData = (config, computedProps, batchUpdateQueue) => {
                 remoteFilter,
                 columnsMap,
             });
+            dataCountAfterFilter = config.data.length;
         }
         return config;
     }, 
@@ -175,6 +177,9 @@ const computeData = (config, computedProps, batchUpdateQueue) => {
         }
         return config;
     });
-    return result.data;
+    return {
+        data: result.data,
+        dataCountAfterFilter: dataCountAfterFilter || 0,
+    };
 };
 export default computeData;
