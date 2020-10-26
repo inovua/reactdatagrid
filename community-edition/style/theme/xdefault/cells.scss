@@ -43,4 +43,12 @@ $base: 'InovuaReactDataGrid__cell';
       }
     }
   }
+
+  .InovuaReactDataGrid__virtual-list-sticky-rows-container {
+    .InovuaReactDataGrid__row-cell-wrap {
+      .InovuaReactDataGrid__cell.InovuaReactDataGrid__cell--show-border-top {
+        border-top: 1px solid transparent;
+      }
+    }
+  }
 }

@@ -22,7 +22,7 @@ export default function MyApp({ Component, pageProps }) {
       <style global jsx>
         {`
           body {
-            // background: #2e3439;
+            background: #2e3439;
             margin: 20px;
             height: calc(100% - 40px);
             width: calc(100% - 40px);
