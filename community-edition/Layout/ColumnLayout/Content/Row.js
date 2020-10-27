@@ -614,11 +614,6 @@ export default class DataGridRow extends React.Component {
                 gaps.length -= 1;
             }
         });
-        //TODO - see why we need this - scenario for why we need:
-        // have a grid with both locked start and locked end cols
-        // and make one locked start col to be locked end => the first unlocked
-        // column is not properly rendered
-        // newCellProps = this.getPropsForCells();
         calls.forEach(call => {
             const cell = call[0];
             const newIndex = call[1];
