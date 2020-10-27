@@ -560,9 +560,14 @@ export default ({
 
   const columnWidthPrefixSums: number[] = [];
 
+  let computedHasColSpan = false;
   visibleColumns.forEach((col, index, arr) => {
     col.computedVisibleIndex = index;
     col.computedVisibleCount = arr.length;
+
+    if (col.colspan) {
+      computedHasColSpan = true;
+    }
 
     col.computedOffset = sumPrefixWidth;
     const { computedLocked, computedWidth } = col;
@@ -617,6 +622,7 @@ export default ({
     columnVisibilityMap,
 
     computedEnableRowspan,
+    computedHasColSpan,
     visibleColumns: visibleColumns as TypeComputedColumn[],
     allColumns: normalizedColumns as TypeComputedColumn[],
     columnsMap,

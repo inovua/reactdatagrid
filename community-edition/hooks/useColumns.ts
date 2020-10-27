@@ -206,6 +206,7 @@ export default (
     totalLockedEndWidth,
     totalUnlockedWidth,
     minColumnsSize,
+    computedHasColSpan,
   } = useColumnInfo({
     showPivotSummaryColumns: props.showPivotSummaryColumns,
     lockedColumnsState,
@@ -469,7 +470,7 @@ export default (
     if (computedProps == null) {
       return;
     }
-    // const totalComputedWidth: number = ;
+
     const { setLockedColumnsState, lockedColumnsState } = computedProps;
 
     setLockedColumnsState({ ...lockedColumnsState, [column.id]: locked });
@@ -513,6 +514,7 @@ export default (
     unlockedColumns,
 
     columnVisibilityMap,
+    computedHasColSpan,
 
     setColumnLocked,
 

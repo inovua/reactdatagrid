@@ -1263,6 +1263,7 @@ export type TypeComputedProps = TypeDataGridPropsNoI18n & {
   dataPromiseRef: MutableRefObject<Promise<any> | null>;
   hasNextPage: () => boolean;
   gotoNextPage: () => boolean;
+  computedHasColSpan: boolean;
 };
 
 export default TypeDataGridProps;

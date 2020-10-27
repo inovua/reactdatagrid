@@ -361,9 +361,13 @@ export default ({ generatedColumnsLength = 0, columns, columnMinWidth, columnMax
     var totalLockedEndWidth = 0;
     var totalUnlockedWidth = 0;
     const columnWidthPrefixSums = [];
+    let computedHasColSpan = false;
     visibleColumns.forEach((col, index, arr) => {
         col.computedVisibleIndex = index;
         col.computedVisibleCount = arr.length;
+        if (col.colspan) {
+            computedHasColSpan = true;
+        }
         col.computedOffset = sumPrefixWidth;
         const { computedLocked, computedWidth } = col;
         if (computedLocked === 'start') {
@@ -408,6 +412,7 @@ export default ({ generatedColumnsLength = 0, columns, columnMinWidth, columnMax
         columnWidthPrefixSums,
         columnVisibilityMap,
         computedEnableRowspan,
+        computedHasColSpan,
         visibleColumns: visibleColumns,
         allColumns: normalizedColumns,
         columnsMap,
