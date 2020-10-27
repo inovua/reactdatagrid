@@ -1798,7 +1798,7 @@ export default class DataGridRow extends React.Component<RowProps> {
           groupCellProps = cellProps.slice(0, groupProps.depth + 2);
         }
 
-        if (hasLockedStart) {
+        if (hasLockedEnd) {
           lockedEndCellProps = cellProps.slice(
             columns.length - lockedEndColumns.length,
             columns.length
