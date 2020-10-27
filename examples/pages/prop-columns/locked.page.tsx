@@ -54,7 +54,7 @@ class App extends React.Component {
         {
           id: 'test3',
           header: 'test3',
-          colspan: () => 1,
+          // colspan: () => 1,
           render: ({ rowIndex }) => `test3 ${rowIndex}`,
         },
         {
@@ -135,8 +135,6 @@ class App extends React.Component {
         defaultGroupBy={defaultGroupBy}
         licenseKey={process.env.NEXT_PUBLIC_LICENSE_KEY}
         columns={this.state.columns}
-        groupColumn
-        virtualizeColumns={false}
         dataSource={this.state.dataSource}
       />
     );

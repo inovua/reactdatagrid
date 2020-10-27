@@ -7,7 +7,7 @@
 
 import React from 'react';
 
-import DataGrid from '@inovua/reactdatagrid-community';
+import DataGrid from '@inovua/reactdatagrid-enterprise';
 
 import people from '../people';
 
@@ -43,7 +43,8 @@ class App extends React.Component {
       return {
         name: i ? `id-${i}` : 'id',
         id: i ? `id-${i}` : 'id',
-        defaultLocked: i < 3 ? 'start' : undefined,
+        defaultLocked: i < 3 ? 'start' : i > COLS - 3 ? 'end' : false,
+        colspan: () => 1,
         // render: ({ value, rowIndex }) => {
         //   // console.log(`render ${rowIndex} - ${i}`);
         //   return value;
@@ -78,6 +79,7 @@ class App extends React.Component {
         style={gridStyle}
         theme="default-light"
         columns={this.state.columns}
+        licenseKey={process.env.NEXT_PUBLIC_LICENSE_KEY}
         dataSource={this.state.dataSource}
       />
     );

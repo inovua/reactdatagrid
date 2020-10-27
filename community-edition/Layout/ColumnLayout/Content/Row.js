@@ -555,20 +555,25 @@ export default class DataGridRow extends React.Component {
     }
     getCurrentGaps() { }
     setColumnRenderStartIndex(columnRenderStartIndex) {
+        if (this.columnRenderStartIndex === columnRenderStartIndex) {
+            return;
+        }
         this.columnRenderStartIndex = columnRenderStartIndex;
         if (this.getVirtualizeColumns() === false) {
             return;
         }
-        let cellProps;
+        let newCellProps;
         let renderRange;
-        if (this.props.computedHasColSpan) {
-            cellProps = this.getPropsForCells();
-            renderRange = this.getColumnRenderRange(cellProps);
-        }
-        else {
-            renderRange = this.getColumnRenderRange();
-            cellProps = this.getPropsForCells(renderRange?.start, renderRange?.end);
-        }
+        // if (this.props.computedHasColSpan) {
+        newCellProps = this.getPropsForCells();
+        renderRange = this.getColumnRenderRange(newCellProps);
+        // } else {
+        //   renderRange = this.getColumnRenderRange();
+        //   newCellProps = this.getPropsForCells(
+        //     renderRange?.start,
+        //     renderRange?.end
+        //   );
+        // }
         if (!renderRange) {
             return;
         }
@@ -609,7 +614,11 @@ export default class DataGridRow extends React.Component {
                 gaps.length -= 1;
             }
         });
-        const newCellProps = this.getPropsForCells();
+        //TODO - see why we need this - scenario for why we need:
+        // have a grid with both locked start and locked end cols
+        // and make one locked start col to be locked end => the first unlocked
+        // column is not properly rendered
+        // newCellProps = this.getPropsForCells();
         calls.forEach(call => {
             const cell = call[0];
             const newIndex = call[1];
@@ -1249,9 +1258,7 @@ export default class DataGridRow extends React.Component {
                 }
                 renderRange = this.getColumnRenderRange(cellProps);
                 if (renderRange) {
-                    if (computedHasColSpan) {
-                        renderRange = this.expandRangeWithColspan(renderRange, cellProps);
-                    }
+                    renderRange = this.expandRangeWithColspan(renderRange, cellProps);
                     cellProps = cellProps.slice(renderRange.start, renderRange.end + 1);
                 }
             }
