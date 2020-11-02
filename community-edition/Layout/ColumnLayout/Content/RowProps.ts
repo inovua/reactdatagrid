@@ -169,6 +169,7 @@ export type RowProps = {
   computedShowZebraRows?: boolean;
   computedRowspans?: any;
   editStartEvent?: string;
+  computedHasColSpan?: boolean;
 
   onEditStop?: (editInfo: RowEditInfo) => void;
   onEditStart?: (editInfo: RowEditInfo) => void;

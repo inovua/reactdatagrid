@@ -19,6 +19,7 @@ import bemFactory from '../../../bemFactory';
 import renderSortTool from './renderSortTool';
 import { id as REORDER_COLUMN_ID } from '../../../normalizeColumns/defaultRowReorderColumnId';
 import TextEditor from './editors/Text';
+// import diff from '../../../packages/shallow-changes';
 const cellBem = bemFactory('InovuaReactDataGrid__cell');
 const headerBem = bemFactory('InovuaReactDataGrid__column-header');
 const emptyObject = Object.freeze ? Object.freeze({}) : {};
@@ -121,6 +122,13 @@ export default class InovuaDataGridCell extends React.Component {
         });
         const equalProps = areEqual.result;
         if (!areEqual.result) {
+            // console.log(
+            //   'UPDATE CELL',
+            //   areEqual.key,
+            //   // this.props[areEqual.key!],
+            //   // nextProps[areEqual.key!],
+            //   diff(nextProps, this.props)
+            // );
             return true;
         }
         if (equalProps && !this.updating) {

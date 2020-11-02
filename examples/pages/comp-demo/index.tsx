@@ -84,6 +84,7 @@ const App = () => {
         columns={columns}
         dataSource={dataSource}
       />
+
     </div>
   );
 };

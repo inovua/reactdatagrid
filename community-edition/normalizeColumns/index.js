@@ -71,6 +71,7 @@ export default ({ generatedColumnsLength = 0, columns, columnMinWidth, columnMax
         columnMinWidth,
         columnMaxWidth,
     };
+    let hasDedicatedGroupColumn = false;
     let normalizedColumns = columns
         .map(column => {
         return { ...DEFAULT_COLUMN_PROPS, ...column };
@@ -96,6 +97,9 @@ export default ({ generatedColumnsLength = 0, columns, columnMinWidth, columnMax
         }
         else {
             delete columnVisibilityMap[col.id];
+            if (col.id === groupColumnId) {
+                hasDedicatedGroupColumn = true;
+            }
         }
         col.computedHeader =
             col.header === undefined ? col.name || '' : col.header;
@@ -134,6 +138,12 @@ export default ({ generatedColumnsLength = 0, columns, columnMinWidth, columnMax
                 // make the checkbox column locked start if there are some
                 // locked start columns already
                 normalizedCheckboxColumn.computedLocked = 'start';
+            }
+        }
+        if (hasDedicatedGroupColumn) {
+            const normalizedGroupColumn = normalizedColumns.filter(c => c.groupColumn && c.id == groupColumnId)[0];
+            if (normalizedGroupColumn) {
+                normalizedGroupColumn.computedLocked = 'start';
             }
         }
         const autoLockColumns = normalizedColumns.filter(c => !!c.autoLock);
@@ -361,9 +371,13 @@ export default ({ generatedColumnsLength = 0, columns, columnMinWidth, columnMax
     var totalLockedEndWidth = 0;
     var totalUnlockedWidth = 0;
     const columnWidthPrefixSums = [];
+    let computedHasColSpan = false;
     visibleColumns.forEach((col, index, arr) => {
         col.computedVisibleIndex = index;
         col.computedVisibleCount = arr.length;
+        if (col.colspan) {
+            computedHasColSpan = true;
+        }
         col.computedOffset = sumPrefixWidth;
         const { computedLocked, computedWidth } = col;
         if (computedLocked === 'start') {
@@ -408,6 +422,7 @@ export default ({ generatedColumnsLength = 0, columns, columnMinWidth, columnMax
         columnWidthPrefixSums,
         columnVisibilityMap,
         computedEnableRowspan,
+        computedHasColSpan,
         visibleColumns: visibleColumns,
         allColumns: normalizedColumns,
         columnsMap,

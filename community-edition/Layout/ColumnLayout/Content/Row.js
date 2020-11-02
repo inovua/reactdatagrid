@@ -232,7 +232,9 @@ export default class DataGridRow extends React.Component {
         }
     }
     fixForColspan() {
-        this.setColumnRenderStartIndex(this.columnRenderStartIndex);
+        if (this.props.computedHasColSpan) {
+            this.setColumnRenderStartIndex(this.columnRenderStartIndex);
+        }
     }
     setScrolling(scrolling) {
         const node = (this.getDOMNode() ||
@@ -553,12 +555,25 @@ export default class DataGridRow extends React.Component {
     }
     getCurrentGaps() { }
     setColumnRenderStartIndex(columnRenderStartIndex) {
+        if (this.columnRenderStartIndex === columnRenderStartIndex) {
+            return;
+        }
         this.columnRenderStartIndex = columnRenderStartIndex;
         if (this.getVirtualizeColumns() === false) {
             return;
         }
-        const cellProps = this.getPropsForCells();
-        const renderRange = this.getColumnRenderRange(cellProps);
+        let newCellProps;
+        let renderRange;
+        // if (this.props.computedHasColSpan) {
+        newCellProps = this.getPropsForCells();
+        renderRange = this.getColumnRenderRange(newCellProps);
+        // } else {
+        //   renderRange = this.getColumnRenderRange();
+        //   newCellProps = this.getPropsForCells(
+        //     renderRange?.start,
+        //     renderRange?.end
+        //   );
+        // }
         if (!renderRange) {
             return;
         }
@@ -599,7 +614,6 @@ export default class DataGridRow extends React.Component {
                 gaps.length -= 1;
             }
         });
-        const newCellProps = this.getPropsForCells();
         calls.forEach(call => {
             const cell = call[0];
             const newIndex = call[1];
@@ -607,9 +621,11 @@ export default class DataGridRow extends React.Component {
         });
     }
     getPropsForCells(startIndex, endIndex) {
-        if (startIndex !== undefined || endIndex !== undefined) {
-            console.warn('Calling getPropsForCells with start/end index is deprecated. Use .slice instead');
-        }
+        // if (startIndex !== undefined || endIndex !== undefined) {
+        //   console.warn(
+        //     'Calling getPropsForCells with start/end index is deprecated. Use .slice instead'
+        //   );
+        // }
         const initialColumns = this.props.columns;
         let columns = initialColumns;
         const { props } = this;
@@ -617,8 +633,9 @@ export default class DataGridRow extends React.Component {
         const virtualizeColumns = this.getVirtualizeColumns();
         const visibleColumnCount = columns.length;
         if (startIndex !== undefined) {
-            columns = columns.slice(startIndex, endIndex || startIndex + 1);
+            columns = columns.slice(startIndex, endIndex ? endIndex + 1 : startIndex + 1);
         }
+        startIndex = startIndex || 0;
         let hasBorderTop = false;
         let hasBorderBottom = false;
         const hiddenCells = {};
@@ -630,7 +647,8 @@ export default class DataGridRow extends React.Component {
             : null;
         const lastInRange = lastCellInRange || activeCell || null;
         let maxRowspan = 1;
-        const cellPropsArray = columns.map((column, i) => {
+        const cellPropsArray = columns.map((column, xindex) => {
+            let theColumnIndex = xindex + startIndex;
             const columnProps = column;
             const { name, computedVisibleIndex } = columnProps;
             let value = data ? data[name] : null;
@@ -673,7 +691,7 @@ export default class DataGridRow extends React.Component {
                 ...defaults,
                 ...columnProps,
                 remoteRowIndex,
-                indexInColumns: i,
+                indexInColumns: theColumnIndex,
                 depth,
                 editStartEvent,
                 onCellClick,
@@ -803,7 +821,7 @@ export default class DataGridRow extends React.Component {
                 }
                 if (computedColspan > 1) {
                     cellProps.computedWidth = columns
-                        .slice(i, i + computedColspan)
+                        .slice(theColumnIndex, theColumnIndex + computedColspan)
                         .reduce((sum, col) => {
                         if (col.id !== column.id) {
                             hiddenCells[col.id] = true;
@@ -961,8 +979,8 @@ export default class DataGridRow extends React.Component {
                 if (cellProps.last) {
                     cellProps.showBorderRight = true;
                 }
-                const prevColumn = columns[i - 1];
-                const nextColumn = columns[i + 1];
+                const prevColumn = columns[theColumnIndex - 1];
+                const nextColumn = columns[theColumnIndex + 1];
                 if (nextColumn &&
                     nextColumn.prevBorderRight !== undefined &&
                     !(lockedStart && cellProps.lastInSection)) {
@@ -1147,7 +1165,7 @@ export default class DataGridRow extends React.Component {
             this.props.onTransitionEnd(e, cellProps);
         }
     }
-    getColumnRenderRange(cellProps = this.getPropsForCells()) {
+    getColumnRenderRange(cellProps) {
         const { lockedStartColumns, lockedEndColumns, columnRenderCount, groupProps, columns, groupColumn, } = this.props;
         const virtualizeColumns = this.getVirtualizeColumns();
         if (!virtualizeColumns) {
@@ -1164,8 +1182,10 @@ export default class DataGridRow extends React.Component {
             : this.columnRenderStartIndex;
         columnRenderStartIndex = Math.max(columnRenderStartIndex, minStartIndex);
         const fixStartIndexForColspan = () => {
-            while (cellProps[columnRenderStartIndex].computedColspanedBy) {
-                columnRenderStartIndex--;
+            if (cellProps) {
+                while (cellProps[columnRenderStartIndex].computedColspanedBy) {
+                    columnRenderStartIndex--;
+                }
             }
         };
         if (columnRenderCount != null) {
@@ -1209,30 +1229,55 @@ export default class DataGridRow extends React.Component {
         return range;
     }
     renderRow(_, __, style) {
-        const { scrollLeft, hasLockedStart, hasLockedEnd, lockedStartColumns, lockedEndColumns, groupProps, columns, } = this.props;
+        const { scrollLeft, hasLockedStart, hasLockedEnd, lockedStartColumns, lockedEndColumns, computedHasColSpan, groupProps, columns, } = this.props;
         const virtualizeColumns = this.getVirtualizeColumns();
-        let cellProps = this.getPropsForCells();
-        const initialCellProps = cellProps;
-        let renderRange = this.getColumnRenderRange(cellProps);
-        if (renderRange) {
-            renderRange = this.expandRangeWithColspan(renderRange, cellProps);
-            cellProps = cellProps.slice(renderRange.start, renderRange.end + 1);
+        let cellProps;
+        if (!virtualizeColumns) {
+            cellProps = this.getPropsForCells();
         }
-        if (renderRange) {
+        else {
+            let lockedStartCellProps = [];
+            let lockedEndCellProps = [];
+            let groupCellProps = [];
+            let renderRange;
+            if (computedHasColSpan) {
+                cellProps = this.getPropsForCells();
+                if (hasLockedStart) {
+                    lockedStartCellProps = cellProps.slice(0, lockedStartColumns.length);
+                }
+                else if (groupProps) {
+                    groupCellProps = cellProps.slice(0, groupProps.depth + 2);
+                }
+                if (hasLockedEnd) {
+                    lockedEndCellProps = cellProps.slice(columns.length - lockedEndColumns.length, columns.length);
+                }
+                renderRange = this.getColumnRenderRange(cellProps);
+                if (renderRange) {
+                    renderRange = this.expandRangeWithColspan(renderRange, cellProps);
+                    cellProps = cellProps.slice(renderRange.start, renderRange.end + 1);
+                }
+            }
+            else {
+                renderRange = this.getColumnRenderRange();
+                cellProps = this.getPropsForCells(renderRange?.start, (renderRange?.end || 0) + 1);
+                if (hasLockedStart) {
+                    lockedStartCellProps = this.getPropsForCells(0, lockedStartColumns.length - 1);
+                }
+                else if (groupProps) {
+                    groupCellProps = this.getPropsForCells(0, groupProps.depth + 2 - 1);
+                }
+                if (hasLockedEnd) {
+                    lockedEndCellProps = this.getPropsForCells(lockedEndColumns[0].computedVisibleIndex, columns.length - 1);
+                }
+            }
             if (hasLockedStart) {
-                cellProps = [
-                    ...initialCellProps.slice(0, lockedStartColumns.length),
-                    ...cellProps,
-                ];
+                cellProps = [...lockedStartCellProps, ...cellProps];
             }
             else if (groupProps) {
-                cellProps = [
-                    ...initialCellProps.slice(0, groupProps.depth + 2),
-                    ...cellProps,
-                ];
+                cellProps = [...groupCellProps, ...cellProps];
             }
             if (hasLockedEnd) {
-                cellProps.push(...initialCellProps.slice(columns.length - lockedEndColumns.length, columns.length));
+                cellProps.push(...lockedEndCellProps);
             }
         }
         const result = cellProps.map((cProps, index) => {
@@ -1421,6 +1466,7 @@ DataGridRow.propTypes = {
         'min-viewport-width',
         'viewport-width',
     ]),
+    computedHasColSpan: PropTypes.bool,
     onRowReorder: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
     onDragRowMouseDown: PropTypes.func,
     renderLockedStartCells: PropTypes.func,

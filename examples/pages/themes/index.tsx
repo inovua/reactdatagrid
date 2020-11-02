@@ -369,9 +369,9 @@ const App = () => {
           onChange={(value: string) => setTheme(value)}
         />
         {WHITESPACE}
-        <TransitionView>
+        {/*<TransitionView>
           <Calendar theme="default-dark" />
-        </TransitionView>
+        </TransitionView>*/}
         <CheckBox
           theme={`default-dark`}
           checked={rtl}
@@ -399,7 +399,7 @@ const App = () => {
       <DataGrid
         theme={theme}
         key={`grid-${theme}-${groups}`}
-        licenseKey=""
+        licenseKey={process.env.NEXT_PUBLIC_LICENSE_KEY}
         style={gridStyle}
         dataSource={rowReorder ? initialData : dataSource}
         columns={columns}

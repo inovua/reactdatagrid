@@ -7,7 +7,7 @@
 
 import React from 'react';
 
-import DataGrid from '@inovua/reactdatagrid-community';
+import DataGrid from '@inovua/reactdatagrid-enterprise';
 
 import people from '../people';
 
@@ -38,17 +38,24 @@ const defaultCellSelection = { '0-4,id': true, '0-4,desc': true };
 class App extends React.Component {
   constructor(props) {
     super(props);
-    const columns = times([{ name: 'id' }], 30, (_, i) => {
+    const COLS = 100;
+    const columns = times([{ name: 'id' }], COLS, (_, i) => {
       return {
         name: i ? `id-${i}` : 'id',
         id: i ? `id-${i}` : 'id',
+        defaultLocked: i < 3 ? 'start' : i > COLS - 3 ? 'end' : false,
+        colspan: () => 1,
+        // render: ({ value, rowIndex }) => {
+        //   // console.log(`render ${rowIndex} - ${i}`);
+        //   return value;
+        // },
       };
     });
     this.state = {
       columns,
       dataSource: times(
         [
-          [...new Array(30)].reduce(
+          [...new Array(COLS)].reduce(
             (acc, _, i) => {
               acc[`id-${i}`] = i;
               return acc;
@@ -56,7 +63,7 @@ class App extends React.Component {
             { id: 0 }
           ),
         ],
-        1
+        1000
       ),
     };
     console.log(this.state.dataSource);
@@ -72,6 +79,7 @@ class App extends React.Component {
         style={gridStyle}
         theme="default-light"
         columns={this.state.columns}
+        licenseKey={process.env.NEXT_PUBLIC_LICENSE_KEY}
         dataSource={this.state.dataSource}
       />
     );

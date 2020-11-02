@@ -181,6 +181,8 @@ export default ({
     columnMinWidth,
     columnMaxWidth,
   };
+
+  let hasDedicatedGroupColumn = false;
   let normalizedColumns: TypeComputedColumn[] = columns
     .map(column => {
       return { ...DEFAULT_COLUMN_PROPS, ...column };
@@ -210,6 +212,9 @@ export default ({
         columnVisibilityMap[col.id] = false;
       } else {
         delete columnVisibilityMap[col.id];
+        if (col.id === groupColumnId) {
+          hasDedicatedGroupColumn = true;
+        }
       }
 
       col.computedHeader =
@@ -259,6 +264,14 @@ export default ({
         // make the checkbox column locked start if there are some
         // locked start columns already
         normalizedCheckboxColumn.computedLocked = 'start';
+      }
+    }
+    if (hasDedicatedGroupColumn) {
+      const normalizedGroupColumn = normalizedColumns.filter(
+        c => c.groupColumn && c.id == groupColumnId
+      )[0];
+      if (normalizedGroupColumn) {
+        normalizedGroupColumn.computedLocked = 'start';
       }
     }
 
@@ -560,9 +573,14 @@ export default ({
 
   const columnWidthPrefixSums: number[] = [];
 
+  let computedHasColSpan = false;
   visibleColumns.forEach((col, index, arr) => {
     col.computedVisibleIndex = index;
     col.computedVisibleCount = arr.length;
+
+    if (col.colspan) {
+      computedHasColSpan = true;
+    }
 
     col.computedOffset = sumPrefixWidth;
     const { computedLocked, computedWidth } = col;
@@ -617,6 +635,7 @@ export default ({
     columnVisibilityMap,
 
     computedEnableRowspan,
+    computedHasColSpan,
     visibleColumns: visibleColumns as TypeComputedColumn[],
     allColumns: normalizedColumns as TypeComputedColumn[],
     columnsMap,
