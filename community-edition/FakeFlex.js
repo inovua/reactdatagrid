@@ -188,6 +188,11 @@ class FakeFlex extends Component {
 
   clearObservers() {
     const node = this.getNode();
+
+    if (!node) {
+      return;
+    }
+
     [].slice.call(node.children).map(child => {
       if (child && child.__observer) {
         child.__observer.__obsTarget = null;
