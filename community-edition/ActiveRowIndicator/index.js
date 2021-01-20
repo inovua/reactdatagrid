@@ -7,10 +7,8 @@
 import React, { useLayoutEffect, useState, useEffect, } from 'react';
 import join from '../packages/join';
 import usePrevious from '../hooks/usePrevious';
-import getScrollbarWidth from '../packages/getScrollbarWidth';
+// import getScrollbarWidth from '../packages/getScrollbarWidth';
 const CLASS_NAME = 'InovuaReactDataGrid__row';
-const SCROLLBAR_WIDTH = getScrollbarWidth();
-const RTL_OFFSET = SCROLLBAR_WIDTH || 17;
 const ActiveRowIndicator = (props) => {
     const [offset, setOffset] = useState('');
     const [_scrollLeft, setScrollLeft] = useState(0);
@@ -43,14 +41,14 @@ const ActiveRowIndicator = (props) => {
             requestAnimationFrame(() => updateLayout({ raf: false }));
             return;
         }
-        const doSetOffset = (left, top) => setOffset(`translate3d(${left || 0}px, ${top}, 0px`);
+        const doSetOffset = (left, top) => setOffset(`translate3d(${left || 0}px, ${top}, 0px)`);
         if (config && config.raf === false) {
-            doSetOffset(rtl ? -RTL_OFFSET : 0, node.style.top);
+            doSetOffset(0, node.style.top);
         }
         else {
             requestAnimationFrame(() => {
                 if (node && node.parentNode) {
-                    doSetOffset(rtl ? -RTL_OFFSET : 0, node.style.top);
+                    doSetOffset(0, node.style.top);
                 }
             });
         }
