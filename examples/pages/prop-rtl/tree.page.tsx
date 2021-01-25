@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 import ReactDataGrid from '@inovua/reactdatagrid-enterprise';
 import CheckBox from '@inovua/reactdatagrid-community/packages/CheckBox';
 
-const gridStyle = { minHeight: 550 };
-
 const treeData = [
   {
     id: 1,
@@ -104,6 +102,7 @@ const onNodeCollapse = ({ data }) => {
 const App = () => {
   const [rtl, setRtl] = useState(true);
   const [nativeScroll, setNativeScroll] = useState(false);
+  const [small, setSmall] = useState(true);
 
   return (
     <div>
@@ -119,15 +118,21 @@ const App = () => {
           Enable Native Scroll
         </CheckBox>
       </div>
+      <div style={{ marginBottom: 20 }}>
+        <CheckBox checked={small} onChange={setSmall}>
+          Set small
+        </CheckBox>
+      </div>
       <ReactDataGrid
         treeColumn="name"
+        key={`grid-${nativeScroll}-${small}`}
         rtl={rtl}
         nativeScroll={nativeScroll}
         licenseKey={process.env.NEXT_PUBLIC_LICENSE_KEY}
         defaultExpandedNodes={defaultExpandedNodes}
         loadNode={loadNode}
         onNodeCollapse={onNodeCollapse}
-        style={gridStyle}
+        style={{ minHeight: small ? 300 : 650 }}
         columns={columns}
         dataSource={treeData}
       />
@@ -136,3 +141,6 @@ const App = () => {
 };
 
 export default () => <App />;
+
+ReactDataGrid.defaultProps.theme = 'default-dark';
+CheckBox.defaultProps.theme = 'default-dark';

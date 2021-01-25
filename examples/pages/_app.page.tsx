@@ -25,6 +25,7 @@ export default function MyApp({ Component, pageProps }) {
         {`
           body {
             background: #2e3439;
+            color: #fafafa;
             margin: 20px;
             height: calc(100% - 40px);
             width: calc(100% - 40px);

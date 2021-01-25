@@ -106,13 +106,12 @@ export default class InovuaVirtualList extends Component<TypeProps> {
       this.containerNode = domNode;
     };
 
-    let rafId: number | undefined;
-
     this.updateRows = throttle(this.updateRows, 16);
   }
 
   renderScroller = props => {
     let offset = this.getEmptyScrollOffset() || 0;
+
     if (this.props.nativeScroll) {
       offset = 0;
     }
@@ -125,8 +124,9 @@ export default class InovuaVirtualList extends Component<TypeProps> {
       right: -offset,
       bottom: -offset,
     };
+
     props.style = style;
-    style.overflowY = '';
+
     if (
       this.props.showEmptyRows &&
       this.props.count < this.strictVisibleCount
@@ -153,9 +153,11 @@ export default class InovuaVirtualList extends Component<TypeProps> {
 
   renderView = (props: any) => {
     let offset = this.getEmptyScrollOffset() || 0;
+
     if (this.props.nativeScroll) {
       offset = 0;
     }
+
     const minHeight = offset ? `calc(100% - ${offset}px)` : '100%';
     let maxWidth = offset ? `calc(100% - ${offset}px)` : '100%';
 
@@ -174,7 +176,11 @@ export default class InovuaVirtualList extends Component<TypeProps> {
       style.transform = `translateX(${-offset}px)`;
     }
 
-    const viewProps = { ...props, style, 'data-name': 'view' };
+    const viewProps = {
+      ...props,
+      style,
+      'data-name': 'view',
+    };
 
     let result;
     if (this.props.renderView) {

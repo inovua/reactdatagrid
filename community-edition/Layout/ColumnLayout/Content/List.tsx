@@ -63,6 +63,7 @@ export default class InovuaDataGridList extends Component<ListProps> {
     this.state = { columnRenderCount: 0 };
 
     this.rows = [];
+    this.scrollbars = {};
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -356,6 +357,8 @@ export default class InovuaDataGridList extends Component<ListProps> {
   renderView = viewProps => {
     const { data, loading } = this.props;
 
+    const scrollbarOffset = this.getEmptyScrollOffset();
+
     const { length } = data;
 
     if (!length && !loading) {
@@ -365,6 +368,16 @@ export default class InovuaDataGridList extends Component<ListProps> {
       if (IS_EDGE) {
         // avoid unnecessary vertical scrollbar
         viewProps.style.minHeight = '99%';
+      }
+    }
+
+    if (!!this.props.renderRowDetails || !!this.props.renderDetailsGrid) {
+      if (this.props.rtl && !getScrollbarWidth() && !this.props.nativeScroll) {
+        viewProps.style.transform = `translateX(${-(this.scrollbars &&
+        this.scrollbars.vertical &&
+        this.scrollbars.horizontal
+          ? 2
+          : 1) * scrollbarOffset}px)`;
       }
     }
 
@@ -633,6 +646,8 @@ export default class InovuaDataGridList extends Component<ListProps> {
   }
 
   onScrollbarsChange = scrollbars => {
+    this.scrollbars = scrollbars;
+
     if (!scrollbars.horizontal) {
       // we need to do this on raf because of onResize being called lazily
       raf(() => {

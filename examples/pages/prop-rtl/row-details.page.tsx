@@ -103,3 +103,7 @@ const App = () => {
 };
 
 export default () => <App />;
+
+ReactDataGrid.defaultProps.theme = 'default-dark';
+CheckBox.defaultProps.theme = 'default-dark';
+Button.defaultProps.theme = 'default-dark';

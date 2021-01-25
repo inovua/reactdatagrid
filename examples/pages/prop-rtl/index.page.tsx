@@ -39,7 +39,7 @@ const groups = [
   { name: 'details', header: 'Detailed info' },
 ];
 
-const dataSource = [
+const data = [
   {
     id: 0,
     firstName: 'Bob',
@@ -91,11 +91,13 @@ const dataSource = [
     streetNo: 67,
   },
 ];
-const gridStyle = { minHeight: '50vh' };
+
+const dataSource = [...data, ...data];
 
 const App = () => {
   const [rtl, setRtl] = useState(true);
   const [nativeScroll, setNativeScroll] = useState(false);
+  const [small, setSmall] = useState(false);
 
   return (
     <div>
@@ -110,11 +112,17 @@ const App = () => {
           Enable Native Scroll
         </CheckBox>
       </div>
+      <div style={{ marginBottom: 20 }}>
+        <CheckBox checked={small} onChange={setSmall}>
+          Set small
+        </CheckBox>
+      </div>
       <ReactDataGrid
+        key={`grid-${nativeScroll}`}
         idProperty="id"
         rtl={rtl}
         nativeScroll={nativeScroll}
-        style={gridStyle}
+        style={{ minHeight: small ? 350 : 650 }}
         columnMinWidth={100}
         columns={columns}
         licenseKey={process.env.NEXT_PUBLIC_LICENSE_KEY}
@@ -126,3 +134,6 @@ const App = () => {
 };
 
 export default () => <App />;
+
+ReactDataGrid.defaultProps.theme = 'default-dark';
+CheckBox.defaultProps.theme = 'default-dark';

@@ -79,7 +79,7 @@ const ActiveRowIndicator = (props: TypeActiveRowIndicatorProps) => {
       return;
     }
 
-    const doSetOffset = (left, top) =>
+    const doSetOffset = (left: number | string, top: number | string) =>
       setOffset(`translate3d(${left || 0}px, ${top}, 0px`);
 
     if (config && config.raf === false) {
@@ -117,9 +117,10 @@ const ActiveRowIndicator = (props: TypeActiveRowIndicatorProps) => {
     ? rowProps.summaryProps.depth
     : depth || 0;
 
+  const scrollbarOffset = RTL_OFFSET;
   const left = (groupNestingSize || 0) * groupDepth;
   const style: { [key: string]: string | number } = {
-    [rtl ? 'right' : 'left']: left,
+    [rtl ? 'right' : 'left']: left - scrollbarOffset,
     width: props.width - left,
   };
 
