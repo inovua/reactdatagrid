@@ -93,6 +93,7 @@ export default class DateFilter extends Component {
                 ...style,
             },
             theme,
+            rtl,
         };
         if (filterValue) {
             inputProps.value = this.state.value;

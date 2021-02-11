@@ -125,6 +125,7 @@ export default class DateFilter extends Component {
         ...style,
       },
       theme,
+      rtl,
     };
 
     if (filterValue) {

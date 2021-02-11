@@ -62,12 +62,23 @@
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.34375);
   }
 
+  &.#{$INOVUA_DATE_INPUT_ROOT_CLASS}--rtl {
+    .#{$INOVUA_DATE_INPUT_ROOT_CLASS}__calendar-icon {
+      margin-left: 8px;
+    }
+  }
+
+  &.#{$INOVUA_DATE_INPUT_ROOT_CLASS}--ltr {
+    .#{$INOVUA_DATE_INPUT_ROOT_CLASS}__calendar-icon {
+      margin-right: 8px;
+    }
+  }
+
   .#{$INOVUA_DATE_INPUT_ROOT_CLASS}__calendar-icon {
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 8px;
     fill: $INOVUA_CALENDAR_ICON_COLOR;
 
     &:hover:not(.#{$INOVUA_DATE_INPUT_ROOT_CLASS}__calendar-icon--disabled) {

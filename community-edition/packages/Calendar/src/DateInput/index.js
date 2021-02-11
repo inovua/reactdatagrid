@@ -368,6 +368,7 @@ export default class DateInput extends Component {
       props.className,
       props.disabled && `${rootClassName}--disabled`,
       props.theme && `${rootClassName}--theme-${props.theme}`,
+      props.rtl ? `${rootClassName}--rtl` : `${rootClassName}--ltr`,
       `${rootClassName}--picker-position-${position}`,
       this.isLazyFocused() &&
         join(`${rootClassName}--focused`, props.focusedClassName),
