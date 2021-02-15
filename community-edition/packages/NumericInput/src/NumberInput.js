@@ -609,6 +609,8 @@ class InovuaNumericInput extends Component {
   }
 
   handleClearButtonClick(event) {
+    event.preventDefault();
+
     this.setState({
       focused: true,
     });
