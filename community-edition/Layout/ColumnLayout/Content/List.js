@@ -158,11 +158,17 @@ export default class InovuaDataGridList extends Component {
                     viewProps.style.minHeight = '99%';
                 }
             }
+            const hasScrollbars = this.scrollbars && this.scrollbars.vertical && this.scrollbars.horizontal;
+            const hasHorizontalScrollbar = this.scrollbars && this.scrollbars.horizontal;
             if (!!this.props.renderRowDetails || !!this.props.renderDetailsGrid) {
                 if (this.props.rtl && !getScrollbarWidth() && !this.props.nativeScroll) {
-                    viewProps.style.transform = `translateX(${-(this.scrollbars &&
-                        this.scrollbars.vertical &&
-                        this.scrollbars.horizontal
+                    viewProps.style.transform = `translateX(${-(hasScrollbars ? 2 : 1) *
+                        scrollbarOffset}px)`;
+                }
+            }
+            else {
+                if (this.props.rtl && !getScrollbarWidth() && !this.props.nativeScroll) {
+                    viewProps.style.transform = `translateX(${-(hasHorizontalScrollbar
                         ? 2
                         : 1) * scrollbarOffset}px)`;
                 }
@@ -222,6 +228,15 @@ export default class InovuaDataGridList extends Component {
             if (!virtualized && length < maxVisibleRows) {
                 scrollerProps.style = scrollerProps.style || {};
                 scrollerProps.style.overflow = 'hidden';
+            }
+            const hasHorizontalScrollbar = this.scrollbars && this.scrollbars.horizontal;
+            if (!this.props.renderRowDetails || !this.props.renderDetailsGrid) {
+                if (!this.props.rtl &&
+                    !getScrollbarWidth() &&
+                    !nativeScroll &&
+                    hasHorizontalScrollbar) {
+                    scrollerProps.style.right = '0px';
+                }
             }
             let result;
             if (this.props.renderScroller) {
