@@ -235,7 +235,7 @@ export default class InovuaDataGridList extends Component {
                     !getScrollbarWidth() &&
                     !nativeScroll &&
                     hasHorizontalScrollbar) {
-                    scrollerProps.style.right = '0px';
+                    scrollerProps.style.right = 0;
                 }
             }
             let result;
