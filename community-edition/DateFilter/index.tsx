@@ -89,6 +89,7 @@ export default class DateFilter extends Component {
       i18n,
       theme,
     } = this.props;
+
     let {
       filterEditorProps,
       cellProps: { dateFormat },

@@ -76,10 +76,27 @@ function getPosition({
     });
   }
 
-  const position = {
-    top: newRegion.top,
-    left: newRegion.left,
-  };
+  const top = newRegion.top;
+  const left = newRegion.left;
+  const constrainWidth = constrain && constrain.getWidth();
+  const overlayWidth = overlayRegion && overlayRegion.getWidth();
+  const constrainOffset = constrain && constrain.left;
+
+  let position = {};
+
+  if (left > constrainWidth - overlayWidth) {
+    position = {
+      top,
+      left: constrainWidth - overlayWidth + constrainOffset,
+    };
+  } else {
+    position = { top, left };
+  }
+
+  // const position = {
+  //   top: newRegion.top,
+  //   left: newRegion.left,
+  // };
 
   /**
    * If it uses absolute positon position must be corrected.
