@@ -86,6 +86,8 @@ export default class InovuaDataGridCell extends React.Component {
     if (props.headerCell) {
       this.state.left = 0;
     }
+
+    this.isCanceled = false;
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
@@ -946,6 +948,7 @@ export default class InovuaDataGridCell extends React.Component {
   }
 
   cancelEdit() {
+    this.isCanceled = true;
     this.stopEdit();
     const props = this.getProps();
 
@@ -968,7 +971,12 @@ export default class InovuaDataGridCell extends React.Component {
     }
 
     this.lastEditCompleteTimestamp = now;
-    this.completeEdit();
+
+    if (!this.isCanceled) {
+      this.completeEdit();
+    }
+
+    this.isCanceled = false;
   }
 
   completeEdit(completeValue = this.getEditCompleteValue()) {
