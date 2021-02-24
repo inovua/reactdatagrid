@@ -13,7 +13,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [ReactDataGrid Community Edition](#reactdatagrid-community-edition)
 - [Installation & Getting Started](#installation--getting-started)
 - [TypeScript support](#typescript-support)
@@ -27,7 +26,7 @@
 
 ## ReactDataGrid Community Edition
 
-This is the **Community Edition** of **`ReactDataGrid`**. 
+This is the **Community Edition** of **`ReactDataGrid`**.
 
 The **Community Edition** is licensed under the [MIT license](https://github.com/inovua/reactdatagrid/blob/master/community-edition/LICENSE.md).
 
@@ -131,7 +130,7 @@ export default () => (
 
 It’s already been used by thousands of users in business-critical apps, so you can trust it from the get-go. Our clients are building their apps with the **`ReactDataGrid`** at the core of their products.
 
-> <i>With the help of the ReactDataGrid, provided by Inovua Software Technologies, we have been able to offer our customers the perfect support for state-of-the-art data management in our fleet management solution WEBFLEET.</i>
+> <i>With the help of the ReactDataGrid, provided by Inovua Trading S.R.L., we have been able to offer our customers the perfect support for state-of-the-art data management in our fleet management solution WEBFLEET.</i>
 
 <a href="https://reactdatagrid.io/client-stories/webfleet" style="font-size: small">--Thomas Boehm, Senior Engineering Manager at Webfleet Solutions, a Bridgestone Company</a>
 

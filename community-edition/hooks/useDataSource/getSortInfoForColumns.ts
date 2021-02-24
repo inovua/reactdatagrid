@@ -1,5 +1,5 @@
 /**
- * Copyright (c) INOVUA SOFTWARE TECHNOLOGIES.
+ * Copyright © INOVUA TRADING.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,23 +8,23 @@
 import { TypeSortInfo, TypeComputedColumnsMap } from '../../types';
 
 const getCol = (name, columnsMap) => {
-  let col = columnsMap[name]
+  let col = columnsMap[name];
 
   if (!col) {
     Object.keys(columnsMap).forEach(colId => {
       if (col) {
-        return
+        return;
       }
-      const theCol = columnsMap[colId]
+      const theCol = columnsMap[colId];
 
       if (theCol.sortName === name) {
-        col = theCol
+        col = theCol;
       }
-    })
+    });
   }
 
-  return col
-}
+  return col;
+};
 
 const getSortInfoForColumns = (
   sortInfo: TypeSortInfo,
@@ -36,7 +36,7 @@ const getSortInfoForColumns = (
 
   if (!Array.isArray(sortInfo)) {
     if (sortInfo && sortInfo.name) {
-      const col = getCol(sortInfo.name, columnsMap)
+      const col = getCol(sortInfo.name, columnsMap);
       sortInfo = { ...sortInfo };
       if (col) {
         if (typeof col.sortName === 'string') {
@@ -61,7 +61,7 @@ const getSortInfoForColumns = (
     return sortInfo;
   } else {
     return sortInfo.map(sortInfo => {
-      const col = getCol(sortInfo.name, columnsMap)
+      const col = getCol(sortInfo.name, columnsMap);
       sortInfo = { ...sortInfo };
       if (col && typeof col.sortName === 'string') {
         sortInfo.name = col.sortName;

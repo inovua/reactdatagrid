@@ -1,5 +1,5 @@
 /**
- * Copyright (c) INOVUA SOFTWARE TECHNOLOGIES.
+ * Copyright © INOVUA TRADING.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,7 +13,7 @@ describe('Region', function() {
       top: 10,
       left: 20,
       right: 40,
-      bottom: 20
+      bottom: 20,
     });
 
     r.getWidth().should.equal(20);
@@ -24,7 +24,7 @@ describe('Region', function() {
       top: 10,
       left: 20,
       width: 30,
-      height: 40
+      height: 40,
     });
 
     r.getBottom().should.equal(50);
@@ -35,14 +35,14 @@ describe('Region', function() {
       top: 10,
       left: 10,
       right: 40,
-      bottom: 40
+      bottom: 40,
     });
 
     var r2 = Region({
       top: 20,
       left: 15,
       right: 45,
-      bottom: 35
+      bottom: 35,
     });
 
     var intersection = r1.getIntersection(r2);
@@ -51,7 +51,7 @@ describe('Region', function() {
       top: 20,
       left: 15,
       right: 40,
-      bottom: 35
+      bottom: 35,
     });
   });
 });

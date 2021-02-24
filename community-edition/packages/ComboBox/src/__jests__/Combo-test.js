@@ -1,5 +1,5 @@
 /**
- * Copyright (c) INOVUA SOFTWARE TECHNOLOGIES.
+ * Copyright © INOVUA TRADING.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -123,7 +123,10 @@ describe('Combo.js', () => {
           multiple
           activeTag={2}
           value={[1, 2]}
-          dataSource={[{ id: 1, label: 'hello' }, { id: 2, label: 'hello 2' }]}
+          dataSource={[
+            { id: 1, label: 'hello' },
+            { id: 2, label: 'hello 2' },
+          ]}
         />
       );
       expect(
