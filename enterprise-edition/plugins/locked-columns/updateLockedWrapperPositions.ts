@@ -110,7 +110,7 @@ export const updateLockedWrapperPositions = function(
 
   if (lockedStartColumns && lockedStartColumns.length) {
     const nodesStart = node.querySelectorAll(
-      '.InovuaReactDataGrid__locked-start-wrapper:not(.InovuaReactDataGrid__locked-start-wrapper--sticky)'
+      '.InovuaReactDataGrid__locked-start-wrapper' //:not(.InovuaReactDataGrid__locked-start-wrapper--sticky)'
     );
     [].forEach.call(nodesStart, wrapper => {
       // we need [].forEach in order to support IE 11
@@ -207,6 +207,15 @@ export const updateLockedWrapperPositions = function(
 
     if (stickyRowsContainer) {
       stickyRowsContainer.style.transform = `translate3d(-${scrollLeft}px, 0px, 0px)`;
+    }
+
+    if (lockedStartColumns || lockedEndColumns) {
+      const activeRowIndicators = node.querySelectorAll(
+        '.InovuaReactDataGrid__row-active-borders-wrapper'
+      );
+      [].forEach.call(activeRowIndicators, el => {
+        el.style.transform = `translate3d(${scrollLeft}px, 0px, 0px)`;
+      });
     }
   }
 

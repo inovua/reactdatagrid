@@ -297,6 +297,11 @@
         }
       }
 
+      &
+        > .InovuaReactDataGrid__row-active-borders-wrapper { 
+          z-index: 11000;
+      }
+
       &.InovuaReactDataGrid__row--no-locked-start:before {
         border-left: $INOVUA_DATAGRID_ROW_ACTIVE_BORDER_WIDTH
           $INOVUA_DATAGRID_ROW_ACTIVE_BORDER_STYLE

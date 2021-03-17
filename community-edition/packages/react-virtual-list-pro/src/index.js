@@ -836,6 +836,9 @@ export default class InovuaVirtualList extends Component {
                 scrollTop,
             });
             this.currentStickyRows = currentStickyRows;
+            if (this.props.onStickyRowUpdate) {
+                this.props.onStickyRowUpdate();
+            }
         };
         this.renderStickyRow = index => {
             const { rowHeight, renderRow, count, pureRows, rowHeightManager, showEmptyRows, virtualized, rowContain, naturalRowHeight, useTransformRowPosition, } = this.props;
@@ -1392,6 +1395,7 @@ const propTypes = {
     overscrollBehavior: PropTypes.string,
     virtualized: PropTypes.bool,
     scrollOneDirectionOnly: PropTypes.bool,
+    onStickyRowUpdate: PropTypes.func,
     stickyRows: PropTypes.object,
     recycleCoveredRows: PropTypes.bool,
     stickyOffset: PropTypes.number,

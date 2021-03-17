@@ -1552,6 +1552,9 @@ export default class InovuaVirtualList extends Component<TypeProps> {
     );
 
     this.currentStickyRows = currentStickyRows;
+    if (this.props.onStickyRowUpdate) {
+      this.props.onStickyRowUpdate();
+    }
   };
 
   renderStickyRow = index => {
@@ -1904,6 +1907,7 @@ const propTypes = {
   overscrollBehavior: PropTypes.string,
   virtualized: PropTypes.bool,
   scrollOneDirectionOnly: PropTypes.bool,
+  onStickyRowUpdate: PropTypes.func,
   stickyRows: PropTypes.object,
   recycleCoveredRows: PropTypes.bool,
   stickyOffset: PropTypes.number,

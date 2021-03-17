@@ -68,10 +68,12 @@ const footerRows: TypeFooterRow[] = [
 const lockedRows: TypeLockedRow[] = [
   {
     position: 'start',
+
     render: {
       id: <b>xxX</b>,
       firstName1: 'one',
       firstName: <b>First </b>,
+      firstName3: <b>First </b>,
       country: 'ccc',
       age: (value, { computedSummary: summary }) => {
         return (

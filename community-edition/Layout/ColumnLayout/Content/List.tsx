@@ -296,6 +296,7 @@ export default class InovuaDataGridList extends Component<ListProps> {
         rtl={thisProps.rtl}
         stickyOffset={thisProps.rtlOffset}
         stickyRows={thisProps.computedStickyRows}
+        onStickyRowUpdate={this.onStickyRowUpdate}
         enableRowSpan={thisProps.computedEnableRowspan}
         recycleCoveredRows={false}
         className={VirtualListClassName}
@@ -333,6 +334,10 @@ export default class InovuaDataGridList extends Component<ListProps> {
       />
     );
   }
+
+  onStickyRowUpdate = () => {
+    this.updateOnScrollLeft(undefined, true);
+  };
 
   shouldFocusNextRow({ index, nextIndex, dir }) {
     const shouldFocus = !this.isLazyEditing();
