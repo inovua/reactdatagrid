@@ -5,12 +5,62 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
+import React, { Component, CSSProperties, ReactElement } from 'react';
 
 import { DateInput } from '../packages/Calendar';
 
-export default class DateFilter extends Component {
-  constructor(props) {
+type TypeFilterValue = {
+  name: string;
+  operator: string;
+  type: string;
+  value: string | null;
+  filterEditorProps?: any;
+};
+
+type TypeValue = {
+  start?: any;
+  end?: any;
+};
+
+type DateFilterProps = {
+  filterValue?: TypeFilterValue;
+  onChange?: Function;
+  readOnly?: boolean;
+  disabled?: boolean;
+  rtl?: boolean;
+  style?: CSSProperties;
+  cell?: any;
+  renderInPortal?: (el: ReactElement) => void;
+  i18n?: (key?: string, defaultLabel?: string) => void;
+  theme?: string;
+  filterEditorProps?: any;
+  cellProps?: any;
+  render?: any;
+};
+
+type DateFilterState = {
+  value?: any;
+};
+
+type InputProps = {
+  value?: TypeValue;
+  calendarProps?: any;
+  readOnly?: boolean;
+  disabled?: boolean;
+  dateFormat?: string;
+  forceValidDate?: boolean;
+  relativeToViewport?: boolean;
+  okButton?: boolean;
+  cancelButton?: boolean;
+  overlayProps?: any;
+  style?: CSSProperties;
+  theme?: string;
+  rtl?: boolean;
+  text?: string;
+};
+
+class DateFilter extends Component<DateFilterProps, DateFilterState> {
+  constructor(props: DateFilterProps) {
     super(props);
 
     const { filterValue } = props;
@@ -25,13 +75,13 @@ export default class DateFilter extends Component {
     this.onValueChange = this.onValueChange.bind(this);
   }
 
-  UNSAFE_componentWillReceiveProps({ filterValue: { value } }) {
-    if (this.props.filterValue.value !== value) {
+  UNSAFE_componentWillReceiveProps({ filterValue: { value } }: any) {
+    if (this.props.filterValue && this.props.filterValue.value !== value) {
       this.setValue(value);
     }
   }
 
-  onChange(value) {
+  onChange(value: TypeValue) {
     if (value === this.state.value) {
       return;
     }
@@ -39,7 +89,7 @@ export default class DateFilter extends Component {
     this.setValue(value);
   }
 
-  onStartChange(start) {
+  onStartChange(start: string) {
     if (this.state.value) {
       if (this.state.value.start && start === this.state.value.start) {
         return;
@@ -51,7 +101,7 @@ export default class DateFilter extends Component {
     this.onValueChange(newValue);
     this.setValue(newValue);
   }
-  onEndChange(end) {
+  onEndChange(end: string) {
     if (this.state.value) {
       if (this.state.value.end && end === this.state.value.end) {
         return;
@@ -64,17 +114,18 @@ export default class DateFilter extends Component {
     this.setValue(newValue);
   }
 
-  setValue(value) {
+  setValue(value: TypeValue) {
     this.setState({
       value,
     });
   }
 
-  onValueChange(value) {
-    this.props.onChange({
-      ...this.props.filterValue,
-      value,
-    });
+  onValueChange(value: TypeValue) {
+    this.props.onChange &&
+      this.props.onChange({
+        ...this.props.filterValue,
+        value,
+      });
   }
 
   render() {
@@ -95,7 +146,7 @@ export default class DateFilter extends Component {
     } = this.props;
 
     if (filterEditorProps === undefined) {
-      filterEditorProps = filterValue.filterEditorProps;
+      filterEditorProps = filterValue && filterValue.filterEditorProps;
     }
 
     if (dateFormat === undefined) {
@@ -103,19 +154,22 @@ export default class DateFilter extends Component {
     }
 
     const calendarLabels = {
-      todayButtonText: i18n('calendar.todayButtonText'),
-      clearButtonText: i18n('calendar.clearButtonText'),
-      okButtonText: i18n('calendar.okButtonText'),
-      cancelButtonText: i18n('calendar.cancelButtonText'),
+      todayButtonText: i18n && i18n('calendar.todayButtonText'),
+      clearButtonText: i18n && i18n('calendar.clearButtonText'),
+      okButtonText: i18n && i18n('calendar.okButtonText'),
+      cancelButtonText: i18n && i18n('calendar.cancelButtonText'),
     };
 
     const startTarget = () =>
-      cell
-        .getDOMNode()
-        .querySelectorAll('.InovuaReactDataGrid__column-header__filter')[0] ||
-      cell.getDOMNode();
+      (cell &&
+        cell
+          .getDOMNode()
+          .querySelectorAll(
+            '.InovuaReactDataGrid__column-header__filter'
+          )[0]) ||
+      (cell && cell.getDOMNode());
 
-    const inputProps = {
+    const inputProps: InputProps = {
       calendarProps: { ...calendarLabels },
       readOnly,
       disabled,
@@ -149,7 +203,7 @@ export default class DateFilter extends Component {
     const editorClassName =
       'InovuaReactDataGrid__column-header__filter InovuaReactDataGrid__column-header__filter--date';
 
-    switch (filterValue.operator) {
+    switch (filterValue && filterValue.operator) {
       case 'inrange':
       case 'notinrange':
         const { start, end } = this.state.value,
@@ -159,11 +213,13 @@ export default class DateFilter extends Component {
             value: end,
             overlayProps: {
               target: () => {
-                const filterNodes = cell
-                  .getDOMNode()
-                  .querySelectorAll(
-                    '.InovuaReactDataGrid__column-header__filter'
-                  );
+                const filterNodes: any =
+                  cell &&
+                  cell
+                    .getDOMNode()
+                    .querySelectorAll(
+                      '.InovuaReactDataGrid__column-header__filter'
+                    );
 
                 return filterNodes[filterNodes.length - 1];
               },
@@ -187,7 +243,7 @@ export default class DateFilter extends Component {
 
         const startProps = {
           okButton: true,
-          placeholder: i18n('start'),
+          placeholder: i18n && i18n('start'),
           ...startFilterEditorProps,
           onChange: this.onStartChange,
           className: editorClassName,
@@ -198,7 +254,7 @@ export default class DateFilter extends Component {
 
         const endProps = {
           okButton: true,
-          placeholder: i18n('end'),
+          placeholder: i18n && i18n('end'),
           ...endFilterEditorProps,
           onChange: this.onEndChange,
           className: editorClassName,
@@ -235,3 +291,5 @@ export default class DateFilter extends Component {
     }
   }
 }
+
+export default DateFilter;

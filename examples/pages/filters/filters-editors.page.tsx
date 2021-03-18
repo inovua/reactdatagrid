@@ -5,7 +5,7 @@ import ReactDataGrid from '../../../enterprise-edition';
 import NumberFilter from '@inovua/reactdatagrid-community/NumberFilter';
 import SelectFilter from '@inovua/reactdatagrid-community/SelectFilter';
 import DateFilter from '@inovua/reactdatagrid-community/DateFilter';
-import BoolEditor from '../../../community-edition/BoolEditor';
+import BoolFilter from '../../../community-edition/BoolFilter';
 
 import people from '../people';
 import flags from '../flags';
@@ -96,7 +96,7 @@ const columns = [
     name: 'student',
     header: 'Student',
     defaultFlex: 1,
-    filterEditor: BoolEditor,
+    filterEditor: BoolFilter,
     render: ({ data }) => {
       return data.student ? 'Yes' : 'No';
     },

@@ -7,13 +7,17 @@
 import React from 'react';
 import selectParent from '../packages/select-parent';
 import DateField from '../packages/Calendar/DateInput';
-const stopPropagation = e => e.stopPropagation();
-export default class DateEditor extends React.Component {
+const stopPropagation = (e) => e.stopPropagation();
+const defaultProps = {
+    relativeToViewport: false,
+};
+class DateEditor extends React.Component {
     constructor(props) {
         super(props);
         this.constrainTo = () => {
             return this.constrainToNode;
         };
+        console.log('PROPS', props);
         this.domRef = React.createRef();
         this.state = {
             position: 'bottom',
@@ -45,22 +49,22 @@ export default class DateEditor extends React.Component {
     render() {
         const { props } = this;
         return (React.createElement("div", { className: "InovuaReactDataGrid__cell__editor InovuaReactDataGrid__cell__editor--date", ref: this.domRef },
-            React.createElement(DateField, { theme: props.theme, autoFocus: props.autoFocus, onExpandChange: this.onExpandChange, dateFormat: props.cellProps.dateFormat || 'YYYY-MM-DD', defaultValue: props.value, pickerPosition: this.state.position, onChange: props.onChange, constrainTo: props.constrainTo || this.constrainTo, overlayProps: {
+            React.createElement(DateField, { theme: props.theme, autoFocus: props.autoFocus, onExpandChange: this.onExpandChange, dateFormat: (props.cellProps && props.cellProps.dateFormat) || 'YYYY-MM-DD', defaultValue: props.value, pickerPosition: this.state.position, onChange: props.onChange, constrainTo: props.constrainTo || this.constrainTo, overlayProps: {
                     target: () => {
                         return this.domNode;
                     },
                     ...props.overlayProps,
-                }, relativeToViewport: props.relativeToViewport, renderPicker: props.renderPicker, onLazyBlur: props.onComplete, onClick: stopPropagation, onKeyDown: e => {
+                }, relativeToViewport: props.relativeToViewport, renderPicker: props.renderPicker, onLazyBlur: props.onComplete, onClick: stopPropagation, onKeyDown: (e) => {
                     if (e.key === 'Enter' && !this.state.expanded) {
-                        props.onComplete();
+                        props.onComplete && props.onComplete();
                     }
                     if (e.key === 'Tab') {
                         e.preventDefault();
-                        props.onTabNavigation(true, e.shiftKey ? -1 : 1);
+                        props.onTabNavigation &&
+                            props.onTabNavigation(true, e.shiftKey ? -1 : 1);
                     }
                 } })));
     }
 }
-DateEditor.defaultProps = {
-    relativeToViewport: false,
-};
+DateEditor.defaultProps = defaultProps;
+export default DateEditor;

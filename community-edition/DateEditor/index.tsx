@@ -5,16 +5,69 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { ReactElement, RefObject } from 'react';
 import selectParent from '../packages/select-parent';
 
 import DateField from '../packages/Calendar/DateInput';
 
-const stopPropagation = e => e.stopPropagation();
+const stopPropagation = (e: Event) => e.stopPropagation();
 
-export default class DateEditor extends React.Component {
-  constructor(props) {
+type TypeFilterValue = {
+  name: string;
+  opertor: string;
+  type: string;
+  value: string | null;
+};
+
+type DateEditorProps = {
+  active?: boolean;
+  cell?: any;
+  cellProps?: any;
+  disabled?: boolean;
+  emptyValue?: boolean | null;
+  filterDelay?: number;
+  filterEditorProps?: any;
+  filterType?: string;
+  filterValue?: TypeFilterValue;
+  i18n?: (key: string, defaultLabel: string) => void;
+  nativeScroll?: boolean;
+  onChange?: Function;
+  render?: any;
+  renderInPortal?: (el: ReactElement) => void;
+  rtl?: boolean;
+  theme?: string;
+  ref?: RefObject<any>;
+  readOnly?: boolean;
+  autoFocus?: boolean;
+  value?: boolean | null;
+  onComplete?: Function;
+  onTabNavigation?: Function;
+  constrainTo?: any;
+  relativeToViewport?: boolean;
+  renderPicker?: Function;
+  overlayProps?: any;
+};
+
+type DateEditorState = {
+  position?: string;
+  expanded?: boolean;
+};
+
+const defaultProps = {
+  relativeToViewport: false,
+};
+
+class DateEditor extends React.Component<DateEditorProps, DateEditorState> {
+  static defaultProps = defaultProps;
+
+  private domRef: RefObject<any>;
+  private domNode: any;
+  private constrainToNode: any;
+
+  constructor(props: DateEditorProps) {
     super(props);
+
+    console.log('PROPS', props);
 
     this.domRef = React.createRef();
     this.state = {
@@ -51,7 +104,7 @@ export default class DateEditor extends React.Component {
     return this.constrainToNode;
   };
 
-  onExpandChange(expanded) {
+  onExpandChange(expanded: boolean) {
     this.setState({
       expanded,
     });
@@ -67,7 +120,9 @@ export default class DateEditor extends React.Component {
           theme={props.theme}
           autoFocus={props.autoFocus}
           onExpandChange={this.onExpandChange}
-          dateFormat={props.cellProps.dateFormat || 'YYYY-MM-DD'}
+          dateFormat={
+            (props.cellProps && props.cellProps.dateFormat) || 'YYYY-MM-DD'
+          }
           defaultValue={props.value}
           pickerPosition={this.state.position}
           onChange={props.onChange}
@@ -82,13 +137,14 @@ export default class DateEditor extends React.Component {
           renderPicker={props.renderPicker}
           onLazyBlur={props.onComplete}
           onClick={stopPropagation}
-          onKeyDown={e => {
+          onKeyDown={(e: any) => {
             if (e.key === 'Enter' && !this.state.expanded) {
-              props.onComplete();
+              props.onComplete && props.onComplete();
             }
             if (e.key === 'Tab') {
               e.preventDefault();
-              props.onTabNavigation(true, e.shiftKey ? -1 : 1);
+              props.onTabNavigation &&
+                props.onTabNavigation(true, e.shiftKey ? -1 : 1);
             }
           }}
         />
@@ -97,6 +153,4 @@ export default class DateEditor extends React.Component {
   }
 }
 
-DateEditor.defaultProps = {
-  relativeToViewport: false,
-};
+export default DateEditor;
