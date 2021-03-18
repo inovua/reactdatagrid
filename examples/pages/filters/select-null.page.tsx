@@ -51,6 +51,7 @@ const App = () => {
   return (
     <div>
       <ReactDataGrid
+        theme="default-dark"
         enableFiltering
         columns={columns}
         defaultFilterValue={defaultFilterValue}
