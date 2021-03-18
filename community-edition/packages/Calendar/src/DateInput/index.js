@@ -800,8 +800,8 @@ export default class DateInput extends Component {
   }
 
   isTimeInputFocused() {
-    if (this.pickerView && this.pickerView.isTimeInputFocused) {
-      return this.pickerView.isTimeInputFocused();
+    if (this.picker && this.picker.isTimeInputFocused) {
+      return this.picker.isTimeInputFocused();
     }
 
     return false;
@@ -834,7 +834,7 @@ export default class DateInput extends Component {
 
     this.props.onBlur(event);
 
-    if (!this.pickerView || !this.pickerView.isTimeInputFocused) {
+    if (!this.picker || !this.picker.isTimeInputFocused) {
       this.onLazyBlur();
       return;
     }
