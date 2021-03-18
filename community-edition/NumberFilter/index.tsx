@@ -5,18 +5,57 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { CSSProperties, RefObject } from 'react';
 
 import NumericInput from '../packages/NumericInput';
 import debounce from 'lodash.debounce';
 
-export default class NumberFilter extends React.Component {
-  constructor(props) {
+type TypeFilterValue = {
+  name: string;
+  operator: string;
+  type: string;
+  value: string | null;
+  filterEditorProps?: any;
+};
+
+type NumberFilterProps = {
+  filterValue?: TypeFilterValue;
+  filterDelay?: number;
+  onChange?: Function;
+  readOnly?: boolean;
+  disabled?: boolean;
+  theme?: string;
+  i18n?: (key?: string, defaultLabel?: string) => void;
+  filterEditorProps?: any;
+  render?: Function;
+};
+
+type NumberFilterState = {
+  value?: any;
+};
+
+type InputProps = {
+  readOnly?: boolean;
+  disabled?: boolean;
+  theme?: string;
+  style?: CSSProperties;
+  value?: string;
+};
+
+class NumberFilter extends React.Component<
+  NumberFilterProps,
+  NumberFilterState
+> {
+  private input: any;
+  private refInput: any;
+
+  constructor(props: NumberFilterProps) {
     super(props);
 
-    this.refInput = i => {
+    this.refInput = (i: any) => {
       this.input = i;
     };
+
     this.state = {
       value: props.filterValue ? props.filterValue.value || '' : '',
     };
@@ -35,21 +74,24 @@ export default class NumberFilter extends React.Component {
     }
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (this.props.filterValue.value !== nextProps.filterValue.value) {
+  UNSAFE_componentWillReceiveProps(nextProps: NumberFilterProps) {
+    if (
+      this.props.filterValue &&
+      this.props.filterValue.value !== (nextProps as any).filterValue.value
+    ) {
       // When we change operators from unary to binary and vice versa
       // we have to reset the value, and i pass this new value to NumberFilter state
-      this.setValue(nextProps.filterValue.value);
+      this.setValue(nextProps.filterValue && nextProps.filterValue.value);
     }
     if (
       nextProps.filterValue &&
       nextProps.filterValue.value !== this.state.value
     ) {
-      this.setValue(nextProps.filterValue.value);
+      this.setValue(nextProps.filterValue && nextProps.filterValue.value);
     }
   }
 
-  onChange(value) {
+  onChange(value: string) {
     if (value === this.state.value) {
       return;
     }
@@ -58,7 +100,7 @@ export default class NumberFilter extends React.Component {
     this.setValue(value);
   }
 
-  onStartChange(start) {
+  onStartChange(start: string) {
     if (this.state.value) {
       if (this.state.value.start && start === this.state.value.start) {
         return;
@@ -69,7 +111,7 @@ export default class NumberFilter extends React.Component {
     this.setValue(newValue);
   }
 
-  onEndChange(end) {
+  onEndChange(end: string) {
     if (this.state.value) {
       if (this.state.value.end && end === this.state.value.end) {
         return;
@@ -80,17 +122,18 @@ export default class NumberFilter extends React.Component {
     this.setValue(newValue);
   }
 
-  setValue(value) {
+  setValue(value?: string | null) {
     this.setState({
       value,
     });
   }
 
-  onValueChange(value) {
-    this.props.onChange({
-      ...this.props.filterValue,
-      value,
-    });
+  onValueChange(value?: string | null) {
+    this.props.onChange &&
+      this.props.onChange({
+        ...this.props.filterValue,
+        value,
+      });
   }
 
   render() {
@@ -98,10 +141,10 @@ export default class NumberFilter extends React.Component {
     const { readOnly, disabled, theme } = this.props;
 
     if (filterEditorProps == null) {
-      filterEditorProps = filterValue.filterEditorProps;
+      filterEditorProps = filterValue && filterValue.filterEditorProps;
     }
 
-    const inputProps = {
+    const inputProps: InputProps = {
       readOnly,
       disabled,
       theme,
@@ -114,7 +157,7 @@ export default class NumberFilter extends React.Component {
       inputProps.value = this.state.value;
     }
 
-    switch (filterValue.operator) {
+    switch (filterValue && filterValue.operator) {
       case 'inrange':
       case 'notinrange':
         const { start, end } = this.state.value || { start: '', end: '' },
@@ -134,7 +177,7 @@ export default class NumberFilter extends React.Component {
             : filterEditorProps;
 
         const startProps = {
-          placeholder: i18n('start'),
+          placeholder: i18n && i18n('start'),
           ...startFilterEditorProps,
           ref: this.refInput,
           onChange: this.onStartChange,
@@ -144,7 +187,7 @@ export default class NumberFilter extends React.Component {
         };
 
         const endProps = {
-          placeholder: i18n('end'),
+          placeholder: i18n && i18n('end'),
           ...endFilterEditorProps,
           ref: this.refInput,
           onChange: this.onEndChange,
@@ -152,12 +195,15 @@ export default class NumberFilter extends React.Component {
             'InovuaReactDataGrid__column-header__filter InovuaReactDataGrid__column-header__filter--number',
           ...endInputProps,
         };
-        return this.props.render(
-          <div style={{ display: 'flex' }}>
-            <NumericInput {...startProps} />
-            <div className="InovuaReactDataGrid__column-header__filter__binary_operator_separator" />
-            <NumericInput {...endProps} />
-          </div>
+        return (
+          this.props.render &&
+          this.props.render(
+            <div style={{ display: 'flex' }}>
+              <NumericInput {...startProps} />
+              <div className="InovuaReactDataGrid__column-header__filter__binary_operator_separator" />
+              <NumericInput {...endProps} />
+            </div>
+          )
         );
 
       default:
@@ -178,7 +224,12 @@ export default class NumberFilter extends React.Component {
           ...inputProps,
         };
 
-        return this.props.render(<NumericInput {...finalProps} />);
+        return (
+          this.props.render &&
+          this.props.render(<NumericInput {...finalProps} />)
+        );
     }
   }
 }
+
+export default NumberFilter;

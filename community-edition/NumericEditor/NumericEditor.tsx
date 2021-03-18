@@ -9,7 +9,33 @@ import React from 'react';
 
 import NumericInput from '../packages/NumericInput';
 
-export default props => {
+type TypeFilterValue = {
+  name: string;
+  operator: string;
+  type: string;
+  value: string | null;
+  filterEditorProps?: any;
+};
+
+type NumberEditorProps = {
+  filterValue?: TypeFilterValue;
+  filterDelay?: number;
+  onChange?: Function;
+  readOnly?: boolean;
+  disabled?: boolean;
+  theme?: string;
+  i18n?: (key?: string, defaultLabel?: string) => void;
+  filterEditorProps?: any;
+  render?: Function;
+  autoFocus?: boolean;
+  value?: string;
+  cellProps?: any;
+  onComplete?: Function;
+  onCancel?: Function;
+  onTabNavigation?: Function;
+};
+
+const NumericEditor = (props: NumberEditorProps) => {
   return (
     <div
       className={
@@ -25,18 +51,21 @@ export default props => {
           minWidth: Math.max(0, props.cellProps.computedWidth - 30),
         }}
         onBlur={props.onComplete}
-        onKeyDown={e => {
+        onKeyDown={(e: any) => {
           if (e.key === 'Escape') {
-            props.onCancel(e);
+            props.onCancel && props.onCancel(e);
           }
           if (e.key === 'Enter') {
-            props.onComplete(e);
+            props.onComplete && props.onComplete(e);
           }
           if (e.key == 'Tab') {
-            props.onTabNavigation(true, e.shiftKey ? -1 : 1);
+            props.onTabNavigation &&
+              props.onTabNavigation(true, e.shiftKey ? -1 : 1);
           }
         }}
       />
     </div>
   );
 };
+
+export default NumericEditor;

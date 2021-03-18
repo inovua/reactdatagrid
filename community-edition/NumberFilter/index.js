@@ -7,10 +7,10 @@
 import React from 'react';
 import NumericInput from '../packages/NumericInput';
 import debounce from 'lodash.debounce';
-export default class NumberFilter extends React.Component {
+class NumberFilter extends React.Component {
     constructor(props) {
         super(props);
-        this.refInput = i => {
+        this.refInput = (i) => {
             this.input = i;
         };
         this.state = {
@@ -29,14 +29,15 @@ export default class NumberFilter extends React.Component {
         }
     }
     UNSAFE_componentWillReceiveProps(nextProps) {
-        if (this.props.filterValue.value !== nextProps.filterValue.value) {
+        if (this.props.filterValue &&
+            this.props.filterValue.value !== nextProps.filterValue.value) {
             // When we change operators from unary to binary and vice versa
             // we have to reset the value, and i pass this new value to NumberFilter state
-            this.setValue(nextProps.filterValue.value);
+            this.setValue(nextProps.filterValue && nextProps.filterValue.value);
         }
         if (nextProps.filterValue &&
             nextProps.filterValue.value !== this.state.value) {
-            this.setValue(nextProps.filterValue.value);
+            this.setValue(nextProps.filterValue && nextProps.filterValue.value);
         }
     }
     onChange(value) {
@@ -72,16 +73,17 @@ export default class NumberFilter extends React.Component {
         });
     }
     onValueChange(value) {
-        this.props.onChange({
-            ...this.props.filterValue,
-            value,
-        });
+        this.props.onChange &&
+            this.props.onChange({
+                ...this.props.filterValue,
+                value,
+            });
     }
     render() {
         let { filterValue, i18n, filterEditorProps } = this.props;
         const { readOnly, disabled, theme } = this.props;
         if (filterEditorProps == null) {
-            filterEditorProps = filterValue.filterEditorProps;
+            filterEditorProps = filterValue && filterValue.filterEditorProps;
         }
         const inputProps = {
             readOnly,
@@ -94,7 +96,7 @@ export default class NumberFilter extends React.Component {
         if (filterValue) {
             inputProps.value = this.state.value;
         }
-        switch (filterValue.operator) {
+        switch (filterValue && filterValue.operator) {
             case 'inrange':
             case 'notinrange':
                 const { start, end } = this.state.value || { start: '', end: '' }, startInputProps = { ...inputProps, value: start }, endInputProps = { ...inputProps, value: end };
@@ -108,7 +110,7 @@ export default class NumberFilter extends React.Component {
                     ? filterEditorProps(this.props, { value: end, index: 1 })
                     : filterEditorProps;
                 const startProps = {
-                    placeholder: i18n('start'),
+                    placeholder: i18n && i18n('start'),
                     ...startFilterEditorProps,
                     ref: this.refInput,
                     onChange: this.onStartChange,
@@ -116,17 +118,18 @@ export default class NumberFilter extends React.Component {
                     ...startInputProps,
                 };
                 const endProps = {
-                    placeholder: i18n('end'),
+                    placeholder: i18n && i18n('end'),
                     ...endFilterEditorProps,
                     ref: this.refInput,
                     onChange: this.onEndChange,
                     className: 'InovuaReactDataGrid__column-header__filter InovuaReactDataGrid__column-header__filter--number',
                     ...endInputProps,
                 };
-                return this.props.render(React.createElement("div", { style: { display: 'flex' } },
-                    React.createElement(NumericInput, Object.assign({}, startProps)),
-                    React.createElement("div", { className: "InovuaReactDataGrid__column-header__filter__binary_operator_separator" }),
-                    React.createElement(NumericInput, Object.assign({}, endProps))));
+                return (this.props.render &&
+                    this.props.render(React.createElement("div", { style: { display: 'flex' } },
+                        React.createElement(NumericInput, Object.assign({}, startProps)),
+                        React.createElement("div", { className: "InovuaReactDataGrid__column-header__filter__binary_operator_separator" }),
+                        React.createElement(NumericInput, Object.assign({}, endProps)))));
             default:
                 const finalEditorProps = typeof filterEditorProps === 'function'
                     ? filterEditorProps(this.props, {
@@ -141,7 +144,9 @@ export default class NumberFilter extends React.Component {
                     className: 'InovuaReactDataGrid__column-header__filter InovuaReactDataGrid__column-header__filter--number',
                     ...inputProps,
                 };
-                return this.props.render(React.createElement(NumericInput, Object.assign({}, finalProps)));
+                return (this.props.render &&
+                    this.props.render(React.createElement(NumericInput, Object.assign({}, finalProps))));
         }
     }
 }
+export default NumberFilter;
