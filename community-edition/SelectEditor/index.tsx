@@ -10,10 +10,21 @@ import React from 'react';
 import ComboBox from '../packages/ComboBox';
 import ScrollContainer from '../packages/react-scroll-container-pro/src';
 
-const stopPropagation = e => e.stopPropagation();
+type SelectEditorProps = {
+  editorProps?: any;
+  nativeScroll?: boolean;
+  value?: string;
+  cellProps?: any;
+  onChange?: (value: string) => void;
+  onComplete?: Function;
+  onTabNavigation?: Function;
+  onCancel?: Function;
+};
+
+const stopPropagation = (e: Event) => e.stopPropagation();
 const styleWidth100 = { width: '100%' };
 
-const renderListScroller = props => (
+const renderListScroller = (props: any) => (
   <ScrollContainer
     {...props}
     viewStyle={styleWidth100}
@@ -21,7 +32,7 @@ const renderListScroller = props => (
   />
 );
 
-export default props => {
+const SelectEditor = (props: SelectEditorProps) => {
   const { editorProps } = props;
   const editorPropsStyle = editorProps ? editorProps.style : null;
 
@@ -36,8 +47,8 @@ export default props => {
         collapseOnSelect
         renderListScroller={props.nativeScroll ? undefined : renderListScroller}
         defaultValue={props.value}
-        onChange={value => {
-          props.onChange(value);
+        onChange={(value: string) => {
+          props.onChange && props.onChange(value);
         }}
         constrainTo=".InovuaReactDataGrid__virtual-list"
         style={{
@@ -45,23 +56,26 @@ export default props => {
           minWidth: Math.max(0, props.cellProps.computedWidth - 30),
         }}
         onBlur={props.onComplete}
-        onKeyDown={(e, combo) => {
+        onKeyDown={(e: any, combo: any) => {
           const { key } = e;
 
           if (key === 'Escape') {
             if (!combo.getExpanded()) {
-              props.onCancel(e);
+              props.onCancel && props.onCancel(e);
             }
           }
           if (key === 'Enter') {
-            props.onComplete(e);
+            props.onComplete && props.onComplete(e);
           }
           if (key == 'Tab') {
             e.preventDefault();
-            props.onTabNavigation(true, e.shiftKey ? -1 : 1);
+            props.onTabNavigation &&
+              props.onTabNavigation(true, e.shiftKey ? -1 : 1);
           }
         }}
       />
     </div>
   );
 };
+
+export default SelectEditor;

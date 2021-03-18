@@ -5,14 +5,50 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 import debounce from '../packages/debounce';
 
 import Combo from '../packages/ComboBox';
 import ScrollContainer from '../packages/react-scroll-container-pro/src';
 
-const renderScroller = props => {
+type TypeFilterValue = {
+  name: string;
+  operator: string;
+  type: string;
+  value: string | null;
+  filterEditorProps?: any;
+  dataSource?: any;
+};
+
+type SelectFilterProps = {
+  filterValue?: TypeFilterValue;
+  filterDelay?: number;
+  onChange?: Function;
+  readOnly?: boolean;
+  disabled?: boolean;
+  style?: CSSProperties;
+  nativeScroll?: boolean;
+  filterEditorProps?: any;
+  rtl?: boolean;
+  theme?: string;
+  render?: Function;
+};
+
+type SelectFilterState = {
+  value?: string | null;
+};
+
+type ComboProps = {
+  value?: string | null;
+  readOnly?: boolean;
+  disabled?: boolean;
+  theme?: string;
+  rtl?: boolean;
+  style?: CSSProperties;
+};
+
+const renderScroller = (props: any) => {
   delete props.tabIndex;
   return (
     <div
@@ -21,7 +57,7 @@ const renderScroller = props => {
     />
   );
 };
-const renderListScroller = props => {
+const renderListScroller = (props: any) => {
   return (
     <ScrollContainer
       {...props}
@@ -32,10 +68,19 @@ const renderListScroller = props => {
   );
 };
 
-const stopPropagation = e => e.stopPropagation();
+const stopPropagation = (e: Event) => e.stopPropagation();
 
-export default class SelectFilter extends React.Component {
-  constructor(props) {
+const defaultProps = {
+  nativeScroll: false,
+};
+
+class SelectFilter extends React.Component<
+  SelectFilterProps,
+  SelectFilterState
+> {
+  static defaultProps = defaultProps;
+
+  constructor(props: SelectFilterProps) {
     super(props);
 
     const { filterValue } = props;
@@ -51,32 +96,34 @@ export default class SelectFilter extends React.Component {
     }
   }
 
-  onChange(value) {
+  onChange(value: string | null) {
     this.onValueChange(value);
 
     this.setValue(value);
   }
 
-  setValue(value) {
+  setValue(value: string | null) {
     this.setState({
       value,
     });
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: SelectFilterProps) {
     if (
       nextProps.filterValue &&
       nextProps.filterValue.value !== this.state.value
     ) {
-      this.setValue(nextProps.filterValue.value);
+      const value = nextProps.filterValue.value;
+      this.setValue(value);
     }
   }
 
-  onValueChange(value) {
-    this.props.onChange({
-      ...this.props.filterValue,
-      value,
-    });
+  onValueChange(value: string | null) {
+    this.props.onChange &&
+      this.props.onChange({
+        ...this.props.filterValue,
+        value,
+      });
   }
 
   render() {
@@ -91,7 +138,7 @@ export default class SelectFilter extends React.Component {
       theme,
     } = this.props;
 
-    const comboProps = {
+    const comboProps: ComboProps = {
       readOnly,
       disabled,
       theme,
@@ -114,7 +161,8 @@ export default class SelectFilter extends React.Component {
     const finalProps = {
       collapseOnSelect: true,
       renderListScroller: nativeScroll ? undefined : renderListScroller,
-      dataSource: filterValue.dataSource ? filterValue.dataSource : [],
+      dataSource:
+        filterValue && filterValue.dataSource ? filterValue.dataSource : [],
       ...finalEditorProps,
       onChange: this.onChange,
 
@@ -125,7 +173,7 @@ export default class SelectFilter extends React.Component {
 
     const onKeyDown = finalProps.onKeyDown;
 
-    finalProps.onKeyDown = e => {
+    finalProps.onKeyDown = (e: Event) => {
       if (onKeyDown) {
         onKeyDown(e);
       }
@@ -133,10 +181,8 @@ export default class SelectFilter extends React.Component {
       stopPropagation(e);
     };
 
-    return this.props.render(<Combo {...finalProps} />);
+    return this.props.render && this.props.render(<Combo {...finalProps} />);
   }
 }
 
-SelectFilter.defaultProps = {
-  nativeScroll: false,
-};
+export default SelectFilter;
