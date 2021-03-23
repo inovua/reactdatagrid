@@ -9,7 +9,6 @@ import PropTypes from 'prop-types';
 import cleanProps from '@inovua/reactdatagrid-community/packages/react-clean-props';
 import CheckBox from '@inovua/reactdatagrid-community/packages/CheckBox';
 const BoolEditor = (props) => {
-    console.log('props', props);
     const domProps = cleanProps(props, BoolEditor.propTypes);
     return (React.createElement("div", Object.assign({ className: `InovuaReactDataGrid__cell__editor InovuaReactDataGrid__cell__editor--bool ${domProps.className ||
             ''}` }, domProps),

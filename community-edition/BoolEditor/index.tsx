@@ -45,7 +45,6 @@ type BoolEditorProps = {
 };
 
 const BoolEditor = (props: BoolEditorProps) => {
-  console.log('props', props);
   const domProps = cleanProps(props, BoolEditor.propTypes);
   return (
     <div

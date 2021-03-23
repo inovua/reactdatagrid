@@ -97,13 +97,6 @@ export default class DataGridRow extends React.Component {
             style: 1,
         });
         if (!areEqual.result) {
-            // console.log(
-            //   'UPDATE ROW',
-            //   areEqual.key,
-            //   // this.props[areEqual.key!],
-            //   // nextProps[areEqual.key!],
-            //   diff(rowClean(nextProps), rowClean(this.props))
-            // );
             return true;
         }
         if (this.props.active !== nextProps.active) {
@@ -954,8 +947,7 @@ export default class DataGridRow extends React.Component {
                 }
                 if (cellProps.groupProps &&
                     computedVisibleIndex >= cellProps.groupProps.depth + 1 &&
-                    !groupColumn &&
-                    props.expandGroupTitle) {
+                    !groupColumn) {
                     cellProps.showBorderLeft = false;
                 }
                 if (cellProps.summaryProps) {

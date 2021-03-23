@@ -67,8 +67,6 @@ class DateEditor extends React.Component<DateEditorProps, DateEditorState> {
   constructor(props: DateEditorProps) {
     super(props);
 
-    console.log('PROPS', props);
-
     this.domRef = React.createRef();
     this.state = {
       position: 'bottom',

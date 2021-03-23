@@ -97,8 +97,6 @@ class BoolFilter extends React.Component<BoolFilterProps, BoolFilterState> {
   render = () => {
     const { readOnly, filterEditorProps } = this.props;
 
-    console.log('props', this.props);
-
     const finalEditorProps =
       typeof filterEditorProps === 'function'
         ? filterEditorProps(this.props)

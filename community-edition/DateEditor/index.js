@@ -17,7 +17,6 @@ class DateEditor extends React.Component {
         this.constrainTo = () => {
             return this.constrainToNode;
         };
-        console.log('PROPS', props);
         this.domRef = React.createRef();
         this.state = {
             position: 'bottom',
