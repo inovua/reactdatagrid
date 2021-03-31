@@ -339,8 +339,8 @@ export default (
         const { pageX, pageY, rowIndex } = lastMouseDownEventProps;
 
         mouseDidNotMove =
-          pageX === event.pageX &&
-          pageY === event.pageY &&
+          Math.floor(pageX) === Math.floor(event.pageX) &&
+          Math.floor(pageY) === Math.floor(event.pageY) &&
           rowIndex === rowProps.rowIndex;
       }
 
