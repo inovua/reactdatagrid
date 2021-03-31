@@ -234,8 +234,8 @@ export default (props, computedProps, computedPropsRef) => {
         if (lastMouseDownEventProps && event.type === 'click') {
             const { pageX, pageY, rowIndex } = lastMouseDownEventProps;
             mouseDidNotMove =
-                Math.floor(pageX) === Math.floor(event.pageX) &&
-                    Math.floor(pageY) === Math.floor(event.pageY) &&
+                pageX === Math.floor(event.pageX) &&
+                    pageY === Math.floor(event.pageY) &&
                     rowIndex === rowProps.rowIndex;
         }
         if (!computedProps.computedFocused) {
@@ -363,8 +363,8 @@ export default (props, computedProps, computedPropsRef) => {
     const computedOnCellMouseDown = useCallback((event, cellProps) => {
         lastMouseDownEventPropsRef.current = {
             rowIndex: cellProps.rowIndex,
-            pageX: event.pageX,
-            pageY: event.pageY,
+            pageX: Math.floor(event.pageX),
+            pageY: Math.floor(event.pageY),
         };
         const { current: computedProps } = computedPropsRef;
         if (!computedProps) {

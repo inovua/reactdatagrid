@@ -339,8 +339,8 @@ export default (
         const { pageX, pageY, rowIndex } = lastMouseDownEventProps;
 
         mouseDidNotMove =
-          Math.floor(pageX) === Math.floor(event.pageX) &&
-          Math.floor(pageY) === Math.floor(event.pageY) &&
+          pageX === Math.floor(event.pageX) &&
+          pageY === Math.floor(event.pageY) &&
           rowIndex === rowProps.rowIndex;
       }
 
@@ -527,8 +527,8 @@ export default (
     (event: MouseEvent, cellProps: TypeCellProps) => {
       lastMouseDownEventPropsRef.current = {
         rowIndex: cellProps.rowIndex,
-        pageX: event.pageX as number,
-        pageY: event.pageY as number,
+        pageX: Math.floor(event.pageX as number),
+        pageY: Math.floor(event.pageY as number),
       };
 
       const { current: computedProps } = computedPropsRef;
