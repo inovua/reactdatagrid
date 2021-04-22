@@ -312,7 +312,9 @@ export default class InovuaDataGridEnterpriseColumnLayout extends InovuaDataGrid
             this.dragRowArrow.setHeight(rowHeight);
             if (dragIndex !== dropIndex && dragIndex + 1 !== dropIndex) {
                 this.setReorderArrowAt(dropIndex, compareRanges);
-            }
+            } else {
+                this.setReorderArrowVisible(false);
+              }
         };
         this.onRowDrop = (event, config, props) => {
             const { dropIndex } = this;
