@@ -621,10 +621,21 @@ export default class InovuaDataGridEnterpriseColumnLayout extends InovuaDataGrid
 
     const { contentRegion } = DRAG_INFO;
 
-    // if there is no box, probably it's trying to position it after the last row
-    let boxPos: number = !box
-      ? ranges[ranges.length - 1].bottom - 4 /*todo remove magic constant */
-      : box.top;
+    let boxPos;
+
+    let dragRowArrowHeight = this.dragRowArrow.props.rowReorderArrowStyle ? this.dragRowArrow.props.rowReorderArrowStyle.height : null;
+
+    if (!Number.isInteger(dragRowArrowHeight)) {
+      dragRowArrowHeight = 3; // default height set for InovuaReactDataGrid__row-reorder-arrow class
+    }
+
+    if (index === 0) {
+        boxPos = box.top;
+    } else if (index === ranges.length) {
+        boxPos = ranges[ranges.length - 1].bottom - dragRowArrowHeight;
+    } else {
+        boxPos = box.top - Math.floor(dragRowArrowHeight / 2);
+    }
 
     const arrowPosition: number = boxPos - contentRegion.top;
 
