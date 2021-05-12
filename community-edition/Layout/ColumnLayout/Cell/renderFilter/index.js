@@ -16,13 +16,15 @@ class GenericFilter extends React.Component {
   constructor(props) {
     super(props);
 
-    this.onSettingsClick = this.onSettingsClick.bind(this);
+    this.onFilterMenuOpen = this.onFilterMenuOpen.bind(this);
+    this.onSettingsKeyDown = this.onSettingsKeyDown.bind(this);
     this.onSettingsClickListener = null;
+    this.onSettingsKeyDownListener = null;
 
     this.refSettings = s => {
       /**
        * https://inovua.freshdesk.com/a/tickets/221
-       * We need to attach mousedown here
+       * We need to attach mousedown/keydown here
        * because otherwise, if we go through the normal react flow,
        * by the time we click, the filter menu gets blurred, and is hidden
        * so the menu is shown again on click.
@@ -33,12 +35,21 @@ class GenericFilter extends React.Component {
         if (!this.onSettingsClickListener) {
           this.onSettingsClickListener = s.addEventListener(
             'mousedown',
-            this.onSettingsClick
+            this.onFilterMenuOpen
+          );
+        }
+        if (!this.onSettingsKeyDownListener) {
+          this.onSettingsKeyDownListener = s.addEventListener(
+            'keydown',
+            this.onSettingsKeyDown
           );
         }
       } else {
         if (this.settings && this.onSettingsClickListener) {
           this.settings.removeEventListener(this.onSettingsClickListener);
+        }
+        if (this.settings && this.onSettingsKeyDownListener) {
+          this.settings.removeEventListener(this.onSettingsKeyDownListener);
         }
       }
       this.settings = s;
@@ -49,11 +60,17 @@ class GenericFilter extends React.Component {
     };
   }
 
-  onSettingsClick(e) {
+  onFilterMenuOpen() {
     this.props.cellInstance.showFilterContextMenu(this.settings);
     this.setState({
       focused: true,
     });
+  }
+
+  onSettingsKeyDown(e) {
+    if (e.key === 'Enter') {
+      this.onFilterMenuOpen();
+    }
   }
 
   componentDidMount() {
@@ -75,7 +92,11 @@ class GenericFilter extends React.Component {
     if (this.settings && this.onSettingsClickListener) {
       this.settings.removeEventListener(this.onSettingsClickListener);
     }
+    if (this.settings && this.onSettingsKeyDownListener) {
+      this.settings.removeEventListener(this.onSettingsKeyDownListener);
+    }
     this.onSettingsClickListener = null;
+    this.onSettingsKeyDownListener = null;
     this.settings = null;
   }
 

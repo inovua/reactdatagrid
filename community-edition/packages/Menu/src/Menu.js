@@ -738,6 +738,8 @@ class InovuaMenu extends Component {
       case ' ':
         this.handleSpaceOnFocusedItem(event);
         break;
+      case 'Escape':
+        this.dismiss(event);
     }
   }
 
