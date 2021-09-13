@@ -605,6 +605,17 @@ const GridFactory = (
       }
       return getItemWithCache(computedPropsRef.current.data[index]);
     };
+    const getItemsAt = (ids: number[]) => {
+      if (!computedPropsRef.current) {
+        return;
+      }
+
+      return ids.map((id: number) => {
+        if (computedPropsRef.current && computedPropsRef.current.data) {
+          return getItemWithCache(computedPropsRef.current.data[id]);
+        }
+      });
+    };
     const getItemWithCache = (item: any) => {
       if (
         item &&
@@ -1109,6 +1120,7 @@ const GridFactory = (
       getItemIndexBy,
 
       getItemAt,
+      getItemsAt,
       getItemIdAt,
       focus,
       blur,

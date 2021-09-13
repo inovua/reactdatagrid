@@ -381,6 +381,16 @@ const GridFactory = ({ plugins } = {}, edition = 'community') => {
             }
             return getItemWithCache(computedPropsRef.current.data[index]);
         };
+        const getItemsAt = (ids) => {
+            if (!computedPropsRef.current) {
+                return;
+            }
+            return ids.map((id) => {
+                if (computedPropsRef.current && computedPropsRef.current.data) {
+                    return getItemWithCache(computedPropsRef.current.data[id]);
+                }
+            });
+        };
         const getItemWithCache = (item) => {
             if (item &&
                 computedPropsRef.current &&
@@ -734,6 +744,7 @@ const GridFactory = ({ plugins } = {}, edition = 'community') => {
             getRowId: getItemIdAt,
             getItemIndexBy,
             getItemAt,
+            getItemsAt,
             getItemIdAt,
             focus,
             blur,

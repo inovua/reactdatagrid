@@ -666,6 +666,44 @@ export default (
     });
   };
 
+  const setItemsAt = (items: any, config?: { replace?: boolean }) => {
+    const replace = config && config.replace;
+    const { current: computedProps } = computedPropsRef;
+    if (!computedProps) {
+      return;
+    }
+
+    const newItems = [];
+    for (let i = 0; i < items.length; i++) {
+      const oldId = computedProps.getItemId(items[i]);
+      let newItem = computedProps.getItemAt(oldId);
+      if (!newItem) {
+        continue;
+      }
+      if (replace) {
+        newItem = items[i];
+      } else {
+        newItem = { ...newItem, ...items[i] };
+      }
+
+      const newId = computedProps.getItemId(newItem);
+      if (newId !== oldId) {
+        continue;
+      }
+
+      newItems.push(newItem);
+    }
+
+    if (!newItems || newItems.length === 0) {
+      return;
+    }
+
+    setDataSourceCache({
+      ...computedProps.computedDataSourceCache,
+      ...newItems,
+    });
+  };
+
   const setItemPropertyAt = (index: number, property: string, value: any) => {
     const { current: computedProps } = computedPropsRef;
     if (!computedProps) {
@@ -1111,6 +1149,7 @@ export default (
     setItemPropertyAt,
     setItemPropertyForId,
     setItemAt,
+    setItemsAt,
     ...paginationProps,
   };
 };

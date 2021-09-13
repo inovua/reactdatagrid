@@ -734,6 +734,7 @@ export type TypeComputedProps = TypeDataGridPropsNoI18n & {
   visibleColumnsMap: TypeComputedColumnsMap;
   getItemId: (item: object) => any;
   getItemAt: (index: number) => any;
+  getItemsAt: (ids: number[]) => any;
   getItemIdAt: (index: number) => any;
   i18n: (key: string, defaultValue?: string) => string | ReactNode;
   rowHeightManager: any;
