@@ -54,7 +54,7 @@ export default (
     virtualListBorderRight,
     getScrollLeftMax,
     rtl,
-  },
+  }: any,
   scrollLeft,
   {
     lockedStartContent,

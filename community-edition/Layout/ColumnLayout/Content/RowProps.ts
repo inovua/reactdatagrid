@@ -29,6 +29,7 @@ export type RowProps = {
   rowActive?: boolean;
   edition: 'community' | 'enterprise';
   computedLicenseValid: boolean;
+  onTransitionEnd?: (e: MouseEvent, cellProps: CellProps) => void;
 
   lastLockedStartIndex?: number;
   lastLockedEndIndex?: number;
@@ -123,7 +124,7 @@ export type RowProps = {
   setRowExpanded: (rowIndex: number, expanded: boolean) => void;
   toggleRowExpand: (index: number) => void;
   toggleNodeExpand: (index: number) => void;
-  loadNodeAsync: () => void;
+  loadNodeAsync: (data: any) => void;
   showAllGroupCells?: boolean;
   computedShowCellBorders?: string | boolean;
   showHorizontalCellBorders?: boolean;
@@ -218,6 +219,16 @@ export type RowProps = {
     domProps: any;
     size: number;
   }) => void;
+  renderTreeLoadingTool?: ({
+    domProps,
+    className,
+    size,
+  }: {
+    domProps: any;
+    className: string;
+    size: number;
+  }) => void;
+  expandOnMouseDown?: boolean;
 };
 
 export type EnhancedRowProps = RowProps & {

@@ -7,6 +7,13 @@
 
 type func = (...args: any[]) => any;
 export type CellProps = {
+  onTransitionEnd?: (e: any) => void;
+  inEdit?: boolean;
+  cellRef?: any;
+  colspan?: any;
+  rowspan?: any;
+  computedColspanToStart?: boolean;
+  computedColspanedBy?: any;
   computedAbsoluteIndex?: number;
   checkboxTabIndex?: number;
   expandColumnIndex?: number;
@@ -43,6 +50,7 @@ export type CellProps = {
   groupNestingSize?: number;
   groupProps?: {
     depth: number;
+    collapsed?: boolean;
   };
   hasBottomSelectedSibling?: boolean;
   hasLeftSelectedSibling?: boolean;

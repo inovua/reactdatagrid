@@ -149,6 +149,8 @@ export type TypeComputedColumn = TypeColumn &
     computedLockable?: boolean;
     computedResizable?: boolean;
     computedHeader?: any;
+    prevBorderRight?: boolean;
+    nextBorderLeft?: boolean;
   };
 export type TypeColumns = TypeColumn[];
 

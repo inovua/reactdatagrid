@@ -12,7 +12,6 @@ import autoBind from '../../../packages/react-class/autoBind';
 import cleanProps from '../../../packages/react-clean-props';
 import shallowequal, { equalReturnKey } from '../../../packages/shallowequal';
 
-import diff from '../../../packages/shallow-changes';
 import join from '../../../packages/join';
 import clamp from '../../../utils/clamp';
 
@@ -36,7 +35,7 @@ const skipSelect = (event: SyntheticEvent) => {
   (event.nativeEvent as any).skipSelect = true;
 };
 
-const getValueForPivotColumn = (item, path) => {
+const getValueForPivotColumn = (item: any, path: string[]) => {
   return path.reduce((acc, field, index) => {
     if (!acc || acc[field] == null) {
       return null;
@@ -55,6 +54,7 @@ const getValueForPivotColumnSummary = (
     pivotSummaryPath: path,
   }: {
     pivotSummaryPath: { value: string; field: string }[];
+    pivotGrandSummaryColumn?: any;
   }
 ) => {
   let i = 0;
@@ -89,8 +89,9 @@ export default class DataGridRow extends React.Component<RowProps> {
   private rafId: null | number = null;
   private shouldUpdate: boolean = false;
   domRef: React.RefObject<HTMLElement>;
+  maxRowspan: number = 1;
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps: RowProps) {
     let areEqual = equalReturnKey(this.props, nextProps, {
       computedActiveCell: 1,
       computedActiveIndex: 1,
@@ -183,7 +184,7 @@ export default class DataGridRow extends React.Component<RowProps> {
     this.cells = [];
   }
 
-  xshouldComponentUpdate(nextProps) {
+  xshouldComponentUpdate(nextProps: RowProps) {
     if (this.rafId != null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
@@ -204,7 +205,7 @@ export default class DataGridRow extends React.Component<RowProps> {
   }
 
   // TODO remove unsafe
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: RowProps) {
     if (nextProps.columnRenderCount < this.props.columnRenderCount) {
       this.cleanupCells();
 
@@ -242,7 +243,8 @@ export default class DataGridRow extends React.Component<RowProps> {
       .sort((p1, p2) => p1.index - p2.index);
 
     cells.sort(
-      (cell1, cell2) => cell1.props.renderIndex - cell2.props.renderIndex
+      (cell1: any, cell2: any) =>
+        cell1.props.renderIndex - cell2.props.renderIndex
     );
 
     cells.forEach((c, i) => {
@@ -334,9 +336,9 @@ export default class DataGridRow extends React.Component<RowProps> {
     const virtualizeColumns = this.getVirtualizeColumns();
 
     if (virtualizeColumns) {
-      node.classList.add(virtualizeColumnsClassName);
+      node!.classList.add(virtualizeColumnsClassName);
     } else {
-      node.classList.remove(virtualizeColumnsClassName);
+      node!.classList.remove(virtualizeColumnsClassName);
     }
 
     if (oldScrollingDirection !== this.scrollingDirection) {
@@ -349,8 +351,6 @@ export default class DataGridRow extends React.Component<RowProps> {
 
     const {
       rowHeight,
-      defaultRowHeight,
-      rowExpandHeight,
       initialRowHeight,
       maxRowHeight,
       groupNestingSize,
@@ -382,12 +382,10 @@ export default class DataGridRow extends React.Component<RowProps> {
       computedPivot,
       computedShowZebraRows,
       rowDetailsWidth,
-      scrollLeft,
 
       availableWidth,
       groupProps,
       groupColumn,
-      computedRenderRowDetails,
       dataSourceArray,
       onRenderRow,
       shouldRenderCollapsedRowDetails,
@@ -613,13 +611,13 @@ export default class DataGridRow extends React.Component<RowProps> {
             renderDetailsGrid ? `${CLASS_NAME}-details--details-grid` : null,
             !nativeScroll ||
               (nativeScroll && scrollbars && !scrollbars.vertical) ||
-              availableWidth > minWidth
+              availableWidth > minWidth!
               ? `${CLASS_NAME}-details--show-border-right`
               : null,
             showBorderBottom ? `${CLASS_NAME}-details--show-border-bottom` : ''
           )}
         >
-          {this.renderRowDetails(rowDetailsInfo, rowProps)}
+          {this.renderRowDetails(rowDetailsInfo)}
         </div>,
 
         <div
@@ -703,7 +701,7 @@ export default class DataGridRow extends React.Component<RowProps> {
     return row;
   }
 
-  renderRowDetails(rowDetailsInfo, rowProps: RowProps) {
+  renderRowDetails(rowDetailsInfo: any) {
     const { computedRenderRowDetails } = this.props;
 
     if (computedRenderRowDetails) {
@@ -713,7 +711,7 @@ export default class DataGridRow extends React.Component<RowProps> {
     return 'Please specify `renderRowDetails`';
   }
 
-  onContextMenu(event) {
+  onContextMenu(event: MouseEvent) {
     const props = this.props;
 
     const { passedProps, onRowContextMenu } = props;
@@ -810,6 +808,7 @@ export default class DataGridRow extends React.Component<RowProps> {
     }
     this.props.toggleRowExpand(rowIndex!);
   }
+
   toggleNodeExpand(rowIndex?: number) {
     if (typeof rowIndex !== 'number') {
       rowIndex = this.props.realIndex;
@@ -958,7 +957,6 @@ export default class DataGridRow extends React.Component<RowProps> {
       computedPivot,
       rowHeight,
       remoteRowIndex,
-      defaultRowHeight,
       initialRowHeight,
       lastLockedStartIndex,
       lastLockedEndIndex,
@@ -1015,6 +1013,7 @@ export default class DataGridRow extends React.Component<RowProps> {
       setActiveIndex,
       renderTreeCollapseTool,
       renderTreeExpandTool,
+      renderTreeLoadingTool,
     } = props;
 
     const expandColumnId: string | undefined = expandColumnFn
@@ -1037,25 +1036,26 @@ export default class DataGridRow extends React.Component<RowProps> {
     }
     startIndex = startIndex || 0;
 
-    let hasBorderTop = false;
-    let hasBorderBottom = false;
+    let hasBorderTop: boolean | number | undefined = false;
+    let hasBorderBottom: boolean | number | undefined = false;
 
-    const hiddenCells = {};
-    const belongsToColspan = {};
-    const columnsTillColspanStart = {};
+    const hiddenCells: any = {};
+    const belongsToColspan: any = {};
+    const columnsTillColspanStart: any = {};
 
     const lastInGroup = indexInGroup == this.props.groupCount - 1;
 
-    const activeCell = props.computedActiveCell
-      ? getCellSelectionKey(...props.computedActiveCell)
-      : null;
+    const activeCell =
+      props.computedActiveCell && getCellSelectionKey
+        ? getCellSelectionKey(...props.computedActiveCell)
+        : null;
     const lastInRange = lastCellInRange || activeCell || null;
 
     let maxRowspan = 1;
 
     const cellPropsArray = columns.map((column, xindex) => {
       let theColumnIndex = xindex + startIndex!;
-      const columnProps = column;
+      const columnProps: any = column;
 
       const { name, computedVisibleIndex } = columnProps;
       let value = data ? data[name!] : null;
@@ -1091,7 +1091,7 @@ export default class DataGridRow extends React.Component<RowProps> {
         }
       }
 
-      const defaults = {};
+      const defaults: { userSelect?: boolean } = {};
       if (columnUserSelect !== undefined) {
         defaults.userSelect = columnUserSelect;
       }
@@ -1187,9 +1187,10 @@ export default class DataGridRow extends React.Component<RowProps> {
         setActiveIndex,
         renderTreeCollapseTool,
         renderTreeExpandTool,
+        renderTreeLoadingTool,
       };
 
-      if (computedCellSelection) {
+      if (computedCellSelection && getCellSelectionKey) {
         cellProps.cellSelected =
           computedCellSelection[
             getCellSelectionKey(rowIndex, computedVisibleIndex)
@@ -1207,16 +1208,16 @@ export default class DataGridRow extends React.Component<RowProps> {
               ];
           cellProps.hasTopSelectedSibling =
             computedCellSelection[
-              getCellSelectionKey(rowIndex - 1, computedVisibleIndex)
+              getCellSelectionKey(rowIndex! - 1, computedVisibleIndex)
             ];
           cellProps.hasBottomSelectedSibling =
             computedCellSelection[
-              getCellSelectionKey(rowIndex + 1, computedVisibleIndex)
+              getCellSelectionKey(rowIndex! + 1, computedVisibleIndex)
             ];
         }
       }
 
-      if (activeCell || lastInRange) {
+      if (getCellSelectionKey && (activeCell || lastInRange)) {
         const cellKey = getCellSelectionKey(rowIndex, computedVisibleIndex);
         if (activeCell && activeCell === cellKey) {
           cellProps.cellActive = true;
@@ -1255,7 +1256,7 @@ export default class DataGridRow extends React.Component<RowProps> {
         cellProps.onUnmount = this.onCellUnmount;
       }
 
-      const { computedLocked, colspan, rowspan } = cellProps;
+      const { computedLocked, colspan } = cellProps;
 
       const lockedStart = computedLocked === 'start';
       const lockedEnd = computedLocked === 'end';
@@ -1282,21 +1283,21 @@ export default class DataGridRow extends React.Component<RowProps> {
           computedColspan = clamp(
             computedColspan,
             1,
-            Math.max(lastLockedStartIndex - computedVisibleIndex + 1, 1)
+            Math.max(lastLockedStartIndex! - computedVisibleIndex + 1, 1)
           );
         }
         if (lockedEnd) {
           computedColspan = clamp(
             computedColspan,
             1,
-            Math.max(lastLockedEndIndex - computedVisibleIndex + 1, 1)
+            Math.max(lastLockedEndIndex! - computedVisibleIndex + 1, 1)
           );
         }
         if (unlocked) {
           computedColspan = clamp(
             computedColspan,
             1,
-            Math.max(lastUnlockedIndex - computedVisibleIndex + 1, 1)
+            Math.max(lastUnlockedIndex! - computedVisibleIndex + 1, 1)
           );
         }
         if (computedColspan > 1) {
@@ -1330,7 +1331,7 @@ export default class DataGridRow extends React.Component<RowProps> {
         ? computedVisibleIndex === firstLockedEndIndex
         : computedVisibleIndex === firstUnlockedIndex;
 
-      if (computedGroupBy && !groupColumn) {
+      if (computedGroupBy && !groupColumn && !!cellProps.depth) {
         cellProps.noBackground = computedVisibleIndex < cellProps.depth;
       }
       if (hiddenCells[column.id]) {
@@ -1369,7 +1370,7 @@ export default class DataGridRow extends React.Component<RowProps> {
             // look behind for a summary
             const summaryBefore =
               indexInGroup === 0 && !groupColumn
-                ? dataSourceArray[rowIndex - indexInGroup]
+                ? dataSourceArray[rowIndex! - indexInGroup]
                 : null;
             if (
               summaryBefore &&
@@ -1412,7 +1413,7 @@ export default class DataGridRow extends React.Component<RowProps> {
                   ? cellProps.groupProps.depth
                   : computedGroupBy.length);
             }
-          } else if (rowIndex > 0 && showHorizontalCellBorders) {
+          } else if (rowIndex! > 0 && showHorizontalCellBorders) {
             if (rowIndex === totalDataCount) {
               cellProps.showBorderBottom =
                 computedVisibleIndex >= computedGroupBy.length;
@@ -1426,7 +1427,7 @@ export default class DataGridRow extends React.Component<RowProps> {
 
         if (lastRow) {
           cellProps.showBorderBottom =
-            rowIndex < maxVisibleRows - 1 || rowExpanded;
+            rowIndex! < maxVisibleRows! - 1 || rowExpanded;
         }
 
         if (lockedStart && cellProps.lastInSection) {
@@ -1466,7 +1467,7 @@ export default class DataGridRow extends React.Component<RowProps> {
 
           if (
             computedVisibleIndex > cellProps.summaryProps.depth &&
-            computedVisibleIndex <= computedGroupBy.length &&
+            computedVisibleIndex <= computedGroupBy!.length &&
             !groupColumn
           ) {
             cellProps.showBorderLeft = false;
@@ -1533,7 +1534,7 @@ export default class DataGridRow extends React.Component<RowProps> {
     this.maxRowspan = maxRowspan;
 
     if (this.props.computedEnableRowspan) {
-      this.props.setRowSpan(maxRowspan);
+      this.props.setRowSpan && this.props.setRowSpan(maxRowspan);
     }
 
     this.hasBorderTop = hasBorderTop;
@@ -1611,7 +1612,11 @@ export default class DataGridRow extends React.Component<RowProps> {
     }
   }
 
-  tryRowCellEdit(editIndex: number, dir = 0, isEnterNavigation: boolean) {
+  tryRowCellEdit(
+    editIndex: number,
+    dir: -1 | 0 | 1 = 0,
+    isEnterNavigation: boolean
+  ) {
     const cols = this.props.columns;
     let col;
     let colIndex;
@@ -1658,19 +1663,21 @@ export default class DataGridRow extends React.Component<RowProps> {
       return Promise.reject(null);
     }
 
-    foundCols.sort((a, b) => {
+    foundCols.sort((a: any, b: any) => {
       // if dir > 0, sort asc, otherwise, desc
       return dir > 0 ? a - b : b - a;
     });
-    let retries = {};
+
+    // let retries: any = {};
 
     return new Promise((resolve, reject) => {
-      const startEdit = (cols, index = 0) => {
+      const startEdit = (cols: any, index = 0) => {
         const errBack = () => {
           isEnterNavigation
             ? this.tryNextRowEdit(dir, editIndex, true)
             : startEdit(cols, index + 1);
         };
+
         const col = cols[index];
         if (!col) {
           this.tryNextRowEdit(
@@ -1683,18 +1690,21 @@ export default class DataGridRow extends React.Component<RowProps> {
           );
           return reject('column not found');
         }
+
         const cell = this.getCellById(col.id);
         if (!cell) {
-          if (retries[col.id]) {
-            return reject('column not found');
-          }
-          retries[col.id] = true;
+          // if (retries[col.id]) {
+          //   return reject('column not found');
+          // }
+          // retries[col.id] = true;
 
-          this.props.scrollToColumn(col.id, undefined, () => {
-            setTimeout(() => {
-              startEdit(cols, index);
-            }, 20);
-          });
+          if (this.props.scrollToColumn) {
+            this.props.scrollToColumn(col.id, undefined, () => {
+              setTimeout(() => {
+                startEdit(cols, index);
+              }, 20);
+            });
+          }
           return;
         }
 
@@ -1708,24 +1718,30 @@ export default class DataGridRow extends React.Component<RowProps> {
     });
   }
 
-  tryNextRowEdit(dir: 1 | -1, columnIndex, isEnterNavigation?: boolean) {
-    this.props.scrollToIndexIfNeeded(
-      this.props.rowIndex + 2 * dir,
-      { direction: dir == -1 ? 'top' : 'bottom' },
-      () => {
-        if (this.props.tryNextRowEdit) {
-          this.props.tryNextRowEdit(
-            this.props.rowIndex + dir,
-            dir,
-            columnIndex,
-            isEnterNavigation
-          );
+  tryNextRowEdit(
+    dir: 1 | 0 | -1,
+    columnIndex: any,
+    isEnterNavigation?: boolean
+  ) {
+    if (this.props.scrollToIndexIfNeeded) {
+      this.props.scrollToIndexIfNeeded(
+        this.props.rowIndex + 2 * dir,
+        { direction: dir == -1 ? 'top' : 'bottom' },
+        () => {
+          if (this.props.tryNextRowEdit) {
+            this.props.tryNextRowEdit(
+              this.props.rowIndex + dir,
+              dir,
+              columnIndex,
+              isEnterNavigation
+            );
+          }
         }
-      }
-    );
+      );
+    }
   }
 
-  onTransitionEnd(cellProps: CellProps, columnProps, e) {
+  onTransitionEnd(cellProps: CellProps, columnProps: any, e: any) {
     e.stopPropagation();
 
     if (columnProps.onTransitionEnd) {
@@ -1806,12 +1822,15 @@ export default class DataGridRow extends React.Component<RowProps> {
     range: { start: number; end: number },
     cellProps: CellProps[]
   ): { start: number; end: number } {
-    let extraNeededColumns = cellProps.reduce((total, cellProps: CellProps) => {
-      return (
-        total +
-        (cellProps.computedColspan > 1 ? cellProps.computedColspan - 1 : 0)
-      );
-    }, 0);
+    let extraNeededColumns = cellProps.reduce(
+      (total: number, cellProps: CellProps) => {
+        return (
+          total +
+          (cellProps.computedColspan! > 1 ? cellProps.computedColspan! - 1 : 0)
+        );
+      },
+      0
+    );
 
     if (!extraNeededColumns) {
       return range;
@@ -1836,7 +1855,7 @@ export default class DataGridRow extends React.Component<RowProps> {
     return range;
   }
 
-  renderRow(_, __, style) {
+  renderRow(_: any, __: any, style: any) {
     const {
       scrollLeft,
       hasLockedStart,
@@ -1919,7 +1938,7 @@ export default class DataGridRow extends React.Component<RowProps> {
 
     const result = cellProps.map((cProps, index) => {
       let cell;
-      let key = index;
+      let key: number | string = index;
 
       if (!virtualizeColumns) {
         key = cProps.id || index;
@@ -1951,9 +1970,13 @@ export default class DataGridRow extends React.Component<RowProps> {
     );
   }
 
-  onClick(event) {
+  onClick(event: MouseEvent) {
     const props = this.props;
     const { passedProps } = props;
+
+    if (props.computedTreeEnabled && props.expandOnMouseDown) {
+      this.toggleNodeExpand(props.rowIndex);
+    }
 
     if (props.onClick) {
       props.onClick(event, props);
@@ -2060,6 +2083,7 @@ DataGridRow.propTypes = {
   setRowExpanded: PropTypes.func,
   toggleRowExpand: PropTypes.func,
   toggleNodeExpand: PropTypes.func,
+  expandOnMouseDown: PropTypes.bool,
   loadNodeAsync: PropTypes.func,
   showAllGroupCells: PropTypes.bool,
   computedShowCellBorders: PropTypes.oneOfType([
@@ -2143,4 +2167,5 @@ DataGridRow.propTypes = {
   setActiveIndex: PropTypes.func,
   renderTreeCollapseTool: PropTypes.func,
   renderTreeExpandTool: PropTypes.func,
+  renderTreeLoadingTool: PropTypes.func,
 };

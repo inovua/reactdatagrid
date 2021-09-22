@@ -786,7 +786,12 @@ export default class InovuaDataGridCell extends React.Component {
   }
 
   renderNodeTool(props) {
-    const { data, renderTreeCollapseTool, renderTreeExpandTool } = props;
+    const {
+      data,
+      renderTreeCollapseTool,
+      renderTreeExpandTool,
+      renderTreeLoadingTool,
+    } = props;
     const nodeProps = data.__nodeProps || emptyObject;
 
     const leafNode = nodeProps.leafNode;
@@ -817,9 +822,14 @@ export default class InovuaDataGridCell extends React.Component {
         toggleNodeExpand: props.toggleNodeExpand,
         renderTreeCollapseTool,
         renderTreeExpandTool,
+        renderTreeLoadingTool,
       },
       props
     );
+
+    if (!element) {
+      return;
+    }
 
     return cloneElement(element, { key: 'nodeTool' });
   }

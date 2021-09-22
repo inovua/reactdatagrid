@@ -62,6 +62,7 @@ export default (
     setRowExpanded,
     toggleRowExpand,
     toggleNodeExpand,
+    expandOnMouseDown,
     loadNodeAsync,
     computedTreeEnabled,
     computedActiveCell,
@@ -125,6 +126,7 @@ export default (
     renderNodeTool,
     renderTreeCollapseTool,
     renderTreeExpandTool,
+    renderTreeLoadingTool,
     isRowExpanded,
     rowExpandHeight,
     isRowExpandedById,
@@ -319,6 +321,7 @@ export default (
       rtl,
       toggleRowExpand,
       toggleNodeExpand,
+      expandOnMouseDown,
       loadNodeAsync,
       edition,
       computedLicenseValid,
@@ -364,6 +367,7 @@ export default (
       setActiveIndex,
       renderTreeCollapseTool,
       renderTreeExpandTool,
+      renderTreeLoadingTool,
     };
 
     if (rowProps.rowIndex === editRowIndex) {

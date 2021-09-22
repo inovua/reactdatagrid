@@ -500,9 +500,6 @@ export default class InovuaDataGridHeaderLayout extends Component {
   }
 
   onHeaderGroupMouseDown(event, headerGroupProps, headerGroup) {
-    // in order to stop propagation from going to groups containing this group
-    event.stopPropagation();
-
     if (event.ctrlKey || event.metaKey) {
       return;
     }
