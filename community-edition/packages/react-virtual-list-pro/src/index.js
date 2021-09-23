@@ -132,6 +132,9 @@ export default class InovuaVirtualList extends Component {
         };
         this.getClientSize = n => {
             const node = n.firstChild;
+            if (!node) {
+                return;
+            }
             const SCROLLBAR_WIDTH = getScrollbarWidth();
             let offset = SCROLLBAR_WIDTH ? 0 : this.getEmptyScrollOffset() || 0;
             if (this.props.nativeScroll) {
@@ -1000,6 +1003,14 @@ export default class InovuaVirtualList extends Component {
     renderStickyRowsContainer() {
         return this.props.stickyRows ? (React.createElement(StickyRowsContainer, { rtl: this.props.rtl, key: "stickyrowscontainer", stickyOffset: this.props.stickyOffset, handle: this.refStickyContainer, rowHeightManager: this.props.rowHeightManager })) : null;
     }
+    renderBrowserScrollContainer(props) {
+        const domProps = {
+            ref: this.refContainerNode,
+            key: 'browserscrollcontainer',
+            children: this.renderRows(),
+        };
+        return React.createElement(BrowserScroller, Object.assign({}, domProps));
+    }
     render() {
         const { props } = this;
         const { naturalRowHeight, scrollProps, theme, minRowHeight, rowHeightManager, count, } = props;
@@ -1011,6 +1022,9 @@ export default class InovuaVirtualList extends Component {
         const rowContainer = this.renderRowContainer();
         const sizer = this.renderSizer(scrollHeight);
         const stickyRowsContainer = this.renderStickyRowsContainer();
+        if (this.props.browserScroll) {
+            // return this.renderBrowserScrollContainer(props);
+        }
         let children;
         if (hasSticky()) {
             children = React.Fragment ? (React.createElement(React.Fragment, null,
@@ -1031,7 +1045,7 @@ export default class InovuaVirtualList extends Component {
         }
         return (React.createElement(Factory, Object.assign({ contain: this.props.contain, ResizeObserver: this.props.ResizeObserver !== undefined
                 ? this.props.ResizeObserver
-                : ResizeObserver, extraChildren: stickyRowsContainer, useTransformToScroll: this.props.useTransformPosition }, cleanupProps(props, InovuaVirtualList.propTypes), scrollProps, { rtl: this.props.rtl, nativeScroll: this.props.nativeScroll, ref: this.refScrollContainer, onScrollbarsChange: this.onScrollbarsChange, style: style, theme: theme, className: className, onScrollStart: this.onScrollStart, onScrollStop: this.onScrollStop, applyScrollStyle: this.applyScrollStyle, onResize: this.onResize, onViewResize: this.onViewResize, renderScroller: this.renderScroller, renderScrollerSpacer: renderScrollerSpacer, renderView: this.renderView, getClientSize: this.getClientSize, getScrollSize: this.getScrollSize, children: children })));
+                : ResizeObserver, extraChildren: stickyRowsContainer, useTransformToScroll: this.props.useTransformPosition }, cleanupProps(props, InovuaVirtualList.propTypes), scrollProps, { rtl: this.props.rtl, nativeScroll: this.props.nativeScroll, ref: this.refScrollContainer, onScrollbarsChange: this.onScrollbarsChange, style: style, theme: theme, className: className, onScrollStart: this.onScrollStart, onScrollStop: this.onScrollStop, applyScrollStyle: this.applyScrollStyle, onResize: this.onResize, onViewResize: this.onViewResize, renderScroller: this.renderScroller, renderScrollerSpacer: renderScrollerSpacer, renderView: this.renderView, getClientSize: this.getClientSize, getScrollSize: this.getScrollSize, children: children, browserScroll: this.props.browserScroll })));
     }
     updateRows(range, reorder, updateScroll) {
         const { rowHeightManager } = this.props;
@@ -1403,6 +1417,7 @@ const propTypes = {
     recycleCoveredRows: PropTypes.bool,
     stickyOffset: PropTypes.number,
     enableRowSpan: PropTypes.bool,
+    browserScroll: PropTypes.bool,
     rowHeightManager: (props, propName) => {
         const value = props[propName];
         if (!value) {

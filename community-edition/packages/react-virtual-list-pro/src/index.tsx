@@ -224,6 +224,9 @@ export default class InovuaVirtualList extends Component<TypeProps> {
   };
   getClientSize = n => {
     const node = n.firstChild;
+    if (!node) {
+      return;
+    }
     const SCROLLBAR_WIDTH = getScrollbarWidth();
     let offset = SCROLLBAR_WIDTH ? 0 : this.getEmptyScrollOffset() || 0;
     if (this.props.nativeScroll) {
@@ -373,6 +376,15 @@ export default class InovuaVirtualList extends Component<TypeProps> {
     ) : null;
   }
 
+  renderBrowserScrollContainer(props: any) {
+    const domProps = {
+      ref: this.refContainerNode,
+      key: 'browserscrollcontainer',
+      children: this.renderRows(),
+    };
+    return <BrowserScroller {...domProps} />;
+  }
+
   render() {
     const { props } = this;
     const {
@@ -399,6 +411,10 @@ export default class InovuaVirtualList extends Component<TypeProps> {
     const rowContainer = this.renderRowContainer();
     const sizer = this.renderSizer(scrollHeight);
     const stickyRowsContainer = this.renderStickyRowsContainer();
+
+    if (this.props.browserScroll) {
+      // return this.renderBrowserScrollContainer(props);
+    }
 
     let children;
 
@@ -460,6 +476,7 @@ export default class InovuaVirtualList extends Component<TypeProps> {
         getClientSize={this.getClientSize}
         getScrollSize={this.getScrollSize}
         children={children}
+        browserScroll={this.props.browserScroll}
       />
     );
   }
@@ -1917,6 +1934,7 @@ const propTypes = {
   recycleCoveredRows: PropTypes.bool,
   stickyOffset: PropTypes.number,
   enableRowSpan: PropTypes.bool,
+  browserScroll: PropTypes.bool,
   rowHeightManager: (props, propName) => {
     const value = props[propName];
     if (!value) {

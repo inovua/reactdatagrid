@@ -330,6 +330,7 @@ export default class InovuaDataGridList extends Component<ListProps> {
         scrollProps={scrollProps}
         emptyScrollOffset={this.getEmptyScrollOffset()}
         nativeScroll={thisProps.nativeScroll}
+        browserScroll={thisProps.browserScroll}
         onResize={this.onResize}
         virtualized={thisProps.virtualized}
         minRowWidth={minRowWidth}

@@ -31,6 +31,7 @@ const DataGrid = (props: any) => {
     cellSelection,
     onCellSelectionChange: setCellSelection,
     clearDataSourceCacheOnChange: false,
+    browserScroll: true,
   };
 
   return <ReactDataGrid {...gridDOMProps} />;
