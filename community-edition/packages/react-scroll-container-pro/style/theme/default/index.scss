@@ -16,3 +16,13 @@
     background-color: $INOVUA_SCROLL_CONTAINER_THUMB_COLOR;
   }
 }
+
+.InovuaReactDataGrid__browser-scroll {
+  overflow: hidden; 
+  display: block;
+  flex-flow: column;
+  position: relative;
+  contain: layout style;
+  height: 100%;
+}
+

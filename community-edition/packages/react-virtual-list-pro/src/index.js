@@ -1003,14 +1003,6 @@ export default class InovuaVirtualList extends Component {
     renderStickyRowsContainer() {
         return this.props.stickyRows ? (React.createElement(StickyRowsContainer, { rtl: this.props.rtl, key: "stickyrowscontainer", stickyOffset: this.props.stickyOffset, handle: this.refStickyContainer, rowHeightManager: this.props.rowHeightManager })) : null;
     }
-    renderBrowserScrollContainer(props) {
-        const domProps = {
-            ref: this.refContainerNode,
-            key: 'browserscrollcontainer',
-            children: this.renderRows(),
-        };
-        return React.createElement(BrowserScroller, Object.assign({}, domProps));
-    }
     render() {
         const { props } = this;
         const { naturalRowHeight, scrollProps, theme, minRowHeight, rowHeightManager, count, } = props;
@@ -1022,9 +1014,6 @@ export default class InovuaVirtualList extends Component {
         const rowContainer = this.renderRowContainer();
         const sizer = this.renderSizer(scrollHeight);
         const stickyRowsContainer = this.renderStickyRowsContainer();
-        if (this.props.browserScroll) {
-            // return this.renderBrowserScrollContainer(props);
-        }
         let children;
         if (hasSticky()) {
             children = React.Fragment ? (React.createElement(React.Fragment, null,

@@ -376,15 +376,6 @@ export default class InovuaVirtualList extends Component<TypeProps> {
     ) : null;
   }
 
-  renderBrowserScrollContainer(props: any) {
-    const domProps = {
-      ref: this.refContainerNode,
-      key: 'browserscrollcontainer',
-      children: this.renderRows(),
-    };
-    return <BrowserScroller {...domProps} />;
-  }
-
   render() {
     const { props } = this;
     const {
@@ -411,10 +402,6 @@ export default class InovuaVirtualList extends Component<TypeProps> {
     const rowContainer = this.renderRowContainer();
     const sizer = this.renderSizer(scrollHeight);
     const stickyRowsContainer = this.renderStickyRowsContainer();
-
-    if (this.props.browserScroll) {
-      // return this.renderBrowserScrollContainer(props);
-    }
 
     let children;
 

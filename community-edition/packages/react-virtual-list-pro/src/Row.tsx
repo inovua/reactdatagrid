@@ -31,13 +31,23 @@ const raf = (global as any).requestAnimationFrame;
 const caf = (global as any).cancelAnimationFrame;
 
 type TypeVirtualListRow = {
-  useTransformPosition: boolean;
-  pure: boolean;
+  useTransformPosition?: boolean;
+  pure?: boolean;
   showEmptyRows?: boolean;
   rowHeightManager: RowHeightManager;
   naturalRowHeight?: boolean;
   virtualized?: boolean;
   contain?: boolean | string;
+  sticky?: boolean;
+  rowHeight?: number;
+  onRowHeightChange?: Function;
+  notifyRowSpan?: any;
+  index?: number;
+  count?: number;
+  renderRow?: Function;
+  onKeyDown?: Function;
+  onFocus?: Function;
+  onUnmount?: Function;
 };
 export default class InovuaVirtualListRow extends React.Component<
   TypeVirtualListRow

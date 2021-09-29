@@ -8,6 +8,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import assignDefined from '../../../packages/assign-defined';
 import VirtualList, { propTypes as virtualListPropTypes, getScrollbarWidth, } from '../../../packages/react-virtual-list-pro/src';
+import ScrollContainerNative from '../../../packages/react-virtual-list-native';
 import equal from '../../../packages/shallowequal';
 import renderRows from './renderRows';
 import shouldComponentUpdate from '../../../packages/shouldComponentUpdate';
@@ -145,6 +146,13 @@ export default class InovuaDataGridList extends Component {
                 props.children,
                 this.props.renderActiveRowIndicator &&
                     this.props.renderActiveRowIndicator(this.setupActiveRowIndicatorHandle)));
+        };
+        this.renderBrowserRowContainer = ({ children }) => {
+            let activeRowIndicator;
+            if (this.props.renderActiveRowIndicator) {
+                activeRowIndicator = this.props.renderActiveRowIndicator(this.setupActiveRowIndicatorHandle);
+            }
+            return [...children, activeRowIndicator];
         };
         this.setupActiveRowIndicatorHandle = (activeRowHandle) => {
             this.activeRowIndicatorHandle = activeRowHandle;
@@ -504,7 +512,36 @@ export default class InovuaDataGridList extends Component {
             this.__minRowWidth = minRowWidth;
             this.__data = thisProps.data;
         }
-        return (React.createElement(VirtualList, Object.assign({ rowHeight: null, extraRows: naturalRowHeight ? 1 : 0, style: thisProps.style, theme: this.props.theme, checkResizeDelay: thisProps.checkResizeDelay, rowContain: thisProps.rowContain, contain: thisProps.contain, rtl: thisProps.rtl, stickyOffset: thisProps.rtlOffset, stickyRows: thisProps.computedStickyRows, onStickyRowUpdate: this.onStickyRowUpdate, enableRowSpan: thisProps.computedEnableRowspan, recycleCoveredRows: false, className: VirtualListClassName, renderRowContainer: this.renderRowContainer }, maybeProps, { overscrollBehavior: "auto", rowHeightManager: thisProps.rowHeightManager, before: thisProps.before, after: thisProps.after, showEmptyRows: thisProps.computedShowEmptyRows, scrollProps: scrollProps, emptyScrollOffset: this.getEmptyScrollOffset(), nativeScroll: thisProps.nativeScroll, browserScroll: thisProps.browserScroll, onResize: this.onResize, virtualized: thisProps.virtualized, minRowWidth: minRowWidth, naturalRowHeight: naturalRowHeight, renderScroller: this.renderScroller, renderScrollerSpacer: this.renderScrollerSpacer, renderSizer: this.renderSizer, renderView: this.renderView, useTransformRowPosition: this.props.useTransformRowPosition, useTransformPosition: this.props.useTransformPosition, shouldComponentUpdate: shouldUpdate, ref: this.refVirtualList, count: thisProps.data.length || 0, pureRows: pureRows, renderRow: renderRow, onContainerScrollHorizontal: this.onScrollHorizontal, onContainerScroll: this.onContainerScroll, onScrollbarsChange: this.onScrollbarsChange, onContainerScrollVertical: this.props.onContainerScrollVertical, onScrollStop: this.onScrollStop, shouldFocusNextRow: this.shouldFocusNextRow })));
+        const commonProps = {
+            rowHeight: null,
+            extraRows: naturalRowHeight ? 1 : 0,
+            style: thisProps.style,
+            theme: this.props.theme,
+            checkResizeDelay: thisProps.checkResizeDelay,
+            rowContain: thisProps.rowContain,
+            contain: thisProps.contain,
+            rtl: thisProps.rtl,
+            recycleCoveredRows: false,
+            enableRowSpan: thisProps.computedEnableRowspan,
+            ...maybeProps,
+            rowHeightManager: thisProps.rowHeightManager,
+            showEmptyRows: thisProps.computedShowEmptyRows,
+            onResize: this.onResize,
+            virtualized: thisProps.virtualized,
+            naturalRowHeight: naturalRowHeight,
+            useTransformRowPosition: this.props.useTransformRowPosition,
+            useTransformPosition: this.props.useTransformPosition,
+            ref: this.refVirtualList,
+            count: thisProps.data.length || 0,
+            pureRows: pureRows,
+            shouldComponentUpdate: shouldUpdate,
+            renderRow: renderRow,
+            onScrollStop: this.onScrollStop,
+        };
+        if (thisProps.browserScroll) {
+            return (React.createElement(ScrollContainerNative, Object.assign({}, commonProps, { renderBrowserRowContainer: this.renderBrowserRowContainer })));
+        }
+        return (React.createElement(VirtualList, Object.assign({}, commonProps, { stickyOffset: thisProps.rtlOffset, stickyRows: thisProps.computedStickyRows, onStickyRowUpdate: this.onStickyRowUpdate, className: VirtualListClassName, renderRowContainer: this.renderRowContainer, overscrollBehavior: "auto", before: thisProps.before, after: thisProps.after, scrollProps: scrollProps, emptyScrollOffset: this.getEmptyScrollOffset(), nativeScroll: thisProps.nativeScroll, minRowWidth: minRowWidth, renderScroller: this.renderScroller, renderScrollerSpacer: this.renderScrollerSpacer, renderSizer: this.renderSizer, renderView: this.renderView, onContainerScrollHorizontal: this.onScrollHorizontal, onContainerScroll: this.onContainerScroll, onScrollbarsChange: this.onScrollbarsChange, onContainerScrollVertical: this.props.onContainerScrollVertical, shouldFocusNextRow: this.shouldFocusNextRow })));
     }
     shouldFocusNextRow({ index, nextIndex, dir }) {
         const shouldFocus = !this.isLazyEditing();

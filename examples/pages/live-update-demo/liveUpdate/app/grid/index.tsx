@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import ReactDataGrid from '../../../../../../enterprise-edition';
 import buildColumns from './columns';
@@ -14,8 +14,13 @@ const emptyText = (
 const DataGrid = (props: any) => {
   const { theme, data, cols, load, cellSelection } = useAppState();
   const { setCellSelection } = useAppActions();
+  const [groupBy, setGroupBy] = useState([]);
 
   const [columns] = React.useState(() => buildColumns(cols));
+
+  const onGroupByChange = (groupBy: any[]) => {
+    setGroupBy(groupBy);
+  };
 
   const gridDOMProps: any = {
     key: `${load}`,
@@ -32,6 +37,8 @@ const DataGrid = (props: any) => {
     onCellSelectionChange: setCellSelection,
     clearDataSourceCacheOnChange: false,
     browserScroll: true,
+    groupBy,
+    onGroupByChange,
   };
 
   return <ReactDataGrid {...gridDOMProps} />;
