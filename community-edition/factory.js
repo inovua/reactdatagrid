@@ -947,7 +947,7 @@ const GridFactory = ({ plugins } = {}, edition = 'community') => {
         computedProps.activeRowHeight = activeRowHeight || computedProps.rowHeight;
         if (computedFocused) {
             computedProps.renderActiveRowIndicator = (handle) => {
-                return (React.createElement(ActiveRowIndicator, { handle: handle, rtl: computedProps.rtl, rtlOffset: computedProps.rtlOffset, getDOMNode: computedProps.getDOMNode, dataSourceCount: computedProps.data.length, width: computedProps.minRowWidth || 0, computedRowHeights: computedProps.computedRowHeights, computedExpandedRows: computedProps.computedExpandedRows, computedExpandedNodes: computedProps.computedExpandedNodes, activeRowHeight: computedProps.activeRowHeight, activeIndex: computedProps.computedActiveIndex, activeRowRef: computedProps.activeRowRef }));
+                return (React.createElement(ActiveRowIndicator, { key: "activerowindicator", handle: handle, rtl: computedProps.rtl, rtlOffset: computedProps.rtlOffset, getDOMNode: computedProps.getDOMNode, dataSourceCount: computedProps.data.length, width: computedProps.minRowWidth || 0, computedRowHeights: computedProps.computedRowHeights, computedExpandedRows: computedProps.computedExpandedRows, computedExpandedNodes: computedProps.computedExpandedNodes, activeRowHeight: computedProps.activeRowHeight, activeIndex: computedProps.computedActiveIndex, activeRowRef: computedProps.activeRowRef }));
             };
         }
         computedProps.computedLicenseValid = false;

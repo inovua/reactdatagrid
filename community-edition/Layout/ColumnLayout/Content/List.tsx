@@ -337,6 +337,7 @@ export default class InovuaDataGridList extends Component<ListProps> {
       ref: this.refVirtualList,
       count: thisProps.data.length || 0,
       pureRows: pureRows,
+      minRowWidth: minRowWidth,
       shouldComponentUpdate: shouldUpdate,
       renderRow: renderRow,
       onScrollStop: this.onScrollStop,
@@ -365,7 +366,6 @@ export default class InovuaDataGridList extends Component<ListProps> {
         scrollProps={scrollProps}
         emptyScrollOffset={this.getEmptyScrollOffset()}
         nativeScroll={thisProps.nativeScroll}
-        minRowWidth={minRowWidth}
         renderScroller={this.renderScroller}
         renderScrollerSpacer={this.renderScrollerSpacer}
         renderSizer={this.renderSizer}
@@ -867,6 +867,7 @@ const propTypes = Object.assign({}, virtualListPropTypes, {
   showWarnings: PropTypes.bool,
   to: PropTypes.number,
   virtualizeColumns: PropTypes.bool,
+  browserScroll: PropTypes.bool,
 });
 
 delete propTypes.renderRow;

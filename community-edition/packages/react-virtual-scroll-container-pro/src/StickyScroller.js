@@ -372,7 +372,7 @@ class StickyVirtualScrollContainer extends React.Component {
                 ...WRAPPER_STYLE,
                 top: beforeHeight,
                 bottom: afterHeight,
-            } }, cleanedProps, { style: style, before: this.getBefore(), after: this.getAfter(), nativeScroll: this.props.nativeScroll, emptyScrollOffset: 0, getScrollSize: this.getScrollSize, renderScroller: this.renderScroller, renderView: renderView, onViewResize: this.onViewResize, onContainerScroll: this.updateScrollStyle, ref: this.refScroller, browserScroll: this.props.browserScroll })));
+            } }, cleanedProps, { style: style, before: this.getBefore(), after: this.getAfter(), nativeScroll: this.props.nativeScroll, emptyScrollOffset: 0, getScrollSize: this.getScrollSize, renderScroller: this.renderScroller, renderView: renderView, onViewResize: this.onViewResize, onContainerScroll: this.updateScrollStyle, ref: this.refScroller })));
     }
 }
 StickyVirtualScrollContainer.propTypes = {
@@ -384,7 +384,6 @@ StickyVirtualScrollContainer.propTypes = {
     applyScrollStyle: PropTypes.func,
     useTransformToScroll: PropTypes.bool,
     preventRtlInherit: PropTypes.bool,
-    browserScroll: PropTypes.bool,
 };
 StickyVirtualScrollContainer.defaultProps = {
     useTransformToScroll: !IS_EDGE,

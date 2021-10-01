@@ -158,6 +158,7 @@ type TypeDataGridPropsNoI18n = {
     active: boolean;
   }) => React.ReactNode | undefined;
   filterable?: boolean;
+  browserScroll?: boolean;
   disableGroupByToolbar?: boolean;
   onReady?: (
     computedPropsRef: MutableRefObject<TypeComputedProps | null>

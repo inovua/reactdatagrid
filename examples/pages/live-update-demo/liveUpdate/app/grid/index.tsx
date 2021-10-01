@@ -36,7 +36,7 @@ const DataGrid = (props: any) => {
     cellSelection,
     onCellSelectionChange: setCellSelection,
     clearDataSourceCacheOnChange: false,
-    browserScroll: true,
+    browserScroll: props.browserScroll,
     groupBy,
     onGroupByChange,
   };

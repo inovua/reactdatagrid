@@ -9,6 +9,7 @@ const App = () => {
   const [gridRef, setGridRef] = useState(null);
   const [showGrid, setShowGrid] = useState(true);
   const [showNormal, setShowNormal] = useState(false);
+  const [browserScroll, setBrowserScroll] = useState(true);
 
   return (
     <div className="app">
@@ -32,8 +33,19 @@ const App = () => {
             Show normal grid
           </CheckBox>
         </div>
+        <div style={{ marginBottom: 20 }}>
+          <CheckBox
+            theme="default-dark"
+            checked={browserScroll}
+            onChange={setBrowserScroll}
+          >
+            Browser scroll
+          </CheckBox>
+        </div>
         <div className="app-content">
-          {showGrid ? <Grid setGridRef={setGridRef} /> : null}
+          {showGrid ? (
+            <Grid setGridRef={setGridRef} browserScroll={browserScroll} />
+          ) : null}
           <Configurator gridRef={gridRef} />
         </div>
         <div style={{ marginTop: 20 }}>

@@ -1438,6 +1438,7 @@ const GridFactory = (
       ) => {
         return (
           <ActiveRowIndicator
+            key="activerowindicator"
             handle={handle}
             rtl={computedProps.rtl}
             rtlOffset={computedProps.rtlOffset}

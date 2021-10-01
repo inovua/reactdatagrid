@@ -7,6 +7,7 @@
 
 import React, { Component } from 'react';
 import NotifyResize from '../../../packages/react-notify-resize/src';
+import smoothScrollTo from '../../smoothScrollTo';
 
 type TypeProps = {
   theme: string;
@@ -38,6 +39,7 @@ type TypeProps = {
   scrollMaxDelta?: any;
   rowContainer?: any;
   children?: any[];
+  minRowWidth?: number;
 };
 
 const defaultProps = {
@@ -112,6 +114,30 @@ class Scroller extends Component<TypeProps, any> {
     }
   };
 
+  get scrollTop() {
+    return this.domNode.scrollTop;
+  }
+
+  get scrollLeft() {
+    return this.domNode.scrollLeft;
+  }
+
+  get scrollTopMax() {
+    return this.domNode.firstChild.clientHeight;
+  }
+
+  get scrollLeftMax() {
+    return this.props.minRowWidth;
+  }
+
+  set scrollTop(value) {
+    this.domNode.scrollTop = value;
+  }
+
+  set scrollLeft(value) {
+    this.domNode.scrollLeft = value;
+  }
+
   onScroll = (event: any) => {
     const eventTarget = event.target;
 
@@ -131,6 +157,14 @@ class Scroller extends Component<TypeProps, any> {
       });
     }
   };
+
+  smoothScrollTo(
+    newValue: number,
+    cfg: any,
+    callback: (...args: any[]) => void
+  ) {
+    return smoothScrollTo(this.getDOMNode(), newValue, cfg, callback);
+  }
 
   onStop = (scrollPos: any, prevScrollPos: any, eventTarget: any) => {
     this.scrollStarted = false;
@@ -229,16 +263,25 @@ class Scroller extends Component<TypeProps, any> {
       container = <div key="browserContainer">{props.children}</div>;
     }
 
-    const children = [
+    const containerWrapper = (
       <div
         key="browserScrollContainer"
         style={scrollerStyle}
         className="InovuaReactDataGrid__browser-scroll-container"
       >
         {container}
-      </div>,
-      this.renderSizer(),
-    ];
+      </div>
+    );
+    const sizer = this.renderSizer();
+
+    const children = React.Fragment ? (
+      <React.Fragment>
+        {containerWrapper}
+        {sizer}
+      </React.Fragment>
+    ) : (
+      [containerWrapper, sizer]
+    );
 
     return children;
   };

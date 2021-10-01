@@ -498,7 +498,6 @@ class StickyVirtualScrollContainer extends React.Component {
         onViewResize={this.onViewResize}
         onContainerScroll={this.updateScrollStyle}
         ref={this.refScroller}
-        browserScroll={this.props.browserScroll}
       />
     );
   }
@@ -513,7 +512,6 @@ StickyVirtualScrollContainer.propTypes = {
   applyScrollStyle: PropTypes.func,
   useTransformToScroll: PropTypes.bool,
   preventRtlInherit: PropTypes.bool,
-  browserScroll: PropTypes.bool,
 };
 
 StickyVirtualScrollContainer.defaultProps = {

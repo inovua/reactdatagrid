@@ -463,7 +463,6 @@ export default class InovuaVirtualList extends Component<TypeProps> {
         getClientSize={this.getClientSize}
         getScrollSize={this.getScrollSize}
         children={children}
-        browserScroll={this.props.browserScroll}
       />
     );
   }
@@ -1921,7 +1920,6 @@ const propTypes = {
   recycleCoveredRows: PropTypes.bool,
   stickyOffset: PropTypes.number,
   enableRowSpan: PropTypes.bool,
-  browserScroll: PropTypes.bool,
   rowHeightManager: (props, propName) => {
     const value = props[propName];
     if (!value) {

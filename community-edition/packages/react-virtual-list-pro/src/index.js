@@ -1034,7 +1034,7 @@ export default class InovuaVirtualList extends Component {
         }
         return (React.createElement(Factory, Object.assign({ contain: this.props.contain, ResizeObserver: this.props.ResizeObserver !== undefined
                 ? this.props.ResizeObserver
-                : ResizeObserver, extraChildren: stickyRowsContainer, useTransformToScroll: this.props.useTransformPosition }, cleanupProps(props, InovuaVirtualList.propTypes), scrollProps, { rtl: this.props.rtl, nativeScroll: this.props.nativeScroll, ref: this.refScrollContainer, onScrollbarsChange: this.onScrollbarsChange, style: style, theme: theme, className: className, onScrollStart: this.onScrollStart, onScrollStop: this.onScrollStop, applyScrollStyle: this.applyScrollStyle, onResize: this.onResize, onViewResize: this.onViewResize, renderScroller: this.renderScroller, renderScrollerSpacer: renderScrollerSpacer, renderView: this.renderView, getClientSize: this.getClientSize, getScrollSize: this.getScrollSize, children: children, browserScroll: this.props.browserScroll })));
+                : ResizeObserver, extraChildren: stickyRowsContainer, useTransformToScroll: this.props.useTransformPosition }, cleanupProps(props, InovuaVirtualList.propTypes), scrollProps, { rtl: this.props.rtl, nativeScroll: this.props.nativeScroll, ref: this.refScrollContainer, onScrollbarsChange: this.onScrollbarsChange, style: style, theme: theme, className: className, onScrollStart: this.onScrollStart, onScrollStop: this.onScrollStop, applyScrollStyle: this.applyScrollStyle, onResize: this.onResize, onViewResize: this.onViewResize, renderScroller: this.renderScroller, renderScrollerSpacer: renderScrollerSpacer, renderView: this.renderView, getClientSize: this.getClientSize, getScrollSize: this.getScrollSize, children: children })));
     }
     updateRows(range, reorder, updateScroll) {
         const { rowHeightManager } = this.props;
@@ -1406,7 +1406,6 @@ const propTypes = {
     recycleCoveredRows: PropTypes.bool,
     stickyOffset: PropTypes.number,
     enableRowSpan: PropTypes.bool,
-    browserScroll: PropTypes.bool,
     rowHeightManager: (props, propName) => {
         const value = props[propName];
         if (!value) {

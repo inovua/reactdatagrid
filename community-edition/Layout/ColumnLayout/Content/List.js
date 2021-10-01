@@ -534,6 +534,7 @@ export default class InovuaDataGridList extends Component {
             ref: this.refVirtualList,
             count: thisProps.data.length || 0,
             pureRows: pureRows,
+            minRowWidth: minRowWidth,
             shouldComponentUpdate: shouldUpdate,
             renderRow: renderRow,
             onScrollStop: this.onScrollStop,
@@ -541,7 +542,7 @@ export default class InovuaDataGridList extends Component {
         if (thisProps.browserScroll) {
             return (React.createElement(ScrollContainerNative, Object.assign({}, commonProps, { renderBrowserRowContainer: this.renderBrowserRowContainer })));
         }
-        return (React.createElement(VirtualList, Object.assign({}, commonProps, { stickyOffset: thisProps.rtlOffset, stickyRows: thisProps.computedStickyRows, onStickyRowUpdate: this.onStickyRowUpdate, className: VirtualListClassName, renderRowContainer: this.renderRowContainer, overscrollBehavior: "auto", before: thisProps.before, after: thisProps.after, scrollProps: scrollProps, emptyScrollOffset: this.getEmptyScrollOffset(), nativeScroll: thisProps.nativeScroll, minRowWidth: minRowWidth, renderScroller: this.renderScroller, renderScrollerSpacer: this.renderScrollerSpacer, renderSizer: this.renderSizer, renderView: this.renderView, onContainerScrollHorizontal: this.onScrollHorizontal, onContainerScroll: this.onContainerScroll, onScrollbarsChange: this.onScrollbarsChange, onContainerScrollVertical: this.props.onContainerScrollVertical, shouldFocusNextRow: this.shouldFocusNextRow })));
+        return (React.createElement(VirtualList, Object.assign({}, commonProps, { stickyOffset: thisProps.rtlOffset, stickyRows: thisProps.computedStickyRows, onStickyRowUpdate: this.onStickyRowUpdate, className: VirtualListClassName, renderRowContainer: this.renderRowContainer, overscrollBehavior: "auto", before: thisProps.before, after: thisProps.after, scrollProps: scrollProps, emptyScrollOffset: this.getEmptyScrollOffset(), nativeScroll: thisProps.nativeScroll, renderScroller: this.renderScroller, renderScrollerSpacer: this.renderScrollerSpacer, renderSizer: this.renderSizer, renderView: this.renderView, onContainerScrollHorizontal: this.onScrollHorizontal, onContainerScroll: this.onContainerScroll, onScrollbarsChange: this.onScrollbarsChange, onContainerScrollVertical: this.props.onContainerScrollVertical, shouldFocusNextRow: this.shouldFocusNextRow })));
     }
     shouldFocusNextRow({ index, nextIndex, dir }) {
         const shouldFocus = !this.isLazyEditing();
@@ -600,6 +601,7 @@ const propTypes = Object.assign({}, virtualListPropTypes, {
     showWarnings: PropTypes.bool,
     to: PropTypes.number,
     virtualizeColumns: PropTypes.bool,
+    browserScroll: PropTypes.bool,
 });
 delete propTypes.renderRow;
 InovuaDataGridList.propTypes = propTypes;

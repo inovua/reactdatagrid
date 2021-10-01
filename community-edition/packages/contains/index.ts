@@ -7,8 +7,6 @@
 
 const DOCUMENT_POSITION_CONTAINED_BY = 16;
 
-module.exports = contains;
-
 function contains(container: Element, elem: Element) {
   if (container.contains) {
     return container.contains(elem);
@@ -18,3 +16,5 @@ function contains(container: Element, elem: Element) {
 
   return comparison === 0 || comparison & DOCUMENT_POSITION_CONTAINED_BY;
 }
+
+export default contains;

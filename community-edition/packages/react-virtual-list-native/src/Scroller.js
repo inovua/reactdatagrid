@@ -6,6 +6,7 @@
  */
 import React, { Component } from 'react';
 import NotifyResize from '../../../packages/react-notify-resize/src';
+import smoothScrollTo from '../../smoothScrollTo';
 const defaultProps = {
     theme: 'default-light',
     scrollDebounceDelay: 0,
@@ -134,10 +135,11 @@ class Scroller extends Component {
             if (container === undefined) {
                 container = React.createElement("div", { key: "browserContainer" }, props.children);
             }
-            const children = [
-                React.createElement("div", { key: "browserScrollContainer", style: scrollerStyle, className: "InovuaReactDataGrid__browser-scroll-container" }, container),
-                this.renderSizer(),
-            ];
+            const containerWrapper = (React.createElement("div", { key: "browserScrollContainer", style: scrollerStyle, className: "InovuaReactDataGrid__browser-scroll-container" }, container));
+            const sizer = this.renderSizer();
+            const children = React.Fragment ? (React.createElement(React.Fragment, null,
+                containerWrapper,
+                sizer)) : ([containerWrapper, sizer]);
             return children;
         };
         this.render = () => {
@@ -160,6 +162,27 @@ class Scroller extends Component {
         this.browserResizerRef = (b) => {
             this.browserResizer = b;
         };
+    }
+    get scrollTop() {
+        return this.domNode.scrollTop;
+    }
+    get scrollLeft() {
+        return this.domNode.scrollLeft;
+    }
+    get scrollTopMax() {
+        return this.domNode.firstChild.clientHeight;
+    }
+    get scrollLeftMax() {
+        return this.props.minRowWidth;
+    }
+    set scrollTop(value) {
+        this.domNode.scrollTop = value;
+    }
+    set scrollLeft(value) {
+        this.domNode.scrollLeft = value;
+    }
+    smoothScrollTo(newValue, cfg, callback) {
+        return smoothScrollTo(this.getDOMNode(), newValue, cfg, callback);
     }
 }
 Scroller.defaultProps = defaultProps;

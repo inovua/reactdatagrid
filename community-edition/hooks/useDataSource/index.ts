@@ -673,7 +673,7 @@ export default (
       return;
     }
 
-    const newItems = [];
+    const newItems: any[] = [];
     for (let i = 0; i < items.length; i++) {
       const oldId = computedProps.getItemId(items[i]);
       let newItem = computedProps.getItemAt(oldId);
