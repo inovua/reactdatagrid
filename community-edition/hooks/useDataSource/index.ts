@@ -350,6 +350,7 @@ const usePagination = (
   gotoFirstPage: () => void;
   gotoLastPage: () => void;
   gotoPrevPage: () => void;
+  gotoPage: (page: number) => void;
   hasNextPage: () => boolean;
   hasPrevPage: () => boolean;
   count: number;
@@ -474,6 +475,7 @@ const usePagination = (
       pagination,
       gotoNextPage,
       gotoFirstPage,
+      gotoPage,
       gotoLastPage,
       gotoPrevPage,
       hasNextPage: hasNext,
@@ -489,6 +491,7 @@ const usePagination = (
     setLimit,
     gotoNextPage,
     gotoPrevPage,
+    gotoPage,
     hasNextPage: hasNext,
     hasPrevPage: hasPrev,
     gotoFirstPage,

@@ -17,6 +17,7 @@ export type TypePaginationProps = {
   gotoNextPage: () => void;
   reload: () => void;
   onRefresh: () => void;
+  gotoPage: (page:number) => void;
   gotoFirstPage: () => void;
   gotoLastPage: () => void;
   gotoPrevPage: () => void;
