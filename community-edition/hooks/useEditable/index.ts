@@ -97,11 +97,15 @@ const useEditable = (
         return;
       }
       const col = computedProps.getColumnBy(columnId) as TypeComputedColumn;
+      const columnsCount = computedProps.columns.length;
       if (!col) {
         return;
       }
+      const columnIndex = computedProps.rtl
+        ? columnsCount - col.computedVisibleIndex
+        : col.computedVisibleIndex;
 
-      computedProps.scrollToColumn(col.computedVisibleIndex, { duration: 50 });
+      computedProps.scrollToColumn(columnIndex, { duration: 50 });
     });
     computedProps.isInEdit.current = true;
   }, []);
@@ -162,7 +166,6 @@ const useEditable = (
         rowIndex,
         rowId,
         columnId,
-        dir,
         value,
       }: {
         rowIndex?: number;
