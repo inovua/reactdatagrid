@@ -682,6 +682,7 @@ type TypeDataGridPropsNoI18n = {
     width: number;
     height: number;
   }) => Element | ReactNode;
+  renderPaginationToolbar?: (props: TypePaginationProps) => Element | ReactNode;
   renderSortTool?: (direction: -1 | 0 | 1, extraProps: any) => void;
   enableClipboard?: boolean;
   onCopySelectedCellsChange?: (cells: any) => void;
