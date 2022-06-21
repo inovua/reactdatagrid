@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-function curry(fn, n) {
+function curry(fn: (sortInfo: any, array: any) => any, n?: number) {
   if (typeof n !== 'number') {
     n = fn.length;
   }
