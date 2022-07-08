@@ -124,7 +124,7 @@ inherits(REGION, EventEmitter);
 Object.assign(REGION.prototype, {
     /**
      * @cfg {Boolean} emitChangeEvents If this is set to true, the region
-     * will emit 'changesize' and 'changeposition' whenever the size or the position changs
+     * will emit 'changesize' and 'changeposition' whenever the size or the position changes
      */
     emitChangeEvents: false,
     /**
@@ -603,7 +603,8 @@ Object.assign(REGION.prototype, {
         var dirName;
         for (dirName in directions)
             if (hasOwn(directions, dirName)) {
-                result[dirName] = this[dirName] - region[dirName];
+                result[dirName] =
+                    this[dirName] - region[dirName];
             }
         return result;
     },
@@ -807,31 +808,31 @@ Object.assign(REGION.prototype, {
     getArea: function () {
         return this.getWidth() * this.getHeight();
     },
-    constrainTo: function (contrain) {
-        var intersect = this.getIntersection(contrain);
+    constrainTo: function (constrain) {
+        var intersect = this.getIntersection(constrain);
         var shift;
         if (!intersect || !intersect.equals(this)) {
-            var contrainWidth = contrain.getWidth(), contrainHeight = contrain.getHeight();
-            if (this.getWidth() > contrainWidth) {
-                this.left = contrain.left;
-                this.setWidth(contrainWidth);
+            var constrainWidth = constrain.getWidth(), constrainHeight = constrain.getHeight();
+            if (this.getWidth() > constrainWidth) {
+                this.left = constrain.left;
+                this.setWidth(constrainWidth);
             }
-            if (this.getHeight() > contrainHeight) {
-                this.top = contrain.top;
-                this.setHeight(contrainHeight);
+            if (this.getHeight() > constrainHeight) {
+                this.top = constrain.top;
+                this.setHeight(constrainHeight);
             }
             shift = {};
-            if (this.right > contrain.right) {
-                shift.left = contrain.right - this.right;
+            if (this.right > constrain.right) {
+                shift.left = constrain.right - this.right;
             }
-            if (this.bottom > contrain.bottom) {
-                shift.top = contrain.bottom - this.bottom;
+            if (this.bottom > constrain.bottom) {
+                shift.top = constrain.bottom - this.bottom;
             }
-            if (this.left < contrain.left) {
-                shift.left = contrain.left - this.left;
+            if (this.left < constrain.left) {
+                shift.left = constrain.left - this.left;
             }
-            if (this.top < contrain.top) {
-                shift.top = contrain.top - this.top;
+            if (this.top < constrain.top) {
+                shift.top = constrain.top - this.top;
             }
             this.shift(shift);
             return true;

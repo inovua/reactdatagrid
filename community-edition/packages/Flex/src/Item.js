@@ -10,7 +10,23 @@ import shouldComponentUpdate from './shouldComponentUpdate';
 import join from '../../../common/join';
 import props2className from './props2className';
 import cleanup from './cleanup';
+const defaultProps = { flex: 1 };
+const propTypes = {
+    shouldComponentUpdate: PropTypes.func,
+    display: PropTypes.oneOf(['flex', 'inline-flex']),
+    inline: (props, propName) => {
+        if (props[propName] !== undefined) {
+            return new Error(`"inline" prop should not be used on "Item". Use "display='inline-flex'" instead`);
+        }
+    },
+    flex: PropTypes.any,
+    flexGrow: PropTypes.any,
+    flexShrink: PropTypes.any,
+    flexBasis: PropTypes.any,
+};
 class InovuaFlexItem extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
     shouldComponentUpdate(nextProps, nextState) {
         const shouldUpdate = shouldComponentUpdate(this, nextProps, nextState);
         return shouldUpdate;
@@ -27,18 +43,4 @@ class InovuaFlexItem extends Component {
         return React.createElement("div", { ...allProps });
     }
 }
-InovuaFlexItem.defaultProps = { flex: 1 };
-InovuaFlexItem.propTypes = {
-    shouldComponentUpdate: PropTypes.func,
-    display: PropTypes.oneOf(['flex', 'inline-flex']),
-    inline: (props, propName) => {
-        if (props[propName] !== undefined) {
-            return new Error(`"inline" prop should not be used on "Item". Use "display='inline-flex'" instead`);
-        }
-    },
-    flex: PropTypes.any,
-    flexGrow: PropTypes.any,
-    flexShrink: PropTypes.any,
-    flexBasis: PropTypes.any,
-};
 export default InovuaFlexItem;

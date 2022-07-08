@@ -56,6 +56,8 @@ export {
 export { RowProps } from '../Layout/ColumnLayout/Content/RowProps';
 export { CellProps } from '../Layout/ColumnLayout/Cell/CellProps';
 
+export { RegionType, Region } from './TypeRegion';
+
 export { TypeRowReorderFn };
 
 export type TypePivotColumnSummaryReducer = {

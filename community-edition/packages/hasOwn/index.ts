@@ -5,23 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var hasOwn = Object.prototype.hasOwnProperty;
+var hasOwn: any = Object.prototype.hasOwnProperty;
 
-function curry(fn, n) {
+function curry(fn: Function, n?: number) {
   if (typeof n !== 'number') {
     n = fn.length;
   }
 
-  function getCurryClosure(prevArgs) {
-    function curryClosure() {
-      var len = arguments.length;
-      var args = [].concat(prevArgs);
+  function getCurryClosure(prevArgs: ConcatArray<never>) {
+    function curryClosure(this: any) {
+      var len: number = arguments.length;
+      var args: any = [].concat(prevArgs);
 
       if (len) {
         args.push.apply(args, arguments);
       }
 
-      if (args.length < n) {
+      if (args.length < n!) {
         return getCurryClosure(args);
       }
 
@@ -34,6 +34,6 @@ function curry(fn, n) {
   return getCurryClosure([]);
 }
 
-export default curry(function(object, property) {
+export default curry(function(object: any, property: string) {
   return hasOwn.call(object, property);
-});
+}) as any;

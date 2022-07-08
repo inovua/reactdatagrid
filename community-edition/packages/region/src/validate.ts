@@ -7,6 +7,8 @@
 
 'use strict';
 
+import { Region } from './types';
+
 /**
  * @static
  * Returns true if the given region is valid, false otherwise.
@@ -16,15 +18,15 @@
  *  * left <= right  &&
  *  * top  <= bottom
  */
-export default function validate(region) {
+export default function validate(region: Region): boolean {
   var isValid = true;
 
-  if (region.right < region.left) {
+  if (region.right! < region.left!) {
     isValid = false;
     region.right = region.left;
   }
 
-  if (region.bottom < region.top) {
+  if (region.bottom! < region.top) {
     isValid = false;
     region.bottom = region.top;
   }

@@ -5,11 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 
 import isMobile from '../../../common/isMobile';
+import { TypeSize } from './types';
 
-const ARROWS = {
+type ArrowsType = {
+  right: ReactElement;
+  left: ReactElement;
+  down: ReactElement;
+  up: ReactElement;
+};
+
+const ARROWS: ArrowsType = {
   right: (
     <path
       fillRule="evenodd"
@@ -36,15 +44,28 @@ const ARROWS = {
   ),
 };
 
-const Arrow = ({ name, className, size = isMobile ? 25 : 20 }) => {
+const Arrow = ({
+  name,
+  className,
+  size = isMobile ? 25 : 20,
+}: {
+  name: string;
+  className: string;
+  size?: TypeSize | number;
+  width?: number;
+  height?: number;
+}) => {
+  const svgHeight = typeof size === 'number' ? size : size.height;
+  const svgWidth = typeof size === 'number' ? size : size.width;
+
   return (
     <svg
       className={`${className} ${className}--${name}`}
-      height={size.height || size}
-      width={size.width || size}
+      height={svgHeight}
+      width={svgWidth}
       viewBox="0 0 10 20"
     >
-      <g transform="translate(2.5, 5)">{ARROWS[name]}</g>
+      <g transform="translate(2.5, 5)">{ARROWS[name as keyof ArrowsType]}</g>
     </svg>
   );
 };

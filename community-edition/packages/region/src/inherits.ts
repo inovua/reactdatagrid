@@ -7,7 +7,7 @@
 
 'use strict';
 
-export default function(ctor, superCtor) {
+export default function(ctor: any, superCtor: any) {
   ctor.super_ = superCtor;
   ctor.prototype = Object.create(superCtor.prototype, {
     constructor: {

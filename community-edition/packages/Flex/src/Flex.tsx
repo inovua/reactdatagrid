@@ -11,9 +11,13 @@ import PropTypes from 'prop-types';
 import join from '../../../common/join';
 import props2className from './props2className';
 import cleanup from './cleanup';
+import { TypeProps } from './types';
 
-const InovuaFlex = forwardRef((props, ref) => {
-  const className = join('inovua-react-toolkit-flex', props2className(props));
+const InovuaFlex = forwardRef((props: TypeProps, ref: any) => {
+  const className: string = join(
+    'inovua-react-toolkit-flex',
+    props2className(props)
+  );
 
   const allProps = { ...props };
 

@@ -8,7 +8,7 @@ import join from '../../../common/join';
 import props2flex from './props2flex';
 import prefix from './prefix';
 const PREFIX = prefix;
-export default props => {
+export default (props) => {
     const column = !!props.column;
     const row = !column && !!props.row;
     const reverse = props.reverse ? '-reverse' : '';

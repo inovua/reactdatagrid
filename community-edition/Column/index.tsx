@@ -18,15 +18,15 @@ export default class Column extends React.Component {
   }
 }
 
-Column.defaultProps = {
+(Column as any).defaultProps = {
   // used to check if element is column
   isColumn: true,
   keepFlex: true,
 };
 
-Column.propTypes = {
+(Column as any).propTypes = {
   keepFlex: PropTypes.bool,
-  id: props => {
+  id: (props: any) => {
     if (!props.name && !props.id) {
       return new Error('Each column should have a "name" or an "id" property!');
     }

@@ -8,22 +8,36 @@
 import hasOwn from '../../../packages/hasOwn';
 
 import applyStatics from './statics';
-import EventEmitter from 'eventemitter3';
+import EventEmitter, { ValidEventTypes } from 'eventemitter3';
 
 import inherits from './inherits';
 import VALIDATE from './validate';
 
+import {
+  Region,
+  RegionType,
+  Position,
+  Rectangle,
+  Dimensions,
+  PointPositions,
+  PointPositionsValue,
+} from './types';
+
 var objectToString = Object.prototype.toString;
 
-var isObject = function(value) {
+var isObject = function(value: any) {
   return objectToString.apply(value) === '[object Object]';
 };
 
-function copyList(source, target, list) {
+function copyList(
+  source: Position,
+  target: Region | {},
+  list: string[]
+): Position {
   if (source) {
-    list.forEach(function(key) {
+    list.forEach(function(key: string) {
       if (hasOwn(source, key)) {
-        target[key] = source[key];
+        (target as any)[key] = (source as any)[key];
       }
     });
   }
@@ -52,7 +66,7 @@ function copyList(source, target, list) {
  *      //the "union" region is a union between "region" and "second"
  */
 
-var POINT_POSITIONS = {
+var POINT_POSITIONS: PointPositions = {
   cy: 'YCenter',
   cx: 'XCenter',
   t: 'Top',
@@ -96,10 +110,14 @@ var POINT_POSITIONS = {
  *
  * @return {Region} this
  */
-var REGION: any = function(...args) {
+
+var REGION: RegionType = function(
+  this: Region & EventEmitter<ValidEventTypes, unknown>,
+  ...args
+): any {
   const [top, right, bottom, left] = args;
   if (!(this instanceof REGION)) {
-    return new REGION(...args);
+    return new (REGION as any)(...args);
   }
 
   EventEmitter.call(this);
@@ -108,10 +126,10 @@ var REGION: any = function(...args) {
     copyList(top, this, ['top', 'right', 'bottom', 'left']);
 
     if (top.bottom == null && top.height != null) {
-      this.bottom = this.top + top.height;
+      this.bottom = this.top! + top.height;
     }
     if (top.right == null && top.width != null) {
-      this.right = this.left + top.width;
+      this.right = this.left! + top.width;
     }
 
     if (this.right == null) {
@@ -131,8 +149,8 @@ var REGION: any = function(...args) {
     this.left = left;
   }
 
-  this[0] = this.left;
-  this[1] = this.top;
+  (this as any)[0] = this.left;
+  (this as any)[1] = this.top;
 
   VALIDATE(this);
 };
@@ -142,7 +160,7 @@ inherits(REGION, EventEmitter);
 Object.assign(REGION.prototype, {
   /**
    * @cfg {Boolean} emitChangeEvents If this is set to true, the region
-   * will emit 'changesize' and 'changeposition' whenever the size or the position changs
+   * will emit 'changesize' and 'changeposition' whenever the size or the position changes
    */
   emitChangeEvents: false,
 
@@ -151,7 +169,7 @@ Object.assign(REGION.prototype, {
    * @param  {Boolean} [clone] If true, this method will return a clone of this region
    * @return {Region}       This region, or a clone of this
    */
-  getRegion: function(clone) {
+  getRegion: function(this: Region, clone: boolean): Region {
     return clone ? this.clone() : this;
   },
 
@@ -160,7 +178,7 @@ Object.assign(REGION.prototype, {
    * @param {Region/Object} reg The region or object to use for setting properties of this region
    * @return {Region} this
    */
-  setRegion: function(reg) {
+  setRegion: function(this: Region, reg: Region): Region {
     if (reg instanceof REGION) {
       this.set(reg.get());
     } else {
@@ -179,41 +197,41 @@ Object.assign(REGION.prototype, {
    *  * left <= right  &&
    *  * top  <= bottom
    */
-  validate: function() {
-    return REGION.validate(this);
+  validate: function(this: Region): boolean {
+    return REGION.validate!(this);
   },
 
-  _before: function() {
+  _before: function(this: Region): Position | undefined {
     if (this.emitChangeEvents) {
       return copyList(this, {}, ['left', 'top', 'bottom', 'right']);
     }
   },
 
-  _after: function(before) {
+  _after: function(this: Region, before?: Region): void {
     if (this.emitChangeEvents) {
-      if (this.top != before.top || this.left != before.left) {
+      if (this.top != before!.top || this.left != before!.left) {
         this.emitPositionChange();
       }
 
-      if (this.right != before.right || this.bottom != before.bottom) {
+      if (this.right != before!.right || this.bottom != before!.bottom) {
         this.emitSizeChange();
       }
     }
   },
 
-  notifyPositionChange: function() {
-    this.emit('changeposition', this);
+  notifyPositionChange: function(this: Region): void {
+    this.emit!('changeposition', this);
   },
 
-  emitPositionChange: function() {
+  emitPositionChange: function(this: Region): void {
     this.notifyPositionChange();
   },
 
-  notifySizeChange: function() {
-    this.emit('changesize', this);
+  notifySizeChange: function(this: Region): void {
+    this.emit!('changesize', this);
   },
 
-  emitSizeChange: function() {
+  emitSizeChange: function(this: Region): void {
     this.notifySizeChange();
   },
 
@@ -233,13 +251,13 @@ Object.assign(REGION.prototype, {
    *
    * @return {Region} this
    */
-  add: function(directions) {
+  add: function(this: Region, directions: Position): Region {
     var before = this._before();
     var direction;
 
     for (direction in directions)
       if (hasOwn(directions, direction)) {
-        this[direction] += directions[direction];
+        (this as any)[direction] += (directions as any)[direction];
       }
 
     this[0] = this.left;
@@ -260,13 +278,13 @@ Object.assign(REGION.prototype, {
    *
    * @return {Region} this
    */
-  substract: function(directions) {
+  substract: function(this: Region, directions: Position): Region {
     var before = this._before();
     var direction;
 
     for (direction in directions)
       if (hasOwn(directions, direction)) {
-        this[direction] -= directions[direction];
+        (this as any)[direction] -= (directions as any)[direction];
       }
 
     this[0] = this.left;
@@ -281,7 +299,7 @@ Object.assign(REGION.prototype, {
    * Retrieves the size of the region.
    * @return {Object} An object with {width, height}, corresponding to the width and height of the region
    */
-  getSize: function() {
+  getSize: function(this: Region): Dimensions {
     return {
       width: this.width,
       height: this.height,
@@ -297,16 +315,16 @@ Object.assign(REGION.prototype, {
    *
    * @return {Region} this
    */
-  setPosition: function(position) {
+  setPosition: function(this: Region, position: Position): Region {
     var width = this.width;
     var height = this.height;
 
     if (position.left != undefined) {
-      position.right = position.left + width;
+      position.right = position.left + width!;
     }
 
     if (position.top != undefined) {
-      position.bottom = position.top + height;
+      position.bottom = position.top + height!;
     }
 
     return this.set(position);
@@ -318,10 +336,10 @@ Object.assign(REGION.prototype, {
    * @param {Number} size The new size for the region
    * @return {Region} this
    */
-  setSize: function(size) {
+  setSize: function(this: Region, size: Dimensions): Region {
     if (size.height != undefined && size.width != undefined) {
       return this.set({
-        right: this.left + size.width,
+        right: this.left! + size.width,
         bottom: this.top + size.height,
       });
     }
@@ -344,9 +362,9 @@ Object.assign(REGION.prototype, {
    * @param {Number} width The new width for this region
    * @return {Region} this
    */
-  setWidth: function(width) {
+  setWidth: function(this: Region, width: number): Region {
     return this.set({
-      right: this.left + width,
+      right: this.left! + width,
     });
   },
 
@@ -357,7 +375,7 @@ Object.assign(REGION.prototype, {
    * @param {Number} height The new height for this region
    * @return {Region} this
    */
-  setHeight: function(height) {
+  setHeight: function(this: Region, height: number): Region {
     return this.set({
       bottom: this.top + height,
     });
@@ -379,7 +397,7 @@ Object.assign(REGION.prototype, {
    *
    * @return {Region} this
    */
-  set: function(directions) {
+  set: function(this: Region, directions: Rectangle): Region {
     var before = this._before();
 
     copyList(directions, this, ['left', 'top', 'bottom', 'right']);
@@ -388,11 +406,11 @@ Object.assign(REGION.prototype, {
       this.bottom = this.top + directions.height;
     }
     if (directions.right == null && directions.width != null) {
-      this.right = this.left + directions.width;
+      this.right = this.left! + directions.width;
     }
 
-    this[0] = this.left;
-    this[1] = this.top;
+    (this as any)[0] = this.left;
+    (this as any)[1] = this.top;
 
     this._after(before);
 
@@ -406,9 +424,9 @@ Object.assign(REGION.prototype, {
    * @param {String} [dir] the property to retrieve from this region
    * @return {Number/Object}
    */
-  get: function(dir) {
+  get: function(this: Region, dir: string): Region {
     return dir
-      ? this[dir]
+      ? (this as any)[dir]
       : copyList(this, {}, ['left', 'right', 'top', 'bottom']);
   },
 
@@ -423,17 +441,17 @@ Object.assign(REGION.prototype, {
    *
    * @return {Region} this
    */
-  shift: function(directions) {
+  shift: function(this: Region, directions: Position): Region {
     var before = this._before();
 
     if (directions.top) {
       this.top += directions.top;
-      this.bottom += directions.top;
+      this.bottom! += directions.top;
     }
 
     if (directions.left) {
-      this.left += directions.left;
-      this.right += directions.left;
+      this.left! += directions.left;
+      this.right! += directions.left;
     }
 
     this[0] = this.left;
@@ -454,7 +472,7 @@ Object.assign(REGION.prototype, {
    *
    * @return {Region} this
    */
-  unshift: function(directions) {
+  unshift: function(this: Region, directions: Position): Region {
     if (directions.top) {
       directions.top *= -1;
     }
@@ -471,7 +489,7 @@ Object.assign(REGION.prototype, {
    * @param  {Region} region The region to compare with
    * @return {Boolean}       True if this and region have same size and position
    */
-  equals: function(region) {
+  equals: function(this: Region, region: Region): boolean {
     return this.equalsPosition(region) && this.equalsSize(region);
   },
 
@@ -480,7 +498,7 @@ Object.assign(REGION.prototype, {
    * @param  {Region/Object} size The region to compare against
    * @return {Boolean}       true if this region is the same size as the given size
    */
-  equalsSize: function(size) {
+  equalsSize: function(this: Region, size: Region): boolean {
     var isInstance = size instanceof REGION;
 
     var s = {
@@ -497,7 +515,7 @@ Object.assign(REGION.prototype, {
    * @param  {Region} region The region to compare against
    * @return {Boolean}       true if this.top == region.top and this.left == region.left
    */
-  equalsPosition: function(region) {
+  equalsPosition: function(this: Region, region: Region): boolean {
     return this.top == region.top && this.left == region.left;
   },
 
@@ -506,10 +524,10 @@ Object.assign(REGION.prototype, {
    * @param {Number} left The ammount to add
    * @return {Region} this
    */
-  addLeft: function(left) {
+  addLeft: function(this: Region, left: number): Region {
     var before = this._before();
 
-    this.left = this[0] = this.left + left;
+    this.left = this[0] = this.left! + left;
 
     this._after(before);
 
@@ -521,7 +539,7 @@ Object.assign(REGION.prototype, {
    * @param {Number} top The ammount to add
    * @return {Region} this
    */
-  addTop: function(top) {
+  addTop: function(this: Region, top: number): Region {
     var before = this._before();
 
     this.top = this[1] = this.top + top;
@@ -536,10 +554,10 @@ Object.assign(REGION.prototype, {
    * @param {Number} bottom The ammount to add
    * @return {Region} this
    */
-  addBottom: function(bottom) {
+  addBottom: function(this: Region, bottom: number): Region {
     var before = this._before();
 
-    this.bottom += bottom;
+    this.bottom! += bottom;
 
     this._after(before);
 
@@ -551,10 +569,10 @@ Object.assign(REGION.prototype, {
    * @param {Number} right The ammount to add
    * @return {Region} this
    */
-  addRight: function(right) {
+  addRight: function(this: Region, right: number): Region {
     var before = this._before();
 
-    this.right += right;
+    this.right! += right;
 
     this._after(before);
 
@@ -565,28 +583,28 @@ Object.assign(REGION.prototype, {
    * Minimize the top side.
    * @return {Region} this
    */
-  minTop: function() {
+  minTop: function(this: Region): Region {
     return this.expand({ top: 1 });
   },
   /**
    * Minimize the bottom side.
    * @return {Region} this
    */
-  maxBottom: function() {
+  maxBottom: function(this: Region): Region {
     return this.expand({ bottom: 1 });
   },
   /**
    * Minimize the left side.
    * @return {Region} this
    */
-  minLeft: function() {
+  minLeft: function(this: Region): Region {
     return this.expand({ left: 1 });
   },
   /**
    * Maximize the right side.
    * @return {Region} this
    */
-  maxRight: function() {
+  maxRight: function(this: Region): Region {
     return this.expand({ right: 1 });
   },
 
@@ -603,8 +621,8 @@ Object.assign(REGION.prototype, {
    * @param {Region} [region] the region to expand to, defaults to the document region
    * @return {Region} this region
    */
-  expand: function(directions, region) {
-    var docRegion = region || REGION.getDocRegion();
+  expand: function(this: Region, directions: Position, region: Region): Region {
+    var docRegion = region || REGION.getDocRegion!();
     var list = [];
     var direction;
     var before = this._before();
@@ -628,8 +646,8 @@ Object.assign(REGION.prototype, {
    * Returns a clone of this region
    * @return {Region} A new region, with the same position and dimension as this region
    */
-  clone: function() {
-    return new REGION({
+  clone: function(this: Region): Region {
+    return new (REGION as any)({
       top: this.top,
       left: this.left,
       right: this.right,
@@ -644,14 +662,14 @@ Object.assign(REGION.prototype, {
    *
    * @return {Boolean} true if this region constains the given point, false otherwise
    */
-  containsPoint: function(x, y) {
+  containsPoint: function(this: Region, x: any, y: number): boolean {
     if (arguments.length == 1) {
       y = x.y;
       x = x.x;
     }
 
     return (
-      this.left <= x && x <= this.right && this.top <= y && y <= this.bottom
+      this.left! <= x && x <= this.right! && this.top <= y && y <= this.bottom!
     );
   },
 
@@ -661,10 +679,10 @@ Object.assign(REGION.prototype, {
    *
    * @return {Boolean} true if this region contains the given region, false otherwise
    */
-  containsRegion: function(region) {
+  containsRegion: function(this: Region, region: Region): boolean {
     return (
       this.containsPoint(region.left, region.top) &&
-      this.containsPoint(region.right, region.bottom)
+      this.containsPoint(region.right, region.bottom!)
     );
   },
 
@@ -675,7 +693,7 @@ Object.assign(REGION.prototype, {
    * @param  {Region} region The region to use for diff
    * @return {Object}        {top,bottom}
    */
-  diffHeight: function(region) {
+  diffHeight: function(this: Region, region: Region): Position {
     return this.diff(region, { top: true, bottom: true });
   },
 
@@ -686,7 +704,7 @@ Object.assign(REGION.prototype, {
    * @param  {Region} region The region to use for diff
    * @return {Object}        {left,right}
    */
-  diffWidth: function(region) {
+  diffWidth: function(this: Region, region: Region): Position {
     return this.diff(region, { left: true, right: true });
   },
 
@@ -703,13 +721,23 @@ Object.assign(REGION.prototype, {
    * @return {Object} and object with the same keys as the directions object, but the values being the
    * differences between this region and the given region
    */
-  diff: function(region, directions) {
+  diff: function(
+    this: Region,
+    region: Region,
+    directions: {
+      top?: boolean;
+      bottom?: boolean;
+      left?: boolean;
+      right?: boolean;
+    }
+  ): Position {
     var result = {};
     var dirName;
 
     for (dirName in directions)
       if (hasOwn(directions, dirName)) {
-        result[dirName] = this[dirName] - region[dirName];
+        (result as any)[dirName] =
+          (this as any)[dirName] - (region as any)[dirName];
       }
 
     return result;
@@ -720,7 +748,7 @@ Object.assign(REGION.prototype, {
    *
    * @return {Object} {left,top}
    */
-  getPosition: function() {
+  getPosition: function(this: Region): Position {
     return {
       left: this.left,
       top: this.top,
@@ -752,7 +780,10 @@ Object.assign(REGION.prototype, {
    *
    * @return {Object} either an object with {x,y} or {left,top} if asLeftTop is true
    */
-  getPoint: function(position, asLeftTop) {
+  getPoint: function(
+    position: PointPositionsValue,
+    asLeftTop: boolean
+  ): { left: number; top: number } | { x: number; y: number } {
     if (!POINT_POSITIONS[position]) {
       console.warn(
         'The position ',
@@ -762,7 +793,7 @@ Object.assign(REGION.prototype, {
     }
 
     var method = 'getPoint' + POINT_POSITIONS[position],
-      result = this[method]();
+      result = (this as any)[method]();
 
     if (asLeftTop) {
       return {
@@ -778,7 +809,7 @@ Object.assign(REGION.prototype, {
    * Returns a point with x = null and y being the middle of the left region segment
    * @return {Object} {x,y}
    */
-  getPointYCenter: function() {
+  getPointYCenter: function(this: Region): { x: null; y: number } {
     return { x: null, y: this.top + this.getHeight() / 2 };
   },
 
@@ -786,15 +817,15 @@ Object.assign(REGION.prototype, {
    * Returns a point with y = null and x being the middle of the top region segment
    * @return {Object} {x,y}
    */
-  getPointXCenter: function() {
-    return { x: this.left + this.getWidth() / 2, y: null };
+  getPointXCenter: function(this: Region): { x: number; y: null } {
+    return { x: this.left! + this.getWidth() / 2, y: null };
   },
 
   /**
    * Returns a point with x = null and y the region top position on the y axis
    * @return {Object} {x,y}
    */
-  getPointTop: function() {
+  getPointTop: function(this: Region): { x: null; y: number } {
     return { x: null, y: this.top };
   },
 
@@ -802,15 +833,15 @@ Object.assign(REGION.prototype, {
    * Returns a point that is the middle point of the region top segment
    * @return {Object} {x,y}
    */
-  getPointTopCenter: function() {
-    return { x: this.left + this.getWidth() / 2, y: this.top };
+  getPointTopCenter: function(this: Region): { x: number; y: number } {
+    return { x: this.left! + this.getWidth() / 2, y: this.top };
   },
 
   /**
    * Returns a point that is the top-left point of the region
    * @return {Object} {x,y}
    */
-  getPointTopLeft: function() {
+  getPointTopLeft: function(this: Region): { x?: number; y: number } {
     return { x: this.left, y: this.top };
   },
 
@@ -818,7 +849,7 @@ Object.assign(REGION.prototype, {
    * Returns a point that is the top-right point of the region
    * @return {Object} {x,y}
    */
-  getPointTopRight: function() {
+  getPointTopRight: function(this: Region): { x?: number; y: number } {
     return { x: this.right, y: this.top };
   },
 
@@ -826,7 +857,7 @@ Object.assign(REGION.prototype, {
    * Returns a point with x = null and y the region bottom position on the y axis
    * @return {Object} {x,y}
    */
-  getPointBottom: function() {
+  getPointBottom: function(this: Region): { x: null; y?: number } {
     return { x: null, y: this.bottom };
   },
 
@@ -834,15 +865,15 @@ Object.assign(REGION.prototype, {
    * Returns a point that is the middle point of the region bottom segment
    * @return {Object} {x,y}
    */
-  getPointBottomCenter: function() {
-    return { x: this.left + this.getWidth() / 2, y: this.bottom };
+  getPointBottomCenter: function(this: Region): { x?: number; y?: number } {
+    return { x: this.left! + this.getWidth() / 2, y: this.bottom };
   },
 
   /**
    * Returns a point that is the bottom-left point of the region
    * @return {Object} {x,y}
    */
-  getPointBottomLeft: function() {
+  getPointBottomLeft: function(this: Region): { x?: number; y?: number } {
     return { x: this.left, y: this.bottom };
   },
 
@@ -850,7 +881,7 @@ Object.assign(REGION.prototype, {
    * Returns a point that is the bottom-right point of the region
    * @return {Object} {x,y}
    */
-  getPointBottomRight: function() {
+  getPointBottomRight: function(this: Region): { x?: number; y?: number } {
     return { x: this.right, y: this.bottom };
   },
 
@@ -858,7 +889,7 @@ Object.assign(REGION.prototype, {
    * Returns a point with y = null and x the region left position on the x axis
    * @return {Object} {x,y}
    */
-  getPointLeft: function() {
+  getPointLeft: function(this: Region): { x?: number; y: null } {
     return { x: this.left, y: null };
   },
 
@@ -866,7 +897,7 @@ Object.assign(REGION.prototype, {
    * Returns a point that is the middle point of the region left segment
    * @return {Object} {x,y}
    */
-  getPointLeftCenter: function() {
+  getPointLeftCenter: function(this: Region): { x?: number; y: number } {
     return { x: this.left, y: this.top + this.getHeight() / 2 };
   },
 
@@ -874,7 +905,7 @@ Object.assign(REGION.prototype, {
    * Returns a point with y = null and x the region right position on the x axis
    * @return {Object} {x,y}
    */
-  getPointRight: function() {
+  getPointRight: function(this: Region): { x?: number; y: null } {
     return { x: this.right, y: null };
   },
 
@@ -882,7 +913,7 @@ Object.assign(REGION.prototype, {
    * Returns a point that is the middle point of the region right segment
    * @return {Object} {x,y}
    */
-  getPointRightCenter: function() {
+  getPointRightCenter: function(this: Region): { x?: number; y: number } {
     return { x: this.right, y: this.top + this.getHeight() / 2 };
   },
 
@@ -890,9 +921,9 @@ Object.assign(REGION.prototype, {
    * Returns a point that is the center of the region
    * @return {Object} {x,y}
    */
-  getPointCenter: function() {
+  getPointCenter: function(this: Region): { x: number; y: number } {
     return {
-      x: this.left + this.getWidth() / 2,
+      x: this.left! + this.getWidth() / 2,
       y: this.top + this.getHeight() / 2,
     };
   },
@@ -900,42 +931,42 @@ Object.assign(REGION.prototype, {
   /**
    * @return {Number} returns the height of the region
    */
-  getHeight: function() {
-    return this.bottom - this.top;
+  getHeight: function(this: Region): number {
+    return this.bottom! - this.top!;
   },
 
   /**
    * @return {Number} returns the width of the region
    */
-  getWidth: function() {
-    return this.right - this.left;
+  getWidth: function(this: Region): number {
+    return this.right! - this.left!;
   },
 
   /**
    * @return {Number} returns the top property of the region
    */
-  getTop: function() {
+  getTop: function(this: Region): number {
     return this.top;
   },
 
   /**
    * @return {Number} returns the left property of the region
    */
-  getLeft: function() {
+  getLeft: function(this: Region): number | undefined {
     return this.left;
   },
 
   /**
    * @return {Number} returns the bottom property of the region
    */
-  getBottom: function() {
+  getBottom: function(this: Region): number | undefined {
     return this.bottom;
   },
 
   /**
    * @return {Number} returns the right property of the region
    */
-  getRight: function() {
+  getRight: function(this: Region): number | undefined {
     return this.right;
   },
 
@@ -943,44 +974,44 @@ Object.assign(REGION.prototype, {
    * Returns the area of the region
    * @return {Number} the computed area
    */
-  getArea: function() {
+  getArea: function(this: Region): number {
     return this.getWidth() * this.getHeight();
   },
 
-  constrainTo: function(contrain) {
-    var intersect = this.getIntersection(contrain);
-    var shift;
+  constrainTo: function(this: Region, constrain: any) {
+    var intersect = this.getIntersection(constrain);
+    var shift: Position;
 
     if (!intersect || !intersect.equals(this)) {
-      var contrainWidth = contrain.getWidth(),
-        contrainHeight = contrain.getHeight();
+      var constrainWidth = constrain.getWidth(),
+        constrainHeight = constrain.getHeight();
 
-      if (this.getWidth() > contrainWidth) {
-        this.left = contrain.left;
-        this.setWidth(contrainWidth);
+      if (this.getWidth() > constrainWidth) {
+        this.left = constrain.left;
+        this.setWidth(constrainWidth);
       }
 
-      if (this.getHeight() > contrainHeight) {
-        this.top = contrain.top;
-        this.setHeight(contrainHeight);
+      if (this.getHeight() > constrainHeight) {
+        this.top = constrain.top;
+        this.setHeight(constrainHeight);
       }
 
       shift = {};
 
-      if (this.right > contrain.right) {
-        shift.left = contrain.right - this.right;
+      if (this.right! > constrain.right) {
+        shift.left = constrain.right - this.right!;
       }
 
-      if (this.bottom > contrain.bottom) {
-        shift.top = contrain.bottom - this.bottom;
+      if (this.bottom! > constrain.bottom) {
+        shift.top = constrain.bottom - this.bottom!;
       }
 
-      if (this.left < contrain.left) {
-        shift.left = contrain.left - this.left;
+      if (this.left! < constrain.left) {
+        shift.left = constrain.left - this.left!;
       }
 
-      if (this.top < contrain.top) {
-        shift.top = contrain.top - this.top;
+      if (this.top < constrain.top) {
+        shift.top = constrain.top - this.top;
       }
 
       this.shift(shift);

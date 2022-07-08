@@ -22,7 +22,7 @@ Column.defaultProps = {
 };
 Column.propTypes = {
     keepFlex: PropTypes.bool,
-    id: props => {
+    id: (props) => {
         if (!props.name && !props.id) {
             return new Error('Each column should have a "name" or an "id" property!');
         }

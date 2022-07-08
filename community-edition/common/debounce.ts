@@ -5,12 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-function debounce(func, wait, immediate = false) {
-  let timeout;
-  let args;
-  let context;
-  let timestamp;
-  let result;
+function debounce(
+  this: any,
+  func: Function,
+  wait: number,
+  immediate:
+    | boolean
+    | {
+        leading: boolean;
+        trailing: boolean;
+      } = false
+) {
+  let timeout: any;
+  let args: any[] | null;
+  let context: any[] | null;
+  let timestamp: number;
+  let result: any;
 
   const later = () => {
     const last = Date.now() - timestamp;
@@ -28,7 +38,7 @@ function debounce(func, wait, immediate = false) {
     }
   };
 
-  return (...internalArgs) => {
+  return (...internalArgs: any[]) => {
     const callNow = immediate && !timeout;
     context = this;
     args = internalArgs;

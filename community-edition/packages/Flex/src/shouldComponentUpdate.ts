@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export default (inst, nextProps, nextState) => {
+export default (inst: any, nextProps: any, nextState: any): boolean => {
   const props = inst.props;
   const state = inst.state;
 

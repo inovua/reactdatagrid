@@ -12,22 +12,50 @@ import shouldComponentUpdate from './shouldComponentUpdate';
 import join from '../../../common/join';
 import props2className from './props2className';
 import cleanup from './cleanup';
+import { TypeItemProps, TypeItemState } from './types';
 
-class InovuaFlexItem extends Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    const shouldUpdate = shouldComponentUpdate(this, nextProps, nextState);
+const defaultProps = { flex: 1 };
+
+const propTypes = {
+  shouldComponentUpdate: PropTypes.func,
+  display: PropTypes.oneOf(['flex', 'inline-flex']),
+  inline: (props: TypeItemProps, propName: string) => {
+    if (props[propName as keyof TypeItemProps] !== undefined) {
+      return new Error(
+        `"inline" prop should not be used on "Item". Use "display='inline-flex'" instead`
+      );
+    }
+  },
+  flex: PropTypes.any,
+  flexGrow: PropTypes.any,
+  flexShrink: PropTypes.any,
+  flexBasis: PropTypes.any,
+};
+class InovuaFlexItem extends Component<TypeItemProps, TypeItemState> {
+  static defaultProps = defaultProps;
+  static propTypes = propTypes;
+
+  shouldComponentUpdate(
+    nextProps: TypeItemProps,
+    nextState: TypeItemState
+  ): boolean {
+    const shouldUpdate: boolean = shouldComponentUpdate(
+      this,
+      nextProps,
+      nextState
+    );
 
     return shouldUpdate;
   }
 
   render() {
-    const props = this.props;
-    const className = join(
+    const props: TypeItemProps = this.props;
+    const className: string = join(
       'inovua-react-toolkit-flex-item',
       props2className(props)
     );
 
-    const allProps = { ...props };
+    const allProps: TypeItemProps = { ...props };
 
     cleanup(allProps);
 
@@ -40,23 +68,5 @@ class InovuaFlexItem extends Component {
     return <div {...allProps} />;
   }
 }
-
-InovuaFlexItem.defaultProps = { flex: 1 };
-
-InovuaFlexItem.propTypes = {
-  shouldComponentUpdate: PropTypes.func,
-  display: PropTypes.oneOf(['flex', 'inline-flex']),
-  inline: (props, propName) => {
-    if (props[propName] !== undefined) {
-      return new Error(
-        `"inline" prop should not be used on "Item". Use "display='inline-flex'" instead`
-      );
-    }
-  },
-  flex: PropTypes.any,
-  flexGrow: PropTypes.any,
-  flexShrink: PropTypes.any,
-  flexBasis: PropTypes.any,
-};
 
 export default InovuaFlexItem;

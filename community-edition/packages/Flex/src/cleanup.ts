@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export default props => {
+export default (props: any) => {
   delete props.display;
   delete props.shouldComponentUpdate;
   delete props.wrap;

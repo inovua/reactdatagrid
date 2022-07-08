@@ -31,7 +31,7 @@ const observe = (targetNode, callback, cfg) => {
         observer.disconnect();
     };
 };
-const measureScrollSize = node => {
+const measureScrollSize = (node) => {
     return {
         width: node.scrollWidth,
         height: node.scrollHeight,
@@ -50,7 +50,76 @@ const pint = globalObject.parseInt;
 const raf = globalObject.requestAnimationFrame;
 const getCompStyle = globalObject.getComputedStyle;
 const NO_SCROLLBARS = () => false;
+const emptyFn = () => { };
+const defaultProps = {
+    rootClassName: 'inovua-react-toolkit-arrow-scroller',
+    scroller: 'auto',
+    scrollStep: 15,
+    mouseoverScrollSpeed: 40,
+    scrollSpeed: 10,
+    scrollSpringConfig: {
+        stiffness: 370,
+        damping: 60,
+    },
+    scrollIntoViewOffset: 1,
+    vertical: false,
+    scrollOnClick: false,
+    nativeScroll: !IS_IE,
+    scrollOnMouseEnter: true,
+    rtl: false,
+    useTransformOnScroll: false,
+    onHasScrollChange: emptyFn,
+    theme: 'default-light',
+};
+const propTypes = {
+    arrowSize: PropTypes.oneOfType([
+        PropTypes.number,
+        PropTypes.shape({
+            width: PropTypes.number,
+            height: PropTypes.number,
+        }),
+    ]),
+    theme: PropTypes.string,
+    scrollOnClick: PropTypes.bool,
+    childProps: PropTypes.object,
+    scrollOnMouseEnter: PropTypes.bool,
+    vertical: PropTypes.bool,
+    notifyResizeDelay: PropTypes.number,
+    scrollStep: PropTypes.number,
+    scrollSpeed: PropTypes.number,
+    mouseoverScrollSpeed: PropTypes.number,
+    scrollSpringConfig: PropTypes.shape({
+        stiffness: PropTypes.number,
+        damping: PropTypes.number,
+    }),
+    nativeScroll: PropTypes.bool,
+    scrollIntoViewOffset: PropTypes.number,
+    scroller: PropTypes.oneOf(['auto', false, true]),
+    rootClassName: PropTypes.string,
+    rtl: PropTypes.bool,
+    scrollContainerProps: PropTypes.object,
+    useTransformOnScroll: PropTypes.bool,
+    onHasScrollChange: PropTypes.func,
+    renderScroller: PropTypes.func,
+};
 class InovuaArrowScroller extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    scrollInfo;
+    strip;
+    refScrollContainer;
+    scrollerTarget;
+    setRootRef;
+    root;
+    componentIsMounted = false;
+    inertialManager;
+    scrollInterval;
+    start;
+    end;
+    availableSize;
+    currentListSize;
+    mouseOverScrollInterval;
+    _unobserve;
     constructor(props) {
         super(props);
         this.scrollInfo = {
@@ -74,10 +143,10 @@ class InovuaArrowScroller extends Component {
         this.rafUpdateScrollInfo = this.rafUpdateScrollInfo.bind(this);
         this.onContainerScroll = this.onContainerScroll.bind(this);
         this.strip = createRef();
-        this.refScrollContainer = scrollContainer => {
+        this.refScrollContainer = (scrollContainer) => {
             this.scrollerTarget = scrollContainer;
         };
-        this.setRootRef = ref => {
+        this.setRootRef = (ref) => {
             this.root = ref;
             if (!this.props.nativeScroll) {
                 this.scrollerTarget = this.root;
@@ -115,7 +184,6 @@ class InovuaArrowScroller extends Component {
         const scrollValue = rtl ? scrollInfo.scrollPos : -scrollInfo.scrollPos;
         const innerWrapperClassName = join(`${rootClassName}__inner-wrapper`, `${rootClassName}__inner-wrapper--direction-${vertical ? 'column' : 'row'}`);
         const className = join(props.className, rootClassName, !vertical && `${rootClassName}--direction-horizontal`, vertical && `${rootClassName}--direction-vertical`, rtl && `${rootClassName}--rtl`, nativeScroll && `${rootClassName}--native-scroll`, theme && `${rootClassName}--theme-${theme}`);
-        let transformValue;
         let moveStyle = {};
         if (useTransformOnScroll) {
             moveStyle.transform = 'translate3d(0px, 0px, 0px)';
@@ -147,7 +215,9 @@ class InovuaArrowScroller extends Component {
         ];
         if (nativeScroll) {
             const { scrollContainerProps } = this.props;
-            let viewStyle = vertical ? VIEW_STYLE_VERTICAL : VIEW_STYLE_HORIZONTAL;
+            let viewStyle = vertical
+                ? VIEW_STYLE_VERTICAL
+                : VIEW_STYLE_HORIZONTAL;
             if (scrollContainerProps && scrollContainerProps.viewStyle) {
                 viewStyle = { ...scrollContainerProps.viewStyle, ...viewStyle };
             }
@@ -174,7 +244,7 @@ class InovuaArrowScroller extends Component {
         }
         return (React.createElement(Flex, { ...cleanProps(props, InovuaArrowScroller.propTypes), ref: this.setRootRef, className: className, alignItems: "start", children: finalChildren }));
     }
-    getScrollerNodeClientSize = node => {
+    getScrollerNodeClientSize = (node) => {
         const result = {
             width: node.firstChild.offsetWidth,
             height: node.firstChild.offsetHeight,
@@ -199,22 +269,22 @@ class InovuaArrowScroller extends Component {
         const className = join(arrowRootClassName, `${arrowRootClassName}--auto`, `${arrowRootClassName}--direction-${arrowName}`, this.state.activeScroll == direction && `${arrowRootClassName}--active`, scroller === 'auto' && disabled && `${arrowRootClassName}--hidden`, scroller === 'auto' && !disabled && `${arrowRootClassName}--visible`, scroller === true && disabled && `${arrowRootClassName}--disabled`, nativeScroll && `${arrowRootClassName}--native-scroll`);
         const onClick = !disabled && this.props.scrollOnClick
             ? this.handleClick.bind(this, direction)
-            : null;
+            : undefined;
         const onMouseDown = !disabled && (!this.props.scrollOnClick || isMobile)
             ? this.startScroll.bind(this, direction)
-            : null;
+            : undefined;
         const onMouseEnter = !disabled && this.props.scrollOnMouseEnter
             ? this.startMouseOverScroll.bind(this, direction)
-            : null;
+            : undefined;
         const onMouseLeave = !this.props.scrollOnClick || isMobile || this.props.scrollOnMouseEnter
             ? this.stopMouseOverScroll.bind(this, direction)
-            : null;
+            : undefined;
         const onDoubleClick = !disabled
             ? this.handleScrollMax.bind(this, direction)
-            : null;
+            : undefined;
         const scrollerName = direction == -1 ? 'start' : 'end';
         const domProps = {
-            ref: ref => {
+            ref: (ref) => {
                 this[scrollerName] = ref;
             },
             key: `scroller-${direction}`,
@@ -222,11 +292,11 @@ class InovuaArrowScroller extends Component {
             className,
             onClick,
             onDoubleClick,
-            onMouseDown: !isMobile ? onMouseDown : null,
-            onTouchStart: isMobile ? onMouseDown : null,
-            onTouchEnd: isMobile ? onMouseLeave : null,
-            onMouseEnter: !isMobile ? onMouseEnter : null,
-            onMouseLeave: !isMobile ? onMouseLeave : null,
+            onMouseDown: !isMobile ? onMouseDown : undefined,
+            onTouchStart: isMobile ? onMouseDown : undefined,
+            onTouchEnd: isMobile ? onMouseLeave : undefined,
+            onMouseEnter: !isMobile ? onMouseEnter : undefined,
+            onMouseLeave: !isMobile ? onMouseLeave : undefined,
             children: this.renderArrowIcon(arrowName),
         };
         let result;
@@ -397,7 +467,7 @@ class InovuaArrowScroller extends Component {
             activeScroll: direction,
         });
     }
-    onContainerScroll({ scrollTop, scrollLeft }) {
+    onContainerScroll({ scrollTop, scrollLeft, }) {
         this.setScrollPosition(this.props.vertical ? scrollTop : scrollLeft, {
             skip: true,
         });
@@ -485,7 +555,7 @@ class InovuaArrowScroller extends Component {
             this.setScrollPosition(newScrollPos, { force });
         });
     }
-    onScrollContainerDidMount = (scrollContainer, domNode, notifyResizer) => {
+    onScrollContainerDidMount = (_scrollContainer, domNode, notifyResizer) => {
         this._unobserve = observe(domNode, () => {
             // fixes https://inovua.freshdesk.com/a/tickets/238
             if (notifyResizer && notifyResizer.checkResize) {
@@ -499,56 +569,4 @@ class InovuaArrowScroller extends Component {
         }
     };
 }
-const emptyFn = () => { };
-InovuaArrowScroller.defaultProps = {
-    rootClassName: 'inovua-react-toolkit-arrow-scroller',
-    scroller: 'auto',
-    scrollStep: 15,
-    mouseoverScrollSpeed: 40,
-    scrollSpeed: 10,
-    scrollSpringConfig: {
-        stiffness: 370,
-        damping: 60,
-    },
-    scrollIntoViewOffset: 1,
-    vertical: false,
-    scrollOnClick: false,
-    nativeScroll: !IS_IE,
-    scrollOnMouseEnter: true,
-    rtl: false,
-    useTransformOnScroll: false,
-    onHasScrollChange: emptyFn,
-    theme: 'default-light',
-};
-InovuaArrowScroller.propTypes = {
-    arrowSize: PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.shape({
-            width: PropTypes.number,
-            height: PropTypes.number,
-        }),
-    ]),
-    theme: PropTypes.string,
-    scrollOnClick: PropTypes.bool,
-    childProps: PropTypes.object,
-    scrollOnMouseEnter: PropTypes.bool,
-    vertical: PropTypes.bool,
-    notifyResizeDelay: PropTypes.number,
-    scrollStep: PropTypes.number,
-    scrollSpeed: PropTypes.number,
-    mouseoverScrollSpeed: PropTypes.number,
-    scrollSpringConfig: PropTypes.shape({
-        stiffness: PropTypes.number,
-        damping: PropTypes.number,
-    }),
-    nativeScroll: PropTypes.bool,
-    scrollIntoViewOffset: PropTypes.number,
-    scroller: PropTypes.oneOf(['auto', false, true]),
-    rootClassName: PropTypes.string,
-    rtl: PropTypes.bool,
-    scrollContainerProps: PropTypes.object,
-    useTransformOnScroll: PropTypes.bool,
-    onHasScrollChange: PropTypes.func,
-    renderScroller: PropTypes.func,
-};
 export default InovuaArrowScroller;

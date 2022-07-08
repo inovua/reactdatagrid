@@ -4,7 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { Component, createElement, HTMLAttributes } from 'react';
+import React, {
+  Component,
+  createElement,
+  CSSProperties,
+  HTMLAttributes,
+  ReactNode,
+} from 'react';
 import PropTypes from 'prop-types';
 
 import debounce from '../../../packages/debounce';
@@ -66,6 +72,31 @@ type ScrollContainerProps = {
   viewClassName?: string;
   tagName?: string;
   scrollThumbStyle?: ElementCSSInlineStyle;
+  applyCSSContainOnScroll?: boolean;
+  scrollerStyle?: CSSProperties;
+  emptyScrollOffset?: number;
+  getScrollerNodeClientSize?: ((node: any) => void) | null;
+  shouldAllowScrollbars?: () => void;
+  dragToScroll?: boolean;
+  nativeScroll?: boolean;
+  scrollerResizerProps?: {
+    measureSize: (node: Element) => { width: number; height: number };
+    useNativeIfAvailable: boolean;
+  };
+  onDidMount?: (
+    _scrollContainer: ReactNode,
+    domNode: Element,
+    notifyResizer: any
+  ) => void;
+  onWillUnmount?: () => void;
+  onResize?: () => void;
+  onContainerScroll?: ({
+    scrollTop,
+    scrollLeft,
+  }: {
+    scrollTop: number;
+    scrollLeft: number;
+  }) => void;
 } & HTMLAttributes<HTMLElement>;
 
 export default class InovuaScrollContainer extends Component<

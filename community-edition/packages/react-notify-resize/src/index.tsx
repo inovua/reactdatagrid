@@ -5,20 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { CSSProperties, ReactNode } from 'react';
 import { number, func, bool } from 'prop-types';
 
 import shallowequal from './shallowequal';
 import debounce from '../../../packages/debounce';
 import { getGlobal } from '../../../getGlobal';
+import { TypeProps, TypeState } from './types';
 
-const globalObject = getGlobal();
+const globalObject: any = getGlobal();
 const STYLE_DISPLAY_NONE = { display: 'none' };
 
 const emptyFn = () => {};
-const immediateFn = fn => fn();
+const immediateFn = (fn: () => void) => fn();
 
-const notifyResizeStyle = {
+const notifyResizeStyle: CSSProperties = {
   contain: 'strict',
   position: 'absolute',
   top: 0,
@@ -34,7 +35,7 @@ const notifyResizeStyle = {
   textAlign: 'start',
 };
 
-const expandToolStyle = {
+const expandToolStyle: CSSProperties = {
   contain: 'strict',
   position: 'absolute',
   top: 0,
@@ -44,7 +45,7 @@ const expandToolStyle = {
   overflow: 'auto',
 };
 
-const contractToolStyle = {
+const contractToolStyle: CSSProperties = {
   contain: 'strict',
   position: 'absolute',
   top: 0,
@@ -54,7 +55,7 @@ const contractToolStyle = {
   overflow: 'auto',
 };
 
-const contractToolInnerStyle = {
+const contractToolInnerStyle: CSSProperties = {
   contain: 'strict',
   position: 'absolute',
   top: 0,
@@ -63,18 +64,58 @@ const contractToolInnerStyle = {
   height: '200%',
 };
 
-class InovuaNotifyResize extends React.Component {
-  constructor(props) {
+const defaultProps = {
+  useNativeIfAvailable: true,
+  useWillChange: false,
+  useRaf: true,
+};
+
+const propTypes = {
+  ResizeObserver: func,
+  onResize: func,
+  onObserverResize: func, // only called when native resizeobserver is available
+  useNativeIfAvailable: bool,
+  onMount: func,
+  useWillChange: bool,
+  useRaf: bool,
+  notifyOnMount: bool,
+  notifyResizeDelay: number,
+  checkResizeDelay: number,
+};
+
+class InovuaNotifyResize extends React.Component<TypeProps, TypeState> {
+  static defaultProps = defaultProps;
+  static propTypes = propTypes;
+
+  private refNotifyResize: (node: ReactNode) => void;
+  private notifyResizeNode: ReactNode;
+  private refContractTool: (node: Element | null) => void;
+  private contractToolNode: Element | null = null;
+  private refExpandTool: (node: Element | null) => void;
+  private refExpandToolInner: (node: ReactNode) => void;
+  private refContractToolInner: (node: ReactNode) => void;
+  private expandToolNode: Element | null = null;
+  private __willUnmount?: boolean;
+  private observer?: {
+    unobserve?: (target: ReactNode) => void;
+    disconnect?: () => void;
+  } = {};
+  private target: ReactNode;
+
+  expandToolInnerNode?: ReactNode;
+  contractToolInnerNode?: ReactNode;
+
+  constructor(props: TypeProps) {
     super(props);
 
     this.checkResize = this.checkResize.bind(this);
     this.onResize = this.onResize.bind(this);
 
-    if (props.notifyResizeDelay > 0) {
+    if (props.notifyResizeDelay! > 0) {
       this.onResize = debounce(this.onResize, props.notifyResizeDelay);
     }
 
-    if (props.checkResizeDelay > 0) {
+    if (props.checkResizeDelay! > 0) {
       this.checkResize = debounce(this.checkResize, props.checkResizeDelay);
     }
 
@@ -106,7 +147,7 @@ class InovuaNotifyResize extends React.Component {
     };
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: TypeProps, nextState: TypeState): boolean {
     if (typeof nextProps.shouldComponentUpdate === 'function') {
       return nextProps.shouldComponentUpdate(
         nextProps,
@@ -138,7 +179,7 @@ class InovuaNotifyResize extends React.Component {
     delete this.target;
   }
 
-  getDOMNode() {
+  getDOMNode(): ReactNode {
     return this.notifyResizeNode;
   }
 
@@ -146,12 +187,12 @@ class InovuaNotifyResize extends React.Component {
     const ResizeObserver =
       globalObject.ResizeObserver || this.props.ResizeObserver;
     if (this.props.useNativeIfAvailable && ResizeObserver) {
-      const node = this.getDOMNode();
-      const target = node.parentNode;
+      const node: any = this.getDOMNode();
+      const target = node!.parentNode;
 
       this.target = target;
 
-      const observer = new ResizeObserver(entries => {
+      const observer = new ResizeObserver((entries: any[]) => {
         if (this.props.onObserverResize) {
           this.props.onObserverResize(entries);
         }
@@ -211,7 +252,7 @@ class InovuaNotifyResize extends React.Component {
     );
   }
 
-  renderExpandTool() {
+  renderExpandTool(): ReactNode {
     return (
       <div ref={this.refExpandTool} style={expandToolStyle}>
         <div
@@ -228,7 +269,7 @@ class InovuaNotifyResize extends React.Component {
     );
   }
 
-  renderContractTool() {
+  renderContractTool(): ReactNode {
     return (
       <div ref={this.refContractTool} style={contractToolStyle}>
         <div ref={this.refContractToolInner} style={contractToolInnerStyle} />
@@ -236,7 +277,7 @@ class InovuaNotifyResize extends React.Component {
     );
   }
 
-  resetResizeTool(callback) {
+  resetResizeTool(callback?: () => void): void {
     this.setDimensions(() => {
       this.scrollToBottomExpandTool();
       if (typeof callback == 'function') {
@@ -245,37 +286,47 @@ class InovuaNotifyResize extends React.Component {
     });
   }
 
-  setDimensions(callback) {
-    this.getDimensions(size => {
-      const { notifyResizeWidth, notifyResizeHeight } = size;
+  setDimensions(callback: () => void): void {
+    this.getDimensions(
+      (size: { notifyResizeWidth: number; notifyResizeHeight: number }) => {
+        const { notifyResizeWidth, notifyResizeHeight } = size;
 
-      if (this.__willUnmount) {
-        return;
+        if (this.__willUnmount) {
+          return;
+        }
+        // Resize tool will be bigger than its parent by 1 pixel in each direction
+        this.setState(
+          {
+            notifyResizeWidth,
+            notifyResizeHeight,
+            expandToolWidth: notifyResizeWidth + 1,
+            expandToolHeight: notifyResizeHeight + 1,
+          },
+          callback
+        );
       }
-      // Resize tool will be bigger than its parent by 1 pixel in each direction
-      this.setState(
-        {
-          notifyResizeWidth,
-          notifyResizeHeight,
-          expandToolWidth: notifyResizeWidth + 1,
-          expandToolHeight: notifyResizeHeight + 1,
-        },
-        callback
-      );
-    });
+    );
   }
 
-  getDimensions(callback) {
+  getDimensions(
+    callback: ({
+      notifyResizeWidth,
+      notifyResizeHeight,
+    }: {
+      notifyResizeWidth: number;
+      notifyResizeHeight: number;
+    }) => void
+  ): void {
     if (!callback || typeof callback != 'function') {
       callback = emptyFn;
     }
-    const notifyResize = this.notifyResizeNode;
+    const notifyResize: any = this.notifyResizeNode;
     if (!notifyResize) {
       return;
     }
     const node = notifyResize.parentElement || notifyResize;
 
-    let size;
+    let size: { width?: number; height?: number };
 
     const fn = this.props.useRaf ? requestAnimationFrame : immediateFn;
 
@@ -290,19 +341,19 @@ class InovuaNotifyResize extends React.Component {
       }
 
       callback({
-        notifyResizeWidth: size.width,
-        notifyResizeHeight: size.height,
+        notifyResizeWidth: size.width!,
+        notifyResizeHeight: size.height!,
       });
     });
   }
 
-  scrollToBottomExpandTool(callback) {
+  scrollToBottomExpandTool(callback?: () => void) {
     // so the scroll moves when element resizes
     if (this.notifyResizeNode) {
       requestAnimationFrame(() => {
         // scroll to bottom
-        const expandTool = this.expandToolNode;
-        const contractTool = this.contractToolNode;
+        const expandTool: any = this.expandToolNode;
+        const contractTool: any = this.contractToolNode;
 
         let expandToolScrollHeight;
         let expandToolScrollWidth;
@@ -353,7 +404,7 @@ class InovuaNotifyResize extends React.Component {
     });
   }
 
-  onResize({ width, height }) {
+  onResize({ width, height }: { width?: number; height?: number }) {
     if (this.__willUnmount) {
       return;
     }
@@ -362,25 +413,6 @@ class InovuaNotifyResize extends React.Component {
     }
   }
 }
-
-InovuaNotifyResize.defaultProps = {
-  useNativeIfAvailable: true,
-  useWillChange: false,
-  useRaf: true,
-};
-
-InovuaNotifyResize.propTypes = {
-  ResizeObserver: func,
-  onResize: func,
-  onObserverResize: func, // only called when native resizeobserver is available
-  useNativeIfAvailable: bool,
-  onMount: func,
-  useWillChange: bool,
-  useRaf: bool,
-  notifyOnMount: bool,
-  notifyResizeDelay: number,
-  checkResizeDelay: number,
-};
 
 export default InovuaNotifyResize;
 

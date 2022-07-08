@@ -12,7 +12,7 @@ import { getGlobal } from '../../../getGlobal';
 const globalObject = getGlobal();
 const STYLE_DISPLAY_NONE = { display: 'none' };
 const emptyFn = () => { };
-const immediateFn = fn => fn();
+const immediateFn = (fn) => fn();
 const notifyResizeStyle = {
     contain: 'strict',
     position: 'absolute',
@@ -54,7 +54,39 @@ const contractToolInnerStyle = {
     width: '200%',
     height: '200%',
 };
+const defaultProps = {
+    useNativeIfAvailable: true,
+    useWillChange: false,
+    useRaf: true,
+};
+const propTypes = {
+    ResizeObserver: func,
+    onResize: func,
+    onObserverResize: func,
+    useNativeIfAvailable: bool,
+    onMount: func,
+    useWillChange: bool,
+    useRaf: bool,
+    notifyOnMount: bool,
+    notifyResizeDelay: number,
+    checkResizeDelay: number,
+};
 class InovuaNotifyResize extends React.Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    refNotifyResize;
+    notifyResizeNode;
+    refContractTool;
+    contractToolNode = null;
+    refExpandTool;
+    refExpandToolInner;
+    refContractToolInner;
+    expandToolNode = null;
+    __willUnmount;
+    observer = {};
+    target;
+    expandToolInnerNode;
+    contractToolInnerNode;
     constructor(props) {
         super(props);
         this.checkResize = this.checkResize.bind(this);
@@ -118,7 +150,7 @@ class InovuaNotifyResize extends React.Component {
             const node = this.getDOMNode();
             const target = node.parentNode;
             this.target = target;
-            const observer = new ResizeObserver(entries => {
+            const observer = new ResizeObserver((entries) => {
                 if (this.props.onObserverResize) {
                     this.props.onObserverResize(entries);
                 }
@@ -175,7 +207,7 @@ class InovuaNotifyResize extends React.Component {
         });
     }
     setDimensions(callback) {
-        this.getDimensions(size => {
+        this.getDimensions((size) => {
             const { notifyResizeWidth, notifyResizeHeight } = size;
             if (this.__willUnmount) {
                 return;
@@ -271,22 +303,5 @@ class InovuaNotifyResize extends React.Component {
         }
     }
 }
-InovuaNotifyResize.defaultProps = {
-    useNativeIfAvailable: true,
-    useWillChange: false,
-    useRaf: true,
-};
-InovuaNotifyResize.propTypes = {
-    ResizeObserver: func,
-    onResize: func,
-    onObserverResize: func,
-    useNativeIfAvailable: bool,
-    onMount: func,
-    useWillChange: bool,
-    useRaf: bool,
-    notifyOnMount: bool,
-    notifyResizeDelay: number,
-    checkResizeDelay: number,
-};
 export default InovuaNotifyResize;
 export { InovuaNotifyResize as NotifyResize };

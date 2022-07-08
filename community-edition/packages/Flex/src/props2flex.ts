@@ -5,5 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export default props =>
+import { TypeProps } from './types';
+
+export default (props: TypeProps) =>
   props.flex === false ? 0 : props.flex === true ? 1 : props.flex;

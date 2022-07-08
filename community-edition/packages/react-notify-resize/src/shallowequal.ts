@@ -12,7 +12,7 @@
  * @param  {Object} object2
  * @return {[type]}         [description]
  */
-function shallowequal(object1, object2) {
+function shallowequal(object1: any, object2: any): boolean {
   if (object1 === object2) {
     return true;
   }

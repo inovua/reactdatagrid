@@ -7,8 +7,9 @@
 
 import hasOwn from '../../../packages/hasOwn';
 import VALIDATE from './validate';
+import { Region, RegionType, Rectangle } from './types';
 
-export default function(REGION) {
+export default function(REGION: RegionType) {
   var MAX = Math.max;
   var MIN = Math.min;
 
@@ -29,14 +30,14 @@ export default function(REGION) {
 
       for (methodName in exportAsNonStatic)
         if (exportHasOwn(methodName)) {
-          newName = exportAsNonStatic[methodName];
+          newName = (exportAsNonStatic as any)[methodName];
           if (typeof newName != 'string') {
             newName = methodName;
           }
 
           (function(proto, methodName, protoMethodName) {
-            proto[methodName] = function(region) {
-              if (!REGION[protoMethodName]) {
+            proto[methodName] = function(region: Region) {
+              if (!(REGION as any)[protoMethodName]) {
                 console.warn(
                   'cannot find method ',
                   protoMethodName,
@@ -45,7 +46,7 @@ export default function(REGION) {
                 );
               }
 
-              return REGION[protoMethodName](this, region);
+              return (REGION as any)[protoMethodName](this, region);
             };
           })(thisProto, newName, methodName);
         }
@@ -57,18 +58,18 @@ export default function(REGION) {
      * Returns the region corresponding to the documentElement
      * @return {Region} The region corresponding to the documentElement. This region is the maximum region visible on the screen.
      */
-    getDocRegion: function() {
-      return REGION.fromDOM(document.documentElement);
+    getDocRegion: function(): Region {
+      return REGION.fromDOM!(document.documentElement);
     },
 
-    from: function(reg) {
+    from: function(reg: any): Region {
       if (reg.__IS_REGION) {
         return reg;
       }
 
       if (typeof document != 'undefined') {
         if (reg && reg.getBoundingClientRect) {
-          return REGION.fromDOM(reg);
+          return REGION.fromDOM!(reg);
         }
 
         if (
@@ -76,24 +77,24 @@ export default function(REGION) {
           typeof reg.pageX !== 'undefined' &&
           typeof reg.pageY !== 'undefined'
         ) {
-          return REGION.fromEvent(reg);
+          return REGION.fromEvent!(reg);
         }
       }
 
       return REGION(reg);
     },
 
-    fromEvent: function(event) {
-      return REGION.fromPoint({
+    fromEvent: function(event: MouseEvent): Region {
+      return REGION.fromPoint!({
         x: event.pageX,
         y: event.pageY,
       });
     },
 
-    fromDOM: function(dom) {
-      var rect = dom.getBoundingClientRect();
+    fromDOM: function(dom: Element): Region {
+      var rect = dom!.getBoundingClientRect();
 
-      return new REGION({
+      return new (REGION as any)({
         top: rect.top,
         left: rect.left,
         bottom: rect.bottom,
@@ -108,19 +109,19 @@ export default function(REGION) {
      * @param  {Region} second The second region
      * @return {Region/Boolean}        The intersection region or false if no intersection found
      */
-    getIntersection: function(first, second) {
+    getIntersection: function(first: Region, second: Region): boolean {
       var area = this.getIntersectionArea(first, second);
 
       if (area) {
-        return new REGION(area);
+        return new (REGION as any)(area);
       }
 
       return false;
     },
 
-    getIntersectionWidth: function(first, second) {
-      var minRight = MIN(first.right, second.right);
-      var maxLeft = MAX(first.left, second.left);
+    getIntersectionWidth: function(first: Region, second: Region): number {
+      var minRight = MIN(first.right!, second.right!);
+      var maxLeft = MAX(first.left!, second.left!);
 
       if (maxLeft < minRight) {
         return minRight - maxLeft;
@@ -129,9 +130,9 @@ export default function(REGION) {
       return 0;
     },
 
-    getIntersectionHeight: function(first, second) {
-      var maxTop = MAX(first.top, second.top);
-      var minBottom = MIN(first.bottom, second.bottom);
+    getIntersectionHeight: function(first: Region, second: Region): number {
+      var maxTop = MAX(first.top!, second.top!);
+      var minBottom = MIN(first.bottom!, second.bottom!);
 
       if (maxTop < minBottom) {
         return minBottom - maxTop;
@@ -140,11 +141,14 @@ export default function(REGION) {
       return 0;
     },
 
-    getIntersectionArea: function(first, second) {
+    getIntersectionArea: function(
+      first: Region,
+      second: Region
+    ): Rectangle | boolean {
       var maxTop = MAX(first.top, second.top);
-      var minRight = MIN(first.right, second.right);
-      var minBottom = MIN(first.bottom, second.bottom);
-      var maxLeft = MAX(first.left, second.left);
+      var minRight = MIN(first.right!, second.right!);
+      var minBottom = MIN(first.bottom!, second.bottom!);
+      var maxLeft = MAX(first.left!, second.left!);
 
       if (maxTop < minBottom && maxLeft < minRight) {
         return {
@@ -168,13 +172,13 @@ export default function(REGION) {
      * @param  {Region} second The second region
      * @return {Region}        The union region. The smallest region that contains both given regions.
      */
-    getUnion: function(first, second) {
-      var top = MIN(first.top, second.top);
-      var right = MAX(first.right, second.right);
-      var bottom = MAX(first.bottom, second.bottom);
-      var left = MIN(first.left, second.left);
+    getUnion: function(first: Region, second: Region): Region {
+      var top = MIN(first.top!, second.top!);
+      var right = MAX(first.right!, second.right!);
+      var bottom = MAX(first.bottom!, second.bottom!);
+      var left = MIN(first.left!, second.left!);
 
-      return new REGION(top, right, bottom, left);
+      return new (REGION as any)(top, right, bottom, left);
     },
 
     /**
@@ -185,8 +189,8 @@ export default function(REGION) {
      * with top, left, width, height
      * @return {Region} A region
      */
-    getRegion: function(reg) {
-      return REGION.from(reg);
+    getRegion: function(reg: any): Region {
+      return REGION.from!(reg);
     },
 
     /**
@@ -198,8 +202,8 @@ export default function(REGION) {
      *
      * @return {Region}    The new region, with top==xy.y, bottom = xy.y and left==xy.x, right==xy.x
      */
-    fromPoint: function(xy) {
-      return new REGION({
+    fromPoint: function(xy: { x: number; y: number }): Region {
+      return new (REGION as any)({
         top: xy.y,
         bottom: xy.y,
         left: xy.x,
@@ -208,9 +212,9 @@ export default function(REGION) {
     },
   };
 
-  Object.keys(statics).forEach(function(key) {
-    REGION[key] = statics[key];
+  Object.keys(statics).forEach(function(key: string) {
+    (REGION as any)[key] = (statics as any)[key];
   });
 
-  REGION.init();
+  REGION.init!();
 }

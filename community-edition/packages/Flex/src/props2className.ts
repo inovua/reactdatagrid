@@ -11,7 +11,7 @@ import prefix from './prefix';
 
 const PREFIX = prefix;
 
-export default props => {
+export default (props: any) => {
   const column = !!props.column;
   const row = !column && !!props.row;
   const reverse = props.reverse ? '-reverse' : '';
