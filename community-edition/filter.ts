@@ -6,7 +6,13 @@
  */
 
 import DEFAULT_FILTER_TYPES from './filterTypes';
-import { TypeSingleFilterValue, TypeColumn, TypeFilterParam } from './types';
+import {
+  TypeSingleFilterValue,
+  TypeColumn,
+  TypeFilterParam,
+  TypeFilterTypes,
+  TypeFilter,
+} from './types';
 
 export const buildTypeOperators = (filterTypes: any) => {
   return Object.keys(filterTypes).reduce((acc: any, filterTypeName: any) => {
@@ -126,7 +132,7 @@ const doFilter = (
   item: any,
   filterValueArray: TypeSingleFilterValue[],
   filterTypes: any = DEFAULT_FILTER_TYPES,
-  columnsMap: { [key: string]: TypeColumn }
+  columnsMap?: { [key: string]: TypeColumn }
 ): boolean => {
   const typeOperators: any = buildTypeOperators(filterTypes);
 
@@ -155,13 +161,15 @@ const doFilter = (
   return true;
 };
 
-const filter = (
-  data: any,
+const filter: TypeFilter = (
+  data: any[],
   filterValueArray: TypeSingleFilterValue[],
-  filterTypes: any = DEFAULT_FILTER_TYPES,
-  columnsMap: { [key: string]: TypeColumn }
+  filterTypes?: TypeFilterTypes,
+  columnsMap?: { [key: string]: TypeColumn }
 ) => {
-  const filterFn = (item: any) => {
+  filterTypes = filterTypes || DEFAULT_FILTER_TYPES;
+
+  const filterFn = (item: any): boolean => {
     const result: boolean = doFilter(
       item,
       filterValueArray,

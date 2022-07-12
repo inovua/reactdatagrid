@@ -23,10 +23,12 @@ export { TypeGroupBy, TypeGroupTool } from './TypeGroupBy';
 export { TypeSize } from './TypeSize';
 export { TypeDataSource } from './TypeDataSource';
 export {
+  TypeFilter,
   TypeFilterValue,
   TypeSingleFilterValue,
   TypeFilterType,
   TypeFilterTypes,
+  TypeFnParam,
   TypeFilterOperator,
   TypeFilterParam,
 } from './TypeFilterValue';

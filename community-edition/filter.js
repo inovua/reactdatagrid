@@ -96,7 +96,8 @@ const doFilter = (item, filterValueArray, filterTypes = DEFAULT_FILTER_TYPES, co
     }
     return true;
 };
-const filter = (data, filterValueArray, filterTypes = DEFAULT_FILTER_TYPES, columnsMap) => {
+const filter = (data, filterValueArray, filterTypes, columnsMap) => {
+    filterTypes = filterTypes || DEFAULT_FILTER_TYPES;
     const filterFn = (item) => {
         const result = doFilter(item, filterValueArray, filterTypes, columnsMap);
         return result;

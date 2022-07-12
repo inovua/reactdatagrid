@@ -11,7 +11,7 @@ export const stringTypes = {
     operators: [
         {
             name: 'contains',
-            fn: ({ value, filterValue, data, }) => {
+            fn: ({ value, filterValue }) => {
                 value = value || '';
                 return !filterValue
                     ? true
@@ -20,14 +20,14 @@ export const stringTypes = {
         },
         {
             name: 'notContains',
-            fn: ({ value, filterValue, data, }) => !filterValue
+            fn: ({ value, filterValue }) => !filterValue
                 ? true
                 : (value || '').toLowerCase().indexOf(filterValue.toLowerCase()) ===
                     -1,
         },
         {
             name: 'eq',
-            fn: ({ value, filterValue, data, }) => {
+            fn: ({ value, filterValue }) => {
                 return !filterValue
                     ? true
                     : (value || '').toLowerCase() === filterValue.toLowerCase();
@@ -35,7 +35,7 @@ export const stringTypes = {
         },
         {
             name: 'neq',
-            fn: ({ value, filterValue, data, }) => {
+            fn: ({ value, filterValue }) => {
                 return !filterValue
                     ? true
                     : (value || '').toLowerCase() !== filterValue.toLowerCase();
@@ -43,7 +43,7 @@ export const stringTypes = {
         },
         {
             name: 'empty',
-            fn: ({ value, data }) => {
+            fn: ({ value }) => {
                 return value === '';
             },
             filterOnEmptyValue: true,
@@ -52,7 +52,7 @@ export const stringTypes = {
         },
         {
             name: 'notEmpty',
-            fn: ({ value, data }) => {
+            fn: ({ value }) => {
                 return value !== '';
             },
             filterOnEmptyValue: true,
@@ -61,13 +61,13 @@ export const stringTypes = {
         },
         {
             name: 'startsWith',
-            fn: ({ value, filterValue, data, }) => !filterValue
+            fn: ({ value, filterValue }) => !filterValue
                 ? true
                 : (value || '').toLowerCase().startsWith(filterValue.toLowerCase()),
         },
         {
             name: 'endsWith',
-            fn: ({ value, filterValue, data, }) => !filterValue
+            fn: ({ value, filterValue }) => !filterValue
                 ? true
                 : (value || '').toLowerCase().endsWith(filterValue.toLowerCase()),
         },
@@ -79,13 +79,13 @@ export const boolTypes = {
     operators: [
         {
             name: 'eq',
-            fn: ({ value, filterValue, data, }) => {
+            fn: ({ value, filterValue }) => {
                 return filterValue != null ? filterValue === value : true;
             },
         },
         {
             name: 'neq',
-            fn: ({ value, filterValue, data, }) => {
+            fn: ({ value, filterValue }) => {
                 return filterValue != null ? filterValue !== value : true;
             },
         },
@@ -97,7 +97,7 @@ export const selectTypes = {
     operators: [
         {
             name: 'inlist',
-            fn: ({ value, filterValue, data, }) => {
+            fn: ({ value, filterValue }) => {
                 return !filterValue || !filterValue.length
                     ? true
                     : filterValue.indexOf(value) !== -1;
@@ -105,7 +105,7 @@ export const selectTypes = {
         },
         {
             name: 'notinlist',
-            fn: ({ value, filterValue, data, }) => {
+            fn: ({ value, filterValue }) => {
                 return !filterValue || !filterValue.length
                     ? true
                     : filterValue.indexOf(value) === -1;
@@ -113,13 +113,13 @@ export const selectTypes = {
         },
         {
             name: 'eq',
-            fn: ({ value, filterValue, data, emptyValue, }) => {
+            fn: ({ value, filterValue, emptyValue, }) => {
                 return filterValue !== emptyValue ? filterValue === value : true;
             },
         },
         {
             name: 'neq',
-            fn: ({ value, filterValue, emptyValue, data, }) => {
+            fn: ({ value, filterValue, emptyValue }) => {
                 return filterValue !== emptyValue ? filterValue !== value : true;
             },
         },
@@ -136,31 +136,31 @@ export const numberTypes = {
     operators: [
         {
             name: 'gt',
-            fn: ({ value, filterValue, data, }) => (filterValue != null ? value > filterValue : true),
+            fn: ({ value, filterValue }) => filterValue != null ? value > filterValue : true,
         },
         {
             name: 'gte',
-            fn: ({ value, filterValue, data, }) => (filterValue != null ? value >= filterValue : true),
+            fn: ({ value, filterValue }) => filterValue != null ? value >= filterValue : true,
         },
         {
             name: 'lt',
-            fn: ({ value, filterValue, data, }) => (filterValue != null ? value < filterValue : true),
+            fn: ({ value, filterValue }) => filterValue != null ? value < filterValue : true,
         },
         {
             name: 'lte',
-            fn: ({ value, filterValue, data, }) => (filterValue != null ? value <= filterValue : true),
+            fn: ({ value, filterValue }) => filterValue != null ? value <= filterValue : true,
         },
         {
             name: 'eq',
-            fn: ({ value, filterValue, data, }) => (filterValue != null ? value === filterValue : true),
+            fn: ({ value, filterValue }) => filterValue != null ? value === filterValue : true,
         },
         {
             name: 'neq',
-            fn: ({ value, filterValue, data, }) => (filterValue != null ? value !== filterValue : true),
+            fn: ({ value, filterValue }) => filterValue != null ? value !== filterValue : true,
         },
         {
             name: 'inrange',
-            fn: ({ value, filterValue, data, }) => {
+            fn: ({ value, filterValue }) => {
                 const { start, end } = filterValue || emptyObject;
                 if (start != null && end != null) {
                     return value >= start && value <= end;
@@ -176,7 +176,7 @@ export const numberTypes = {
         },
         {
             name: 'notinrange',
-            fn: ({ value, filterValue, data, }) => {
+            fn: ({ value, filterValue }) => {
                 const { start, end } = filterValue || emptyObject;
                 if (start != null && end != null) {
                     return value < start || value > end;
@@ -198,7 +198,7 @@ export const dateTypes = {
     operators: [
         {
             name: 'after',
-            fn: ({ value, filterValue, data, column: { dateFormat } }) => filterValue
+            fn: ({ value, filterValue, column: { dateFormat }, }) => filterValue
                 ? window
                     .moment(window.moment(value).format(dateFormat), dateFormat)
                     .isAfter(window.moment(filterValue, dateFormat))
@@ -206,7 +206,7 @@ export const dateTypes = {
         },
         {
             name: 'afterOrOn',
-            fn: ({ value, filterValue, data, column: { dateFormat } }) => filterValue != null
+            fn: ({ value, filterValue, column: { dateFormat }, }) => filterValue != null
                 ? window
                     .moment(window.moment(value).format(dateFormat), dateFormat)
                     .isSameOrAfter(window.moment(filterValue, dateFormat))
@@ -214,7 +214,7 @@ export const dateTypes = {
         },
         {
             name: 'before',
-            fn: ({ value, filterValue, data, column: { dateFormat } }) => filterValue != null
+            fn: ({ value, filterValue, column: { dateFormat }, }) => filterValue != null
                 ? window
                     .moment(window.moment(value).format(dateFormat), dateFormat)
                     .isBefore(window.moment(filterValue, dateFormat))
@@ -222,7 +222,7 @@ export const dateTypes = {
         },
         {
             name: 'beforeOrOn',
-            fn: ({ value, filterValue, data, column: { dateFormat } }) => filterValue != null
+            fn: ({ value, filterValue, column: { dateFormat }, }) => filterValue != null
                 ? window
                     .moment(window.moment(value).format(dateFormat), dateFormat)
                     .isSameOrBefore(window.moment(filterValue, dateFormat))
@@ -230,7 +230,7 @@ export const dateTypes = {
         },
         {
             name: 'eq',
-            fn: ({ value, filterValue, data, column: { dateFormat } }) => filterValue
+            fn: ({ value, filterValue, column: { dateFormat }, }) => filterValue
                 ? window
                     .moment(window.moment(value).format(dateFormat), dateFormat)
                     .isSame(window.moment(filterValue, dateFormat))
@@ -238,7 +238,7 @@ export const dateTypes = {
         },
         {
             name: 'neq',
-            fn: ({ value, filterValue, data, column: { dateFormat } }) => filterValue
+            fn: ({ value, filterValue, column: { dateFormat }, }) => filterValue
                 ? !window
                     .moment(window.moment(value).format(dateFormat), dateFormat)
                     .isSame(window.moment(filterValue, dateFormat))
@@ -246,7 +246,7 @@ export const dateTypes = {
         },
         {
             name: 'inrange',
-            fn: ({ value, filterValue, data, column: { dateFormat } }) => {
+            fn: ({ value, filterValue, column: { dateFormat }, }) => {
                 const { start, end } = filterValue || emptyObject;
                 if (start && end) {
                     return (window
@@ -271,7 +271,7 @@ export const dateTypes = {
         },
         {
             name: 'notinrange',
-            fn: ({ value, filterValue, data, column: { dateFormat } }) => {
+            fn: ({ value, filterValue, column: { dateFormat }, }) => {
                 const { start, end } = filterValue || emptyObject;
                 if (start && end) {
                     return (window
@@ -296,7 +296,7 @@ export const dateTypes = {
         },
     ],
 };
-export default {
+const defaultFilterTypes = {
     select: selectTypes,
     string: stringTypes,
     number: numberTypes,
@@ -305,3 +305,4 @@ export default {
     date: dateTypes,
 };
 export { selectTypes as select, stringTypes as string, numberTypes as number, boolTypes as bool, boolTypes as boolean, dateTypes as date, };
+export default defaultFilterTypes;

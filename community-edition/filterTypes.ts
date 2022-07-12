@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { TypeFilterType } from './types';
+import { TypeFilterType, TypeFilterTypes, TypeFnParam } from './types';
 
 const emptyObject = {};
 
@@ -15,15 +15,7 @@ export const stringTypes: TypeFilterType = {
   operators: [
     {
       name: 'contains',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: string;
-        filterValue: string;
-        data: any;
-      }): boolean => {
+      fn: ({ value, filterValue }: TypeFnParam): boolean => {
         value = value || '';
         return !filterValue
           ? true
@@ -32,15 +24,7 @@ export const stringTypes: TypeFilterType = {
     },
     {
       name: 'notContains',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: string;
-        filterValue: string;
-        data: any;
-      }): boolean =>
+      fn: ({ value, filterValue }: TypeFnParam): boolean =>
         !filterValue
           ? true
           : (value || '').toLowerCase().indexOf(filterValue.toLowerCase()) ===
@@ -48,15 +32,7 @@ export const stringTypes: TypeFilterType = {
     },
     {
       name: 'eq',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: string;
-        filterValue: string;
-        data: any;
-      }): boolean => {
+      fn: ({ value, filterValue }: TypeFnParam): boolean => {
         return !filterValue
           ? true
           : (value || '').toLowerCase() === filterValue.toLowerCase();
@@ -65,15 +41,7 @@ export const stringTypes: TypeFilterType = {
 
     {
       name: 'neq',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: string;
-        filterValue: string;
-        data: any;
-      }): boolean => {
+      fn: ({ value, filterValue }: TypeFnParam): boolean => {
         return !filterValue
           ? true
           : (value || '').toLowerCase() !== filterValue.toLowerCase();
@@ -81,7 +49,7 @@ export const stringTypes: TypeFilterType = {
     },
     {
       name: 'empty',
-      fn: ({ value, data }: { value: string; data: any }): boolean => {
+      fn: ({ value }: TypeFnParam): boolean => {
         return value === '';
       },
       filterOnEmptyValue: true,
@@ -91,7 +59,7 @@ export const stringTypes: TypeFilterType = {
 
     {
       name: 'notEmpty',
-      fn: ({ value, data }: { value: string; data: any }): boolean => {
+      fn: ({ value }: TypeFnParam): boolean => {
         return value !== '';
       },
       filterOnEmptyValue: true,
@@ -100,30 +68,14 @@ export const stringTypes: TypeFilterType = {
     },
     {
       name: 'startsWith',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: string;
-        filterValue: string;
-        data: any;
-      }): boolean =>
+      fn: ({ value, filterValue }: TypeFnParam): boolean =>
         !filterValue
           ? true
           : (value || '').toLowerCase().startsWith(filterValue.toLowerCase()),
     },
     {
       name: 'endsWith',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: string;
-        filterValue: string;
-        data: any;
-      }): boolean =>
+      fn: ({ value, filterValue }: TypeFnParam): boolean =>
         !filterValue
           ? true
           : (value || '').toLowerCase().endsWith(filterValue.toLowerCase()),
@@ -137,29 +89,13 @@ export const boolTypes: TypeFilterType = {
   operators: [
     {
       name: 'eq',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: boolean;
-        filterValue?: boolean | null;
-        data: any;
-      }): boolean => {
+      fn: ({ value, filterValue }: TypeFnParam): boolean => {
         return filterValue != null ? filterValue === value : true;
       },
     },
     {
       name: 'neq',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: boolean;
-        filterValue?: boolean | null;
-        data: any;
-      }): boolean => {
+      fn: ({ value, filterValue }: TypeFnParam): boolean => {
         return filterValue != null ? filterValue !== value : true;
       },
     },
@@ -172,15 +108,7 @@ export const selectTypes: TypeFilterType = {
   operators: [
     {
       name: 'inlist',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: string;
-        filterValue: any[];
-        data: any;
-      }): boolean => {
+      fn: ({ value, filterValue }: TypeFnParam): boolean => {
         return !filterValue || !filterValue.length
           ? true
           : filterValue.indexOf(value) !== -1;
@@ -188,15 +116,7 @@ export const selectTypes: TypeFilterType = {
     },
     {
       name: 'notinlist',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: string;
-        filterValue: any[];
-        data: any;
-      }): boolean => {
+      fn: ({ value, filterValue }: TypeFnParam): boolean => {
         return !filterValue || !filterValue.length
           ? true
           : filterValue.indexOf(value) === -1;
@@ -204,33 +124,18 @@ export const selectTypes: TypeFilterType = {
     },
     {
       name: 'eq',
-      fn: <T>({
+      fn: ({
         value,
         filterValue,
-        data,
+
         emptyValue,
-      }: {
-        value?: T | null;
-        filterValue: T | null;
-        emptyValue: T | null;
-        data: any;
-      }): boolean => {
+      }: TypeFnParam): boolean => {
         return filterValue !== emptyValue ? filterValue === value : true;
       },
     },
     {
       name: 'neq',
-      fn: <T>({
-        value,
-        filterValue,
-        emptyValue,
-        data,
-      }: {
-        value?: T | null;
-        filterValue: T | null;
-        emptyValue: T | null;
-        data: any;
-      }): boolean => {
+      fn: ({ value, filterValue, emptyValue }: TypeFnParam): boolean => {
         return filterValue !== emptyValue ? filterValue !== value : true;
       },
     },
@@ -249,87 +154,37 @@ export const numberTypes: TypeFilterType = {
   operators: [
     {
       name: 'gt',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: number;
-        filterValue?: number;
-        data: any;
-      }): boolean => (filterValue != null ? value > filterValue : true),
+      fn: ({ value, filterValue }: TypeFnParam): boolean =>
+        filterValue != null ? value > filterValue : true,
     },
     {
       name: 'gte',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: number;
-        filterValue?: number;
-        data: any;
-      }): boolean => (filterValue != null ? value >= filterValue : true),
+      fn: ({ value, filterValue }: TypeFnParam): boolean =>
+        filterValue != null ? value >= filterValue : true,
     },
     {
       name: 'lt',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: number;
-        filterValue?: number;
-        data: any;
-      }): boolean => (filterValue != null ? value < filterValue : true),
+      fn: ({ value, filterValue }: TypeFnParam): boolean =>
+        filterValue != null ? value < filterValue : true,
     },
     {
       name: 'lte',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: number;
-        filterValue?: number;
-        data: any;
-      }): boolean => (filterValue != null ? value <= filterValue : true),
+      fn: ({ value, filterValue }: TypeFnParam): boolean =>
+        filterValue != null ? value <= filterValue : true,
     },
     {
       name: 'eq',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: number;
-        filterValue?: number;
-        data: any;
-      }): boolean => (filterValue != null ? value === filterValue : true),
+      fn: ({ value, filterValue }: TypeFnParam): boolean =>
+        filterValue != null ? value === filterValue : true,
     },
     {
       name: 'neq',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: number;
-        filterValue?: number;
-        data: any;
-      }): boolean => (filterValue != null ? value !== filterValue : true),
+      fn: ({ value, filterValue }: TypeFnParam): boolean =>
+        filterValue != null ? value !== filterValue : true,
     },
     {
       name: 'inrange',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: number;
-        filterValue: { start: number; end: number };
-        data: any;
-      }) => {
+      fn: ({ value, filterValue }: TypeFnParam) => {
         const { start, end } = filterValue || emptyObject;
 
         if (start != null && end != null) {
@@ -347,15 +202,7 @@ export const numberTypes: TypeFilterType = {
     },
     {
       name: 'notinrange',
-      fn: ({
-        value,
-        filterValue,
-        data,
-      }: {
-        value: number;
-        filterValue: { start: number; end: number };
-        data: any;
-      }) => {
+      fn: ({ value, filterValue }: TypeFnParam) => {
         const { start, end } = filterValue || emptyObject;
         if (start != null && end != null) {
           return value < start || value > end;
@@ -378,7 +225,12 @@ export const dateTypes = {
   operators: [
     {
       name: 'after',
-      fn: ({ value, filterValue, data, column: { dateFormat } }) =>
+      fn: ({
+        value,
+        filterValue,
+
+        column: { dateFormat },
+      }: TypeFnParam): boolean =>
         filterValue
           ? window
               .moment(window.moment(value).format(dateFormat), dateFormat)
@@ -387,7 +239,12 @@ export const dateTypes = {
     },
     {
       name: 'afterOrOn',
-      fn: ({ value, filterValue, data, column: { dateFormat } }) =>
+      fn: ({
+        value,
+        filterValue,
+
+        column: { dateFormat },
+      }: TypeFnParam): boolean =>
         filterValue != null
           ? window
               .moment(window.moment(value).format(dateFormat), dateFormat)
@@ -396,7 +253,12 @@ export const dateTypes = {
     },
     {
       name: 'before',
-      fn: ({ value, filterValue, data, column: { dateFormat } }) =>
+      fn: ({
+        value,
+        filterValue,
+
+        column: { dateFormat },
+      }: TypeFnParam): boolean =>
         filterValue != null
           ? window
               .moment(window.moment(value).format(dateFormat), dateFormat)
@@ -405,7 +267,12 @@ export const dateTypes = {
     },
     {
       name: 'beforeOrOn',
-      fn: ({ value, filterValue, data, column: { dateFormat } }) =>
+      fn: ({
+        value,
+        filterValue,
+
+        column: { dateFormat },
+      }: TypeFnParam): boolean =>
         filterValue != null
           ? window
               .moment(window.moment(value).format(dateFormat), dateFormat)
@@ -414,7 +281,12 @@ export const dateTypes = {
     },
     {
       name: 'eq',
-      fn: ({ value, filterValue, data, column: { dateFormat } }) =>
+      fn: ({
+        value,
+        filterValue,
+
+        column: { dateFormat },
+      }: TypeFnParam): boolean =>
         filterValue
           ? window
               .moment(window.moment(value).format(dateFormat), dateFormat)
@@ -423,7 +295,12 @@ export const dateTypes = {
     },
     {
       name: 'neq',
-      fn: ({ value, filterValue, data, column: { dateFormat } }) =>
+      fn: ({
+        value,
+        filterValue,
+
+        column: { dateFormat },
+      }: TypeFnParam): boolean =>
         filterValue
           ? !window
               .moment(window.moment(value).format(dateFormat), dateFormat)
@@ -432,7 +309,12 @@ export const dateTypes = {
     },
     {
       name: 'inrange',
-      fn: ({ value, filterValue, data, column: { dateFormat } }) => {
+      fn: ({
+        value,
+        filterValue,
+
+        column: { dateFormat },
+      }: TypeFnParam): boolean => {
         const { start, end } = filterValue || emptyObject;
         if (start && end) {
           return (
@@ -459,7 +341,12 @@ export const dateTypes = {
     },
     {
       name: 'notinrange',
-      fn: ({ value, filterValue, data, column: { dateFormat } }) => {
+      fn: ({
+        value,
+        filterValue,
+
+        column: { dateFormat },
+      }: TypeFnParam): boolean => {
         const { start, end } = filterValue || emptyObject;
         if (start && end) {
           return (
@@ -487,7 +374,7 @@ export const dateTypes = {
   ],
 };
 
-export default {
+const defaultFilterTypes: TypeFilterTypes = {
   select: selectTypes,
   string: stringTypes,
   number: numberTypes,
@@ -504,3 +391,5 @@ export {
   boolTypes as boolean,
   dateTypes as date,
 };
+
+export default defaultFilterTypes;

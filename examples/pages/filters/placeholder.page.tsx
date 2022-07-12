@@ -12,7 +12,7 @@ import filter from '../../../community-edition/filter';
 import people from '../people';
 import flags from '../flags';
 import moment from 'moment';
-import { CellProps } from '@inovua/reactdatagrid-community/types';
+import { CellProps, TypeFilter } from '@inovua/reactdatagrid-community/types';
 
 const gridStyle = { minHeight: 400 };
 
@@ -168,7 +168,7 @@ const App = () => {
   const [filterValue, setFilterValue] = useState(defaultFilterValue);
 
   const onFilterValueChange = useCallback(filterValue => {
-    const data: any = (filter as any)(people, filterValue);
+    const data: any = (filter as TypeFilter)(people, filterValue);
 
     setFilterValue(filterValue);
     setDataSource(data);

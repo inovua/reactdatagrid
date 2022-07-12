@@ -29,6 +29,14 @@ export type TypeFilterParam = {
 export type TypeFilterValue = TypeSingleFilterValue[] | null;
 export default TypeFilterValue;
 
+export type TypeFnParam = {
+  value: any;
+  filterValue?: any;
+  emptyValue?: string;
+  data?: any[];
+  column?: any;
+};
+
 export type TypeFilterOperator = {
   name: string;
   fn: ({
@@ -36,12 +44,8 @@ export type TypeFilterOperator = {
     filterValue,
     data,
     emptyValue,
-  }: {
-    value: any;
-    filterValue: any;
-    data: any;
-    emptyValue: any;
-  }) => boolean;
+    column,
+  }: TypeFnParam) => boolean;
   filterOnEmptyValue?: boolean;
   valueOnOperatorSelect?: any;
   disableFilterEditor?: boolean;
@@ -56,3 +60,10 @@ export type TypeFilterType = {
 export type TypeFilterTypes = {
   [key: string]: TypeFilterType;
 };
+
+export type TypeFilter = (
+  data: any[],
+  filterValueArray: TypeSingleFilterValue[],
+  filterTypes?: TypeFilterTypes,
+  columnsMap?: { [key: string]: TypeColumn }
+) => any[] | ((item: any) => boolean);

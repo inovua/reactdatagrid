@@ -123,9 +123,11 @@ const useClipboard = (
 
     Object.keys(selectedCells).map((key: string): void => {
       const parsedKey = key.split(',');
-      const rowId = parseInt(parsedKey[0]);
-      const index = computedProps.getRowIndexById(rowId);
-      const column = parsedKey[1];
+      const parsedId: string = parsedKey[0];
+      const rowId = parseInt(parsedId, 10);
+      const id = isNaN(rowId) ? parsedId : rowId;
+      const index: number = computedProps.getRowIndexById(id);
+      const column: string = parsedKey[1];
 
       const data = computedProps.getData();
       if (index !== undefined && column !== undefined) {
@@ -186,10 +188,10 @@ const useClipboard = (
             }
           );
 
-          return Object.assign(
-            {},
-            { id: activeRow + index, ...columns[index] }
-          );
+          const newIndex = activeRow + index;
+          const newId = computedProps.getItemIdAt(newIndex);
+
+          return Object.assign({}, { id: newId, ...columns[index] });
         });
 
         if (computedProps.onPasteSelectedCellsChange) {

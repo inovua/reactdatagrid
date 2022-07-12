@@ -1067,7 +1067,7 @@ const GridFactory = ({ plugins } = {}, edition = 'community') => {
             configurable: true,
         });
         computedProps.edition = edition;
-        // globalThis.computedProps = computedProps;
+        globalThis.computedProps = computedProps;
         // globalThis.bodyRef = bodyRef;
         return (React.createElement("div", { style: props.style, className: className, onKeyDown: onKeyDown, onFocus: onFocus, onBlur: onBlur, ref: domRef },
             React.createElement(Provider, { value: computedProps },

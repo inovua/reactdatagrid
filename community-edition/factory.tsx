@@ -1611,7 +1611,7 @@ const GridFactory = (
     });
     computedProps.edition = edition;
 
-    // globalThis.computedProps = computedProps;
+    globalThis.computedProps = computedProps;
     // globalThis.bodyRef = bodyRef;
 
     return (
