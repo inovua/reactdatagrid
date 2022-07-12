@@ -5,21 +5,26 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-function curry(fn, n) {
+import { TypeSingleSortInfo } from '.';
+
+function curry(
+  fn: (sortInfo: TypeSingleSortInfo[], array: any[]) => any[],
+  n?: number
+) {
   if (typeof n !== 'number') {
     n = fn.length;
   }
 
-  function getCurryClosure(prevArgs) {
-    function curryClosure() {
-      var len = arguments.length;
-      var args = [].concat(prevArgs);
+  function getCurryClosure(prevArgs: ConcatArray<never>) {
+    function curryClosure(this: any) {
+      var len: number = arguments.length;
+      var args: any = [].concat(prevArgs);
 
       if (len) {
         args.push.apply(args, arguments);
       }
 
-      if (args.length < n) {
+      if (args.length < n!) {
         return getCurryClosure(args);
       }
 

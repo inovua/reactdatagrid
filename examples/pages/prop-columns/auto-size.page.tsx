@@ -1,14 +1,18 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, RefObject, CSSProperties } from 'react';
 
 import ReactDataGrid from '@inovua/reactdatagrid-enterprise';
 
 import people from '../people';
-import flags from '../flags';
+import flags, { FlagsType } from '../flags';
 import Button from '@inovua/reactdatagrid-community/packages/Button';
+import {
+  IColumn,
+  TypeComputedProps,
+} from '@inovua/reactdatagrid-community/types';
 
-const gridStyle = { minHeight: 550 };
+const gridStyle: CSSProperties = { minHeight: 550 };
 
-const columns = [
+const columns: IColumn = [
   {
     name: 'id',
     header: 'Id',
@@ -23,19 +27,19 @@ const columns = [
     defaultWidth: 100,
     resizable: false,
     render: ({ value }: { value: string }) =>
-      flags[value] ? flags[value] : value,
+      flags[value as keyof FlagsType] ? flags[value as keyof FlagsType] : value,
   },
   { name: 'city', header: 'City', defaultWidth: 120 },
   { name: 'age', header: 'Age', defaultWidth: 100, type: 'number' },
 ];
 
 const App = () => {
-  const [gridRef, setGridRef] = useState(null);
+  const [gridRef, setGridRef] = useState<RefObject<TypeComputedProps>>();
 
   const setColumnsSizesAuto = useCallback(
-    (skipHeader: boolean) => {
-      if (gridRef.current.setColumnsSizesAuto) {
-        gridRef.current.setColumnsSizesAuto({
+    (skipHeader: boolean): void => {
+      if (gridRef!.current!.setColumnsSizesAuto) {
+        gridRef!.current!.setColumnsSizesAuto({
           skipHeader,
         });
       }
@@ -50,8 +54,8 @@ const App = () => {
       <div style={{ marginBottom: 20 }}>
         <Button
           onClick={() => {
-            if (gridRef.current.setColumnSizesToFit) {
-              gridRef.current.setColumnSizesToFit();
+            if (gridRef!.current!.setColumnSizesToFit) {
+              gridRef!.current!.setColumnSizesToFit();
             }
           }}
         >
@@ -62,8 +66,8 @@ const App = () => {
       <div style={{ marginBottom: 20 }}>
         <Button
           onClick={() => {
-            if (gridRef.current.setColumnSizeAuto) {
-              gridRef.current.setColumnSizeAuto('name');
+            if (gridRef!.current!.setColumnSizeAuto) {
+              gridRef!.current!.setColumnSizeAuto('name');
             }
           }}
         >

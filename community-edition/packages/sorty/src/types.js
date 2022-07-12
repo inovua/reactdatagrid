@@ -12,6 +12,11 @@ export default {
         return a.localeCompare(b);
     },
     number: function (a, b) {
-        return a - b;
+        if (isFinite(a - b)) {
+            return a - b;
+        }
+        else {
+            return isFinite(a) ? -1 : 1;
+        }
     },
 };

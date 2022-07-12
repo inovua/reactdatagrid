@@ -123,7 +123,8 @@ const useClipboard = (
 
     Object.keys(selectedCells).map((key: string): void => {
       const parsedKey = key.split(',');
-      const index = parseInt(parsedKey[0]);
+      const rowId = parseInt(parsedKey[0]);
+      const index = computedProps.getRowIndexById(rowId);
       const column = parsedKey[1];
 
       const data = computedProps.getData();

@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { TypeSortInfo, TypeComputedColumnsMap } from '../../types';
+import { TypeSortInfo, TypeComputedColumnsMap, IColumn } from '../../types';
 
-const getCol = (name, columnsMap) => {
-  let col = columnsMap[name];
+const getCol = (name: string, columnsMap: IColumn) => {
+  let col = columnsMap[name as keyof IColumn];
 
   if (!col) {
     Object.keys(columnsMap).forEach(colId => {
       if (col) {
         return;
       }
-      const theCol = columnsMap[colId];
+      const theCol = columnsMap[colId as keyof IColumn];
 
       if (theCol.sortName === name) {
         col = theCol;

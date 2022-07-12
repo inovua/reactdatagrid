@@ -8,8 +8,8 @@
 export default function(
   obj: object,
   key: string,
-  defaultValue: any,
-  undef: any
+  defaultValue?: any,
+  undef?: any
 ) {
   const keys: string[] = key.split
     ? key.split('.')

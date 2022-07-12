@@ -10,28 +10,29 @@ import deepGet from '../../deep-get';
 import curry from './curry';
 import TYPES from './types';
 
-function isFn(fn) {
+function isFn(fn?: Function) {
   return typeof fn === 'function';
 }
 
 export type TypeSingleSortInfo = {
-  dir: 1 | -1 | 0;
+  dir: 1 | -1 | 0 | 'asc' | 'desc';
   name: string;
   type?: string;
   fn?: Function;
 };
 export type TypeSortInfo = TypeSingleSortInfo | TypeSingleSortInfo[] | null;
 
-var sorty: (sortInfo: TypeSortInfo, data: any[]) => void = curry(function(
-  sortInfo: any,
-  array: any
-) {
+var sorty: ((sortInfo: TypeSortInfo, data: any[]) => void) & {
+  types?: any;
+  _getSortFunctions?: (sortInfo: TypeSingleSortInfo[]) => void;
+  getFunction?: (sortinfo: TypeSingleSortInfo[]) => void;
+} = curry(function(sortInfo: any, array: any): any[] {
   return array.sort(getMultiSortFunction(sortInfo));
 });
 
 sorty.types = TYPES;
 
-var getSingleSortFunction = function(info) {
+var getSingleSortFunction = function(info: TypeSingleSortInfo) {
   if (!info) {
     return;
   }
@@ -58,15 +59,15 @@ var getSingleSortFunction = function(info) {
 
   var fn = info.fn;
 
-  return function(first, second) {
+  return function(first: any, second: any) {
     var a = field ? deepGet(first, field) : first;
     var b = field ? deepGet(second, field) : second;
 
-    return dir * fn(a, b, first, second, info);
+    return dir * fn!(a, b, first, second, info);
   };
 };
 
-var getSortFunctions = function(sortInfo) {
+var getSortFunctions = function(sortInfo: TypeSingleSortInfo[]) {
   if (!Array.isArray(sortInfo)) {
     sortInfo = [sortInfo];
   }
@@ -74,10 +75,10 @@ var getSortFunctions = function(sortInfo) {
   return sortInfo.map(getSingleSortFunction).filter(isFn);
 };
 
-var getMultiSortFunction = function(sortInfo) {
+var getMultiSortFunction = function(sortInfo: TypeSingleSortInfo[]) {
   var fns = getSortFunctions(sortInfo);
 
-  return function(first, second) {
+  return function(first: any, second: any) {
     var result = 0;
     var i = 0;
     var len = fns.length;

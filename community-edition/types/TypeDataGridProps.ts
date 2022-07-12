@@ -709,9 +709,18 @@ type TypeDataGridPropsNoI18n = {
     updatedTreeData: any[];
   }) => void;
   enableColumnAutosize?: boolean;
+  skipHeaderOnAutoSize?: boolean;
+  setColumnsSizesAuto?: ({
+    columnIds,
+    skipHeader,
+  }: {
+    columnIds?: string[];
+    skipHeader?: boolean;
+  }) => void;
+  setColumnSizesToFit?: () => void;
+  setColumnSizeAuto?: (id: string, skipHeader?: boolean) => void;
   getRows?: () => void;
   getHeader?: () => void;
-  skipHeaderOnAutoSize?: boolean;
   enableColumnHover?: boolean;
   viewportSize?: TypeSize;
   columnHoverClassName?: string;
