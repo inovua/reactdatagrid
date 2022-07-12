@@ -82,10 +82,8 @@ const items = [
   { label: 'Document' },
 ];
 
-let pressedIndex = 0;
-
-class App extends React.Component {
-  constructor(props) {
+class App extends React.Component<any, any> {
+  constructor(props: any) {
     super(props);
 
     this.state = {
@@ -101,9 +99,9 @@ class App extends React.Component {
   }
 
   render() {
-    const style = {};
+    const style: any = {};
 
-    const { widthValue, heightValue } = this.state;
+    const { widthValue, heightValue }: any = this.state;
     if (widthValue != 'auto') {
       style.width = widthValue;
     }
@@ -120,9 +118,11 @@ class App extends React.Component {
               orientation="horizontal"
               radioOptions={themeOptions}
               radioValue={this.state.theme}
-              onChange={({ checkedItemValue: theme }) =>
-                this.setState({ theme })
-              }
+              onChange={({
+                checkedItemValue: theme,
+              }: {
+                checkedItemValue: string;
+              }) => this.setState({ theme })}
             />{' '}
             |{' '}
             <input
@@ -207,9 +207,11 @@ class App extends React.Component {
               orientation="horizontal"
               radioOptions={widthOptions}
               radioValue={this.state.widthValue}
-              onChange={({ checkedItemValue: widthValue }) =>
-                this.setState({ widthValue })
-              }
+              onChange={({
+                checkedItemValue: widthValue,
+              }: {
+                checkedItemValue: string;
+              }) => this.setState({ widthValue })}
             />
           </div>
           <div style={{ marginTop: 20 }}>
@@ -219,9 +221,11 @@ class App extends React.Component {
               orientation="horizontal"
               radioOptions={widthOptions}
               radioValue={this.state.heightValue}
-              onChange={({ checkedItemValue: heightValue }) =>
-                this.setState({ heightValue })
-              }
+              onChange={({
+                checkedItemValue: heightValue,
+              }: {
+                checkedItemValue: string;
+              }) => this.setState({ heightValue })}
             />
           </div>
           <div style={{ marginTop: 20 }}>
@@ -231,9 +235,11 @@ class App extends React.Component {
               orientation="horizontal"
               radioOptions={alignOptions}
               radioValue={this.state.align}
-              onChange={({ checkedItemValue: align }) =>
-                this.setState({ align })
-              }
+              onChange={({
+                checkedItemValue: align,
+              }: {
+                checkedItemValue: string;
+              }) => this.setState({ align })}
             />
           </div>
           <div style={{ marginTop: 20 }}>
@@ -243,15 +249,17 @@ class App extends React.Component {
               orientation="horizontal"
               radioOptions={verticalAlignOptions}
               radioValue={this.state.verticalAlign}
-              onChange={({ checkedItemValue: verticalAlign }) =>
-                this.setState({ verticalAlign })
-              }
+              onChange={({
+                checkedItemValue: verticalAlign,
+              }: {
+                checkedItemValue: string;
+              }) => this.setState({ verticalAlign })}
             />
           </div>
           <div style={{ marginTop: 20 }}>
             <CheckBox
               checked={this.state.showIcon}
-              onChange={showIcon => {
+              onChange={(showIcon: boolean) => {
                 this.setState({
                   showIcon,
                 });
@@ -267,9 +275,11 @@ class App extends React.Component {
               orientation="horizontal"
               radioOptions={iconPositionOptions}
               radioValue={this.state.iconPosition}
-              onChange={({ checkedItemValue: iconPosition }) =>
-                this.setState({ iconPosition })
-              }
+              onChange={({
+                checkedItemValue: iconPosition,
+              }: {
+                checkedItemValue: string;
+              }) => this.setState({ iconPosition })}
             />
           </div>
         </div>

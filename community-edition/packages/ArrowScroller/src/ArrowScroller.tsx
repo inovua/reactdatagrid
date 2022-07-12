@@ -22,7 +22,7 @@ import ScrollContainer from '../../../packages/react-scroll-container-pro';
 
 import Arrow from './Arrow';
 import { getGlobal } from '../../../getGlobal';
-import { TypeProps, TypeState } from './types';
+import { TypeArrowScrollerProps, TypeArrowScrollerState } from './types';
 
 const globalObject: any = getGlobal();
 const VIEW_STYLE_VERTICAL = { maxHeight: '100%' };
@@ -126,7 +126,10 @@ const propTypes = {
   renderScroller: PropTypes.func,
 };
 
-class InovuaArrowScroller extends Component<TypeProps, TypeState> {
+class InovuaArrowScroller extends Component<
+  TypeArrowScrollerProps,
+  TypeArrowScrollerState
+> {
   static defaultProps = defaultProps;
   static propTypes = propTypes;
 
@@ -152,7 +155,7 @@ class InovuaArrowScroller extends Component<TypeProps, TypeState> {
   mouseOverScrollInterval: any;
   _unobserve: any;
 
-  constructor(props: TypeProps) {
+  constructor(props: TypeArrowScrollerProps) {
     super(props);
 
     this.scrollInfo = {
@@ -472,7 +475,7 @@ class InovuaArrowScroller extends Component<TypeProps, TypeState> {
     return result;
   }
 
-  renderArrowIcon(name: string) {
+  renderArrowIcon(name: string): ReactNode {
     const { props } = this;
     return (
       <Arrow
@@ -579,7 +582,7 @@ class InovuaArrowScroller extends Component<TypeProps, TypeState> {
     });
   }
 
-  handleClick(direction: -1 | 1) {
+  handleClick(direction: -1 | 1): void {
     const offset = this.getAvailableSize();
     this.scrollBy(offset, direction);
   }

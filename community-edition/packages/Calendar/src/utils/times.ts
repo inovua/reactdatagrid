@@ -5,6 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const times = count =>
-  (count >= 0 ? [...new Array(count)] : []).map((v, i) => i);
+const times = (count: number): number[] =>
+  (count >= 0 ? [...new Array(count)] : []).map((_v: number, i: number) => i);
 export default times;

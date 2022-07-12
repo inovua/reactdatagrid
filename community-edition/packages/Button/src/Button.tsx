@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
+import React, { Component, ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import assign from '../../../common/assign';
 import cleanProps from '../../../common/cleanProps';
@@ -13,11 +13,110 @@ import cleanProps from '../../../common/cleanProps';
 import prepareClassName from './prepareClassName';
 import uglified from '../../../packages/uglified';
 import { getGlobal } from '../../../getGlobal';
+import { TypeButtonProps, TypeButtonState, TypeButtonStates } from './types';
 
 const globalObject = getGlobal();
 
-class InovuaButton extends Component<any, any> {
-  constructor(props) {
+function emptyFn() {}
+
+const defaultProps = {
+  isInovuaButton: true,
+  // misc
+  theme: 'default-light',
+  rootClassName: 'inovua-react-toolkit-button',
+  align: 'center',
+  verticalAlign: 'middle',
+  ellipsis: true,
+  href: null,
+  iconPosition: 'start',
+
+  // events
+  onFocus: emptyFn,
+  onBlur: emptyFn,
+  onToggle: emptyFn,
+  onClick: emptyFn,
+  onMouseEnter: emptyFn,
+  onMouseUp: emptyFn,
+  onMouseDown: emptyFn,
+  onDeactivate: emptyFn,
+  onMouseLeave: emptyFn,
+  onActivate: emptyFn,
+
+  showWarnings: !uglified,
+};
+
+const propTypes = {
+  isInovuaButton: PropTypes.bool,
+  tagName: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  primary: PropTypes.bool,
+  disabled: PropTypes.bool,
+  pressed: PropTypes.bool,
+  defaultPressed: PropTypes.bool,
+
+  href: PropTypes.string,
+  align: PropTypes.oneOf(['start', 'end', 'center', 'left', 'right']),
+  verticalAlign: PropTypes.oneOf(['top', 'middle', 'center', 'bottom']),
+  rtl: PropTypes.bool,
+  wrap: PropTypes.bool,
+  overflow: PropTypes.bool,
+
+  // icon
+  icon: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+  iconPosition: PropTypes.oneOf([
+    'top',
+    'bottom',
+    'left',
+    'right',
+    'start',
+    'end',
+  ]),
+
+  // style
+  style: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+
+  disabledStyle: PropTypes.object,
+  focusedStyle: PropTypes.object,
+  pressedStyle: PropTypes.object,
+  overStyle: PropTypes.object,
+  activeStyle: PropTypes.object,
+
+  // classnames
+  className: PropTypes.string,
+  activeClassName: PropTypes.string,
+  overClassName: PropTypes.string,
+  focusedClassName: PropTypes.string,
+  disabledClassName: PropTypes.string,
+  pressedClassName: PropTypes.string,
+
+  // misc
+  theme: PropTypes.string,
+  rootClassName: PropTypes.string,
+  ellipsis: PropTypes.bool,
+
+  // events
+  onClick: PropTypes.func,
+  onFocus: PropTypes.func,
+  onBlur: PropTypes.func,
+  onToggle: PropTypes.func,
+  onMouseEnter: PropTypes.func,
+  onMouseUp: PropTypes.func,
+  onMouseDown: PropTypes.func,
+  onDeactivate: PropTypes.func,
+  onMouseLeave: PropTypes.func,
+  onActivate: PropTypes.func,
+
+  showWarnings: PropTypes.bool,
+};
+
+class InovuaButton extends Component<TypeButtonProps, TypeButtonState> {
+  static defaultProps = defaultProps;
+  static propTypes = propTypes;
+
+  private getRootRef: ReactNode;
+  private rootNode: ReactNode;
+  private tagName: string | (() => void) = 'div';
+
+  constructor(props: TypeButtonProps) {
     super(props);
 
     this.state = {
@@ -35,12 +134,15 @@ class InovuaButton extends Component<any, any> {
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
 
-    this.getRootRef = ref => {
+    this.getRootRef = (ref: ReactNode) => {
       this.rootNode = ref;
     };
   }
 
-  componentDidUpdate = (prevProps, prevState) => {
+  componentDidUpdate = (
+    prevProps: TypeButtonProps,
+    prevState: TypeButtonState
+  ) => {
     if (!prevProps.disabled && this.props.disabled && prevState.focused) {
       this.handleBlur();
       this.setState({ mouseOver: false });
@@ -51,10 +153,10 @@ class InovuaButton extends Component<any, any> {
     }
   };
 
-  handleKeyDown(event) {
+  handleKeyDown(event: KeyboardEvent): void {
     const { key } = event;
     if (this.tagName != 'button' && key == 'Enter') {
-      this.props.onClick(event);
+      this.props.onClick!(event);
       event.preventDefault();
     }
 
@@ -65,7 +167,7 @@ class InovuaButton extends Component<any, any> {
 
   render() {
     const props = this.props;
-    const buttonStates = this.getButtonStates();
+    const buttonStates: TypeButtonStates = this.getButtonStates();
     const style = this.prepareStyle(this.props, buttonStates);
     const className = prepareClassName(buttonStates, props);
 
@@ -128,25 +230,25 @@ class InovuaButton extends Component<any, any> {
     );
   }
 
-  handleFocus(event) {
+  handleFocus(event?: FocusEvent): void {
     if (this.props.disabled) {
       return;
     }
 
     this.setState({ focused: true });
-    this.props.onFocus(event);
+    this.props.onFocus!(event);
   }
 
-  handleBlur(event) {
+  handleBlur(event?: FocusEvent): void {
     // if (this.props.disabled) {
     //   return;
     // }
 
     this.setState({ focused: false });
-    this.props.onBlur(event);
+    this.props.onBlur!(event);
   }
 
-  handleClick(event) {
+  handleClick(event: MouseEvent): void {
     const props = this.props;
     if (props.disabled) {
       event.preventDefault();
@@ -158,49 +260,49 @@ class InovuaButton extends Component<any, any> {
       this.toggle();
     }
 
-    this.props.onClick(event);
+    this.props.onClick!(event);
   }
 
   isToggleButon() {
     return this.isPressed() !== undefined;
   }
 
-  toggle() {
-    const isPressed = this.isPressed();
-    const newPressed = !isPressed;
+  toggle(): void {
+    const isPressed: boolean | undefined = this.isPressed();
+    const newPressed: boolean = !isPressed;
     if (!this.isPressedControlled()) {
       this.setState({
         pressed: newPressed,
       });
     }
-    this.props.onToggle(newPressed);
+    this.props.onToggle!(newPressed);
   }
 
-  isToggleButton() {
+  isToggleButton(): boolean {
     return this.props.defaultPressed !== null || this.props.pressed !== null;
   }
 
-  handleMouseEnter(event) {
+  handleMouseEnter(event: MouseEvent): void {
     const { props } = this;
     if (props.disabled) {
       return;
     }
 
     this.setState({ mouseOver: true });
-    this.props.onMouseEnter(event);
+    this.props.onMouseEnter!(event);
   }
 
-  handleMouseLeave(event) {
+  handleMouseLeave(event: MouseEvent): void {
     const { props } = this;
     if (props.disabled) {
       return;
     }
 
     this.setState({ mouseOver: false });
-    this.props.onMouseLeave(event);
+    this.props.onMouseLeave!(event);
   }
 
-  handleMouseUp(event) {
+  handleMouseUp(event: MouseEvent): void {
     const { props } = this;
     if (props.disabled) {
       return;
@@ -209,11 +311,11 @@ class InovuaButton extends Component<any, any> {
     this.setState({ active: false });
     globalObject.removeEventListener('mouseup', this.handleMouseUp);
 
-    props.onMouseUp(event);
-    props.onDeactivate(event);
+    props.onMouseUp!(event);
+    props.onDeactivate!(event);
   }
 
-  handleMouseDown(event) {
+  handleMouseDown(event: MouseEvent): void {
     const { props } = this;
     if (props.disabled) {
       return;
@@ -222,11 +324,11 @@ class InovuaButton extends Component<any, any> {
     this.setState({ active: true });
 
     globalObject.addEventListener('mouseup', this.handleMouseUp);
-    props.onMouseDown(event);
-    props.onActivate(event);
+    props.onMouseDown!(event);
+    props.onActivate!(event);
   }
 
-  isIconFirst(props = this.props) {
+  isIconFirst(props: TypeButtonProps = this.props) {
     const { iconPosition, rtl } = props;
     const iconFirst =
       (iconPosition == 'left' && !rtl) ||
@@ -238,7 +340,7 @@ class InovuaButton extends Component<any, any> {
     return iconFirst;
   }
 
-  prepareChildren(props, buttonStates) {
+  prepareChildren(props: TypeButtonProps, buttonStates: TypeButtonStates) {
     let children = props.children;
 
     children = (
@@ -250,10 +352,8 @@ class InovuaButton extends Component<any, any> {
     );
 
     let icon = this.props.icon;
-    const { rtl } = this.props;
 
     if (icon) {
-      let iconPosition = this.props.iconPosition;
       const iconFirst = this.isIconFirst(this.props);
 
       if (typeof icon == 'function') {
@@ -265,7 +365,7 @@ class InovuaButton extends Component<any, any> {
        * the text is wrapped inside a div
        */
 
-      const wrapIcon = icon => (
+      const wrapIcon = (icon: ReactNode) => (
         <div
           key="iconWrapper"
           className={
@@ -292,7 +392,7 @@ class InovuaButton extends Component<any, any> {
     return children;
   }
 
-  getButtonStates(props) {
+  getButtonStates(props?: TypeButtonProps) {
     props = props || this.props;
 
     return {
@@ -314,7 +414,10 @@ class InovuaButton extends Component<any, any> {
     };
   }
 
-  prepareStyle(props = this.props, buttonStates) {
+  prepareStyle(
+    props: TypeButtonProps = this.props,
+    buttonStates: TypeButtonStates
+  ) {
     const style =
       typeof props.style !== 'function'
         ? assign({}, props.style)
@@ -365,7 +468,7 @@ class InovuaButton extends Component<any, any> {
     return this.props.pressed != null;
   }
 
-  isPressed() {
+  isPressed(): boolean | undefined {
     return this.isPressedControlled() ? this.props.pressed : this.state.pressed;
   }
 
@@ -373,96 +476,5 @@ class InovuaButton extends Component<any, any> {
     return this.rootNode;
   }
 }
-
-function emptyFn() {}
-
-InovuaButton.defaultProps = {
-  isInovuaButton: true,
-  // misc
-  theme: 'default-light',
-  rootClassName: 'inovua-react-toolkit-button',
-  align: 'center',
-  verticalAlign: 'middle',
-  ellipsis: true,
-  href: null,
-  iconPosition: 'start',
-
-  // events
-  onFocus: emptyFn,
-  onBlur: emptyFn,
-  onToggle: emptyFn,
-  onClick: emptyFn,
-  onMouseEnter: emptyFn,
-  onMouseUp: emptyFn,
-  onMouseDown: emptyFn,
-  onDeactivate: emptyFn,
-  onMouseLeave: emptyFn,
-  onActivate: emptyFn,
-
-  showWarnings: !uglified,
-};
-
-InovuaButton.propTypes = {
-  isInovuaButton: PropTypes.bool,
-  tagName: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-  primary: PropTypes.bool,
-  disabled: PropTypes.bool,
-  pressed: PropTypes.bool,
-  defaultPressed: PropTypes.bool,
-
-  href: PropTypes.string,
-  align: PropTypes.oneOf(['start', 'end', 'center', 'left', 'right']),
-  verticalAlign: PropTypes.oneOf(['top', 'middle', 'center', 'bottom']),
-  rtl: PropTypes.bool,
-  wrap: PropTypes.bool,
-  overflow: PropTypes.bool,
-
-  // icon
-  icon: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-  iconPosition: PropTypes.oneOf([
-    'top',
-    'bottom',
-    'left',
-    'right',
-    'start',
-    'end',
-  ]),
-
-  // style
-  style: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-
-  disabledStyle: PropTypes.object,
-  focusedStyle: PropTypes.object,
-  pressedStyle: PropTypes.object,
-  overStyle: PropTypes.object,
-  activeStyle: PropTypes.object,
-
-  // classnames
-  className: PropTypes.string,
-  activeClassName: PropTypes.string,
-  overClassName: PropTypes.string,
-  focusedClassName: PropTypes.string,
-  disabledClassName: PropTypes.string,
-  pressedClassName: PropTypes.string,
-
-  // misc
-  theme: PropTypes.string,
-  rootClassName: PropTypes.string,
-  ellipsis: PropTypes.bool,
-
-  // events
-  onClick: PropTypes.func,
-  onFocus: PropTypes.func,
-  onBlur: PropTypes.func,
-  onToggle: PropTypes.func,
-  onMouseEnter: PropTypes.func,
-  onMouseUp: PropTypes.func,
-  onMouseDown: PropTypes.func,
-  onDeactivate: PropTypes.func,
-  onMouseLeave: PropTypes.func,
-  onActivate: PropTypes.func,
-
-  showWarnings: PropTypes.bool,
-};
 
 export default InovuaButton;

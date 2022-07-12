@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { createRef } from 'react';
+import React, { Component, createRef, RefObject } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../../react-class';
 import throttle from '../../../../common/throttle';
 import assign from '../../../../common/assign';
 import join from '../../../../common/join';
@@ -18,10 +17,11 @@ import {
   setCaretPosition,
 } from '../TimeInput';
 
-import toMoment from '../toMoment';
+import toMoment, { Moment } from '../toMoment';
 
 import parseFormat from './parseFormat';
 import forwardTime from '../utils/forwardTime';
+import { TypeDateFormatInputProps } from './types';
 
 const emptyFn = () => {};
 
@@ -33,8 +33,40 @@ const BACKWARDS = {
   PageDown: 1,
 };
 
-export default class DateFormatInput extends Component {
-  constructor(props) {
+const defaultProps = {
+  rootClassName: 'inovua-react-toolkit-calendar__input',
+  theme: 'default',
+  isDateInput: true,
+  stopPropagation: true,
+  updateOnWheel: true,
+  changeDelay: 100,
+};
+
+const propTypes = {
+  isDateInput: PropTypes.bool,
+  rootClassName: PropTypes.string,
+  theme: PropTypes.string,
+  stopPropagation: PropTypes.bool,
+  updateOnWheel: PropTypes.bool,
+  dateFormat: PropTypes.string.isRequired,
+  value: (props: TypeDateFormatInputProps, propName: string) => {
+    if (props[propName as keyof TypeDateFormatInputProps] !== undefined) {
+      // console.warn('Due to performance considerations, TimeInput will only be uncontrolled.')
+    }
+  },
+};
+
+export default class DateFormatInput extends Component<
+  TypeDateFormatInputProps,
+  {}
+> {
+  static defaultProps = defaultProps;
+  static propTypes = propTypes;
+
+  private throttleSetValue: any;
+  private dateFormatInputRef: RefObject<unknown>;
+
+  constructor(props: TypeDateFormatInputProps) {
     super(props);
 
     const { positions, matches } = parseFormat(props.dateFormat);
@@ -58,7 +90,9 @@ export default class DateFormatInput extends Component {
     this.dateFormatInputRef = createRef();
   }
 
-  getMinMax(props) {
+  getMinMax(
+    props: TypeDateFormatInputProps
+  ): { minDate: string; maxDate: string } {
     props = props || this.props;
 
     let minDate = null;
@@ -79,7 +113,7 @@ export default class DateFormatInput extends Component {
     };
   }
 
-  componentDidUpdate = prevProps => {
+  componentDidUpdate = (prevProps: TypeDateFormatInputProps) => {
     if (this.props.value !== undefined && this.caretPos && this.isFocused()) {
       this.setCaretPosition(this.caretPos);
     }
@@ -99,7 +133,7 @@ export default class DateFormatInput extends Component {
     }
   };
 
-  toMoment(value, props) {
+  toMoment(value: Date, props: TypeDateFormatInputProps): Moment {
     props = props || this.props;
 
     return toMoment(value, {
@@ -460,26 +494,3 @@ export default class DateFormatInput extends Component {
     return value.substring(range.start, range.end);
   }
 }
-
-DateFormatInput.defaultProps = {
-  rootClassName: 'inovua-react-toolkit-calendar__input',
-  theme: 'default',
-  isDateInput: true,
-  stopPropagation: true,
-  updateOnWheel: true,
-  changeDelay: 100,
-};
-
-DateFormatInput.propTypes = {
-  isDateInput: PropTypes.bool,
-  rootClassName: PropTypes.string,
-  theme: PropTypes.string,
-  stopPropagation: PropTypes.bool,
-  updateOnWheel: PropTypes.bool,
-  dateFormat: PropTypes.string.isRequired,
-  value: (props, propName) => {
-    if (props[propName] !== undefined) {
-      // console.warn('Due to performance considerations, TimeInput will only be uncontrolled.')
-    }
-  },
-};

@@ -6,6 +6,18 @@
  */
 
 import join from '../../../common/join';
+import { TypeButtonStates } from './types';
+
+type TypeClassNames = {
+  className?: string;
+  rootClassName?: string;
+  disabledClassName?: string;
+  activeClassName?: string;
+  pressedClassName?: string;
+  overClassName?: string;
+  focusedClassName?: string;
+  theme?: string;
+};
 
 /**
  * [prepareClassName description]
@@ -13,7 +25,10 @@ import join from '../../../common/join';
  * @param  {Object} classNames
  * @return {String}
  */
-function prepareClassName(states = {}, classNames = {}) {
+function prepareClassName(
+  states: TypeButtonStates = {},
+  classNames: TypeClassNames = {}
+): string {
   const {
     disabled,
     icon,
@@ -30,7 +45,7 @@ function prepareClassName(states = {}, classNames = {}) {
     wrap,
     overflow,
     iconPosition,
-  } = states;
+  }: TypeButtonStates = states;
 
   const {
     className,
@@ -41,7 +56,7 @@ function prepareClassName(states = {}, classNames = {}) {
     overClassName,
     focusedClassName,
     theme,
-  } = classNames;
+  }: TypeClassNames = classNames;
 
   const preparedClassname = join(
     className,

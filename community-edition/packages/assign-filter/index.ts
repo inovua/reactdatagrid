@@ -5,17 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-function assignFilter(filter, target, ...args) {
-  var filteredArgs = args.map(function(obj) {
+function assignFilter(
+  filter: (value: any, propsName: string, obj: object) => boolean,
+  target: object,
+  ...args: any
+) {
+  var filteredArgs = args.map(function(obj: object) {
     if (obj == null) {
       return obj;
     }
 
-    return Object.keys(obj).reduce(function(acc, propName) {
-      var value = obj[propName];
+    return Object.keys(obj).reduce(function(acc: object, propName: string) {
+      var value = obj[propName as keyof object];
 
       if (filter(value, propName, obj)) {
-        acc[propName] = value;
+        acc[propName as keyof object] = value;
       }
 
       return acc;

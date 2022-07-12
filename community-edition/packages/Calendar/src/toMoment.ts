@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import moment from 'moment';
+import moment, { Moment, MomentFormatSpecification } from 'moment';
 
 /**
  * This function will be used to convert a date to a moment.
@@ -26,7 +26,15 @@ import moment from 'moment';
  *
  * @return {Moment}
  */
-export default (value, dateFormat, config) => {
+const toMoment = (
+  value: Date,
+  dateFormat: any,
+  config?: {
+    strict?: boolean;
+    locale?: string;
+    dateFormat?: MomentFormatSpecification;
+  }
+): Moment => {
   if (typeof dateFormat === 'object') {
     config = dateFormat;
     dateFormat = null;
@@ -45,3 +53,6 @@ export default (value, dateFormat, config) => {
 
   return moment(value, undefined, locale, strict);
 };
+
+export { Moment };
+export default toMoment;

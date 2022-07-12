@@ -8,10 +8,10 @@ import leftPad from '../utils/leftPad';
 import clamp from '../utils/clamp';
 import times from '../utils/times';
 const isValid = (value, format) => {
-    value *= 1;
-    return value >= format.min && value <= format.max;
+    const newValue = (value *= 1);
+    return newValue >= format.min && newValue <= format.max;
 };
-const replaceAt = ({ value, index, len = 1, str }) => {
+const replaceAt = ({ value, index, len = 1, str, }) => {
     return value.substring(0, index) + str + value.substring(index + len);
 };
 const handleArrow = (format, { currentValue, key, dir }) => {
@@ -64,7 +64,7 @@ const handleUpdate = (value, format, { range }) => {
     }
     return newValue;
 };
-const handleUnidentified = (format, { event, currentValue, range }) => {
+const handleUnidentified = (format, { event, currentValue, range, }) => {
     const newChar = String.fromCharCode(event.which);
     let index = range.start - format.start;
     const caretPos = { start: range.start + 1 };
@@ -131,7 +131,7 @@ const handleUnidentifiedLeftPad = (format, config) => {
     };
 };
 const handleYearUnidentified = handleUnidentified;
-const handleDelete = (format, { range, currentValue, dir }) => {
+const handleDelete = (format, { range, currentValue, dir, }) => {
     dir = dir || 0;
     if (range.start <= format.start && range.end >= format.end) {
         return {
@@ -155,7 +155,7 @@ const handleBackspace = (format, config) => {
     config.dir = -1;
     return handleDelete(format, config);
 };
-const toggleMeridiem = ({ upper, value }) => {
+const toggleMeridiem = ({ upper, value, }) => {
     if (upper) {
         return value == 'AM' ? 'PM' : 'AM';
     }

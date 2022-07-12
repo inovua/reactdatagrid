@@ -6,5 +6,7 @@
  */
 
 import InovuaButton from './Button';
+import { TypeButtonProps } from './types';
 
+export { TypeButtonProps };
 export default InovuaButton;

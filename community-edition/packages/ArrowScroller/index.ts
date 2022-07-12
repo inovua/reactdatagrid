@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ArrowScroller from './src';
+import ArrowScroller, { TypeArrowScrollerProps } from './src';
 
+export { TypeArrowScrollerProps };
 export default ArrowScroller;

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import Button from './src';
+import Button, { TypeButtonProps } from './src';
 
+export { TypeButtonProps };
 export default Button;

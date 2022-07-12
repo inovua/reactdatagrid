@@ -7,8 +7,9 @@
 
 import assign from '../../../../common/assign';
 import FORMATS from './formats';
+import { TypeFormats, TypeSuggestions } from './types';
 
-const SUGGESTIONS = {
+const SUGGESTIONS: TypeSuggestions = {
   Y: ['YYYY', 'YY'],
   M: ['MM'],
   D: ['DD'],
@@ -19,7 +20,7 @@ const SUGGESTIONS = {
   s: ['ss'],
 };
 
-export default format => {
+const parseFormat = (format: string) => {
   let index = 0;
   let positionIndex = 0;
 
@@ -29,13 +30,13 @@ export default format => {
   const positions = [];
   const matches = [];
 
-  while (index < format.length) {
+  while (index < format.length!) {
     const char = format[index];
-    const match = FORMATS[char];
+    const match = FORMATS[char as keyof TypeFormats];
     let matchObject;
 
     suggestionMatch = null;
-    suggestions = SUGGESTIONS[char];
+    suggestions = SUGGESTIONS[char as keyof TypeSuggestions];
 
     if (!match && !suggestions) {
       positions[positionIndex] = char;
@@ -49,7 +50,7 @@ export default format => {
       }
 
       if (!suggestionMatch) {
-        if (!FORMATS[char]) {
+        if (!FORMATS[char as keyof TypeFormats]) {
           console.warn(`Format ${char} is not supported yet!`);
           if (suggestions) {
             console.warn(`Use one of ["${suggestions.join(',')}"]`);
@@ -59,7 +60,7 @@ export default format => {
         } else {
           // we found a match, with no other suggestion
 
-          const currentFormat = FORMATS[char];
+          const currentFormat = FORMATS[char as keyof TypeFormats];
           let start = positionIndex;
           const end = positionIndex + (currentFormat.length || 1) - 1;
 
@@ -74,10 +75,14 @@ export default format => {
           continue; // to skip incrementing twice
         }
       } else {
-        matchObject = assign({}, FORMATS[suggestionMatch], {
-          format: suggestionMatch,
-          start: positionIndex,
-        });
+        matchObject = assign(
+          {},
+          FORMATS[suggestionMatch as keyof TypeFormats],
+          {
+            format: suggestionMatch,
+            start: positionIndex,
+          }
+        );
         matches.push(matchObject);
 
         const endIndex = positionIndex + suggestionMatch.length;
@@ -98,3 +103,5 @@ export default format => {
 
   return { positions, matches };
 };
+
+export default parseFormat;

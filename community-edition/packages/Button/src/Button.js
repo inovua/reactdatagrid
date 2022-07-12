@@ -12,7 +12,90 @@ import prepareClassName from './prepareClassName';
 import uglified from '../../../packages/uglified';
 import { getGlobal } from '../../../getGlobal';
 const globalObject = getGlobal();
+function emptyFn() { }
+const defaultProps = {
+    isInovuaButton: true,
+    // misc
+    theme: 'default-light',
+    rootClassName: 'inovua-react-toolkit-button',
+    align: 'center',
+    verticalAlign: 'middle',
+    ellipsis: true,
+    href: null,
+    iconPosition: 'start',
+    // events
+    onFocus: emptyFn,
+    onBlur: emptyFn,
+    onToggle: emptyFn,
+    onClick: emptyFn,
+    onMouseEnter: emptyFn,
+    onMouseUp: emptyFn,
+    onMouseDown: emptyFn,
+    onDeactivate: emptyFn,
+    onMouseLeave: emptyFn,
+    onActivate: emptyFn,
+    showWarnings: !uglified,
+};
+const propTypes = {
+    isInovuaButton: PropTypes.bool,
+    tagName: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+    primary: PropTypes.bool,
+    disabled: PropTypes.bool,
+    pressed: PropTypes.bool,
+    defaultPressed: PropTypes.bool,
+    href: PropTypes.string,
+    align: PropTypes.oneOf(['start', 'end', 'center', 'left', 'right']),
+    verticalAlign: PropTypes.oneOf(['top', 'middle', 'center', 'bottom']),
+    rtl: PropTypes.bool,
+    wrap: PropTypes.bool,
+    overflow: PropTypes.bool,
+    // icon
+    icon: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    iconPosition: PropTypes.oneOf([
+        'top',
+        'bottom',
+        'left',
+        'right',
+        'start',
+        'end',
+    ]),
+    // style
+    style: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+    disabledStyle: PropTypes.object,
+    focusedStyle: PropTypes.object,
+    pressedStyle: PropTypes.object,
+    overStyle: PropTypes.object,
+    activeStyle: PropTypes.object,
+    // classnames
+    className: PropTypes.string,
+    activeClassName: PropTypes.string,
+    overClassName: PropTypes.string,
+    focusedClassName: PropTypes.string,
+    disabledClassName: PropTypes.string,
+    pressedClassName: PropTypes.string,
+    // misc
+    theme: PropTypes.string,
+    rootClassName: PropTypes.string,
+    ellipsis: PropTypes.bool,
+    // events
+    onClick: PropTypes.func,
+    onFocus: PropTypes.func,
+    onBlur: PropTypes.func,
+    onToggle: PropTypes.func,
+    onMouseEnter: PropTypes.func,
+    onMouseUp: PropTypes.func,
+    onMouseDown: PropTypes.func,
+    onDeactivate: PropTypes.func,
+    onMouseLeave: PropTypes.func,
+    onActivate: PropTypes.func,
+    showWarnings: PropTypes.bool,
+};
 class InovuaButton extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    getRootRef;
+    rootNode;
+    tagName = 'div';
     constructor(props) {
         super(props);
         this.state = {
@@ -28,7 +111,7 @@ class InovuaButton extends Component {
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
-        this.getRootRef = ref => {
+        this.getRootRef = (ref) => {
             this.rootNode = ref;
         };
     }
@@ -184,9 +267,7 @@ class InovuaButton extends Component {
         let children = props.children;
         children = (React.createElement("div", { key: "text", className: `${this.props.rootClassName}__text`, children: children }));
         let icon = this.props.icon;
-        const { rtl } = this.props;
         if (icon) {
-            let iconPosition = this.props.iconPosition;
             const iconFirst = this.isIconFirst(this.props);
             if (typeof icon == 'function') {
                 icon = icon(buttonStates);
@@ -196,7 +277,7 @@ class InovuaButton extends Component {
              * for inline-flex text-overflow doesn't work, in this case
              * the text is wrapped inside a div
              */
-            const wrapIcon = icon => (React.createElement("div", { key: "iconWrapper", className: `${this.props.rootClassName}__icon-wrap` +
+            const wrapIcon = (icon) => (React.createElement("div", { key: "iconWrapper", className: `${this.props.rootClassName}__icon-wrap` +
                     (this.props.disabled
                         ? ` ${this.props.rootClassName}__icon-wrap--disabled`
                         : ''), children: icon }));
@@ -280,82 +361,4 @@ class InovuaButton extends Component {
         return this.rootNode;
     }
 }
-function emptyFn() { }
-InovuaButton.defaultProps = {
-    isInovuaButton: true,
-    // misc
-    theme: 'default-light',
-    rootClassName: 'inovua-react-toolkit-button',
-    align: 'center',
-    verticalAlign: 'middle',
-    ellipsis: true,
-    href: null,
-    iconPosition: 'start',
-    // events
-    onFocus: emptyFn,
-    onBlur: emptyFn,
-    onToggle: emptyFn,
-    onClick: emptyFn,
-    onMouseEnter: emptyFn,
-    onMouseUp: emptyFn,
-    onMouseDown: emptyFn,
-    onDeactivate: emptyFn,
-    onMouseLeave: emptyFn,
-    onActivate: emptyFn,
-    showWarnings: !uglified,
-};
-InovuaButton.propTypes = {
-    isInovuaButton: PropTypes.bool,
-    tagName: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-    primary: PropTypes.bool,
-    disabled: PropTypes.bool,
-    pressed: PropTypes.bool,
-    defaultPressed: PropTypes.bool,
-    href: PropTypes.string,
-    align: PropTypes.oneOf(['start', 'end', 'center', 'left', 'right']),
-    verticalAlign: PropTypes.oneOf(['top', 'middle', 'center', 'bottom']),
-    rtl: PropTypes.bool,
-    wrap: PropTypes.bool,
-    overflow: PropTypes.bool,
-    // icon
-    icon: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    iconPosition: PropTypes.oneOf([
-        'top',
-        'bottom',
-        'left',
-        'right',
-        'start',
-        'end',
-    ]),
-    // style
-    style: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-    disabledStyle: PropTypes.object,
-    focusedStyle: PropTypes.object,
-    pressedStyle: PropTypes.object,
-    overStyle: PropTypes.object,
-    activeStyle: PropTypes.object,
-    // classnames
-    className: PropTypes.string,
-    activeClassName: PropTypes.string,
-    overClassName: PropTypes.string,
-    focusedClassName: PropTypes.string,
-    disabledClassName: PropTypes.string,
-    pressedClassName: PropTypes.string,
-    // misc
-    theme: PropTypes.string,
-    rootClassName: PropTypes.string,
-    ellipsis: PropTypes.bool,
-    // events
-    onClick: PropTypes.func,
-    onFocus: PropTypes.func,
-    onBlur: PropTypes.func,
-    onToggle: PropTypes.func,
-    onMouseEnter: PropTypes.func,
-    onMouseUp: PropTypes.func,
-    onMouseDown: PropTypes.func,
-    onDeactivate: PropTypes.func,
-    onMouseLeave: PropTypes.func,
-    onActivate: PropTypes.func,
-    showWarnings: PropTypes.bool,
-};
 export default InovuaButton;

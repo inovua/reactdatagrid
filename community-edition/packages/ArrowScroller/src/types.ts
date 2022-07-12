@@ -1,4 +1,4 @@
-import { CSSProperties, RefObject } from 'react';
+import { CSSProperties, ReactNode, RefObject } from 'react';
 
 type TypeSize = {
   width?: number;
@@ -13,10 +13,10 @@ type TypeScrollSpringConfig = {
 type TypeScrollContainerProps = {
   viewStyle?: CSSProperties;
   nativeScroll?: any;
-  onResize?: Function;
+  onResize?: (size: { width: number; height: number }) => void;
 };
 
-type TypeProps = {
+type TypeArrowScrollerProps = {
   arrowSize?: number | TypeSize;
   theme?: string;
   className?: string;
@@ -36,18 +36,37 @@ type TypeProps = {
   rtl?: boolean;
   scrollContainerProps?: TypeScrollContainerProps;
   useTransformOnScroll?: boolean;
-  onHasScrollChange?: Function;
-  renderScroller?: Function;
+  onHasScrollChange?: (hasScroll: boolean) => void;
+  renderScroller?: ({
+    domProps,
+    direction,
+  }: {
+    domProps: {
+      ref: (ref: ReactNode) => void;
+      key: string;
+      disabled: boolean;
+      className: string;
+      onClick?: (direction?: -1 | 1) => void;
+      onDoubleClick?: (direction: -1 | 1) => void;
+      onMouseDown?: (direction: -1 | 1) => void;
+      onTouchStart?: (direction: -1 | 1) => void;
+      onTouchEnd?: (direction: -1 | 1) => void;
+      onMouseEnter?: (direction: -1 | 1) => void;
+      onMouseLeave?: (direction: -1 | 1) => void;
+      children?: any;
+    };
+    direction: -1 | 1;
+  }) => void;
   arrowHeight?: number;
   arrowWidth?: number;
   style?: CSSProperties;
   ref?: RefObject<HTMLDivElement>;
 };
 
-type TypeState = {
+type TypeArrowScrollerState = {
   scrolling?: boolean;
   activeScroll?: number;
   hasScroll?: boolean;
 };
 
-export { TypeProps, TypeState, TypeSize };
+export { TypeArrowScrollerProps, TypeArrowScrollerState, TypeSize };

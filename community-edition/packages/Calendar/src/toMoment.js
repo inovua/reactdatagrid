@@ -24,7 +24,7 @@ import moment from 'moment';
  *
  * @return {Moment}
  */
-export default (value, dateFormat, config) => {
+const toMoment = (value, dateFormat, config) => {
     if (typeof dateFormat === 'object') {
         config = dateFormat;
         dateFormat = null;
@@ -38,3 +38,4 @@ export default (value, dateFormat, config) => {
     value = value == null ? new Date() : value;
     return moment(value, undefined, locale, strict);
 };
+export default toMoment;

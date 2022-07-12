@@ -16,7 +16,7 @@ const SUGGESTIONS = {
     m: ['mm'],
     s: ['ss'],
 };
-export default format => {
+const parseFormat = (format) => {
     let index = 0;
     let positionIndex = 0;
     let suggestions;
@@ -83,3 +83,4 @@ export default format => {
     }
     return { positions, matches };
 };
+export default parseFormat;

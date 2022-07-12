@@ -12,7 +12,7 @@ import ArrowScroller from '../src/';
 import '../style/index.scss';
 
 class App extends Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
   }
   render() {

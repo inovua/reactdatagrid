@@ -55,7 +55,6 @@ const items = [
     { label: 'Export as' },
     { label: 'Document' },
 ];
-let pressedIndex = 0;
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -83,7 +82,7 @@ class App extends React.Component {
             React.createElement("div", { style: { margin: 20 } },
                 React.createElement("div", { style: { marginBottom: 30 } },
                     "Button theme:",
-                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: themeOptions, radioValue: this.state.theme, onChange: ({ checkedItemValue: theme }) => this.setState({ theme }) }),
+                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: themeOptions, radioValue: this.state.theme, onChange: ({ checkedItemValue: theme, }) => this.setState({ theme }) }),
                     ' ',
                     "|",
                     ' ',
@@ -106,25 +105,25 @@ class App extends React.Component {
                 React.createElement(Button, { align: this.state.align, verticalAlign: this.state.verticalAlign, icon: this.state.showIcon ? (React.createElement("img", { src: "https://facebook.github.io/react/img/logo.svg", height: "30", width: "30" })) : null, iconPosition: this.state.iconPosition, style: style }, "Export as React Component"),
                 React.createElement("div", { style: { marginTop: 20 } },
                     "Button width:",
-                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: widthOptions, radioValue: this.state.widthValue, onChange: ({ checkedItemValue: widthValue }) => this.setState({ widthValue }) })),
+                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: widthOptions, radioValue: this.state.widthValue, onChange: ({ checkedItemValue: widthValue, }) => this.setState({ widthValue }) })),
                 React.createElement("div", { style: { marginTop: 20 } },
                     "Button height:",
-                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: widthOptions, radioValue: this.state.heightValue, onChange: ({ checkedItemValue: heightValue }) => this.setState({ heightValue }) })),
+                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: widthOptions, radioValue: this.state.heightValue, onChange: ({ checkedItemValue: heightValue, }) => this.setState({ heightValue }) })),
                 React.createElement("div", { style: { marginTop: 20 } },
                     "Align:",
-                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: alignOptions, radioValue: this.state.align, onChange: ({ checkedItemValue: align }) => this.setState({ align }) })),
+                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: alignOptions, radioValue: this.state.align, onChange: ({ checkedItemValue: align, }) => this.setState({ align }) })),
                 React.createElement("div", { style: { marginTop: 20 } },
                     "Vertical align:",
-                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: verticalAlignOptions, radioValue: this.state.verticalAlign, onChange: ({ checkedItemValue: verticalAlign }) => this.setState({ verticalAlign }) })),
+                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: verticalAlignOptions, radioValue: this.state.verticalAlign, onChange: ({ checkedItemValue: verticalAlign, }) => this.setState({ verticalAlign }) })),
                 React.createElement("div", { style: { marginTop: 20 } },
-                    React.createElement(CheckBox, { checked: this.state.showIcon, onChange: showIcon => {
+                    React.createElement(CheckBox, { checked: this.state.showIcon, onChange: (showIcon) => {
                             this.setState({
                                 showIcon,
                             });
                         } }, "Show icon")),
                 React.createElement("div", { style: { marginTop: 20 } },
                     "Icon position:",
-                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: iconPositionOptions, radioValue: this.state.iconPosition, onChange: ({ checkedItemValue: iconPosition }) => this.setState({ iconPosition }) })))));
+                    React.createElement(RadioButtonGroup, { style: { marginLeft: 20 }, orientation: "horizontal", radioOptions: iconPositionOptions, radioValue: this.state.iconPosition, onChange: ({ checkedItemValue: iconPosition, }) => this.setState({ iconPosition }) })))));
     }
 }
 class App1 extends Component {

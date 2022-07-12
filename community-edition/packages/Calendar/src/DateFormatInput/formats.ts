@@ -8,17 +8,31 @@
 import leftPad from '../utils/leftPad';
 import clamp from '../utils/clamp';
 import times from '../utils/times';
+import { TypeFormat, TypeRange, TypeConfig, TypeFormats } from './types';
 
-const isValid = (value, format) => {
-  value *= 1;
-  return value >= format.min && value <= format.max;
+const isValid = (value: number | string | undefined, format: TypeFormat) => {
+  const newValue: number = ((value as any) *= 1);
+  return newValue >= format.min! && newValue <= format.max!;
 };
 
-const replaceAt = ({ value, index, len = 1, str }) => {
-  return value.substring(0, index) + str + value.substring(index + len);
+const replaceAt = ({
+  value,
+  index,
+  len = 1,
+  str,
+}: {
+  value?: any;
+  index?: number;
+  len?: number;
+  str?: string;
+}): string => {
+  return value!.substring(0, index) + str + value!.substring(index! + len);
 };
 
-const handleArrow = (format, { currentValue, key, dir }) => {
+const handleArrow = (
+  format: TypeFormat,
+  { currentValue, key, dir }: TypeConfig
+): { value: string; caretPos?: any } => {
   dir = dir || (key == 'ArrowUp' ? 1 : -1);
 
   return {
@@ -31,7 +45,7 @@ const handleArrow = (format, { currentValue, key, dir }) => {
   };
 };
 
-const handleArrowLeftPad = (format, config) => {
+const handleArrowLeftPad = (format: TypeFormat, config: TypeConfig) => {
   const { value, caretPos } = handleArrow(format, config);
 
   return {
@@ -40,27 +54,34 @@ const handleArrowLeftPad = (format, config) => {
   };
 };
 
-const handlePage = (format, config) => {
+const handlePage = (
+  format: TypeFormat,
+  config: TypeConfig
+): { value: string; caretPos?: any } => {
   config.dir = config.dir || (config.key == 'PageUp' ? 10 : -10);
 
   return handleArrow(format, config);
 };
 
-const handlePageLeftPad = (format, config) => {
+const handlePageLeftPad = (format: TypeFormat, config: TypeConfig) => {
   config.dir = config.dir || (config.key == 'PageUp' ? 10 : -10);
 
   return handleArrowLeftPad(format, config);
 };
 
-const handleUpdate = (value, format, { range }) => {
-  value *= 1;
+const handleUpdate = (
+  value: number | string | undefined,
+  format: TypeFormat,
+  { range }: { range: TypeRange }
+) => {
+  (value as any) *= 1;
 
-  const len = range.end - range.start + 1;
-  const pow10 =
-    `1${times(3 - len)
-      .map(() => '0')
-      .join('')}` * 1;
-  const modLen = value % pow10;
+  const len: number = range.end! - range.start + 1;
+  const pow10: number =
+    (`1${times(3 - len)
+      .map((): string => '0')
+      .join('')}` as any) * 1;
+  const modLen = (value as any) % pow10;
 
   let newValue = clamp(value, {
     min: format.min,
@@ -68,7 +89,7 @@ const handleUpdate = (value, format, { range }) => {
     circular: false,
   });
 
-  if (pow10 > 1 && value % pow10 == 0) {
+  if (pow10 > 1 && (value as any) % pow10 == 0) {
     // the user is modifying the millenium or century
     newValue += modLen;
     // so we try to keep the century
@@ -82,20 +103,35 @@ const handleUpdate = (value, format, { range }) => {
   return newValue;
 };
 
-const handleUnidentified = (format, { event, currentValue, range }) => {
-  const newChar = String.fromCharCode(event.which);
-  let index = range.start - format.start;
+const handleUnidentified = (
+  format: TypeFormat,
+  {
+    event,
+    currentValue,
+    range,
+  }: {
+    event: MouseEvent;
+    currentValue: string;
+    range: TypeRange;
+  }
+): {
+  preventDefault?: boolean;
+  value: string | number | undefined;
+  caretPos?: any;
+} => {
+  const newChar: any = String.fromCharCode(event.which);
+  let index = range.start - (format.start as any);
 
   const caretPos = { start: range.start + 1 };
 
-  if (newChar * 1 != newChar) {
+  if ((newChar as any) * 1 != newChar) {
     return {
       preventDefault: false,
       value: currentValue,
     };
   }
 
-  let value;
+  let value: string | number | undefined;
   let valid;
 
   value = replaceAt({ value: currentValue, index, str: newChar });
@@ -123,7 +159,7 @@ const handleUnidentified = (format, { event, currentValue, range }) => {
       if (!valid) {
         caretPos.start++;
       }
-    } while (!valid && index <= format.end);
+    } while (!valid && index <= format.end!);
   }
 
   if (valid) {
@@ -132,14 +168,14 @@ const handleUnidentified = (format, { event, currentValue, range }) => {
     const defaultValue = format.default;
     value =
       1 *
-      replaceAt({
+      (replaceAt({
         value: defaultValue,
-        index: defaultValue.length - 1,
+        index: defaultValue!.length - 1,
         str: newChar,
-      });
+      }) as any);
 
     if (isValid(value, format)) {
-      caretPos.start = format.start + defaultValue.length;
+      caretPos.start = format.start! + defaultValue!.length;
     } else {
       caretPos.start = range.start + 1;
       value = currentValue;
@@ -152,7 +188,14 @@ const handleUnidentified = (format, { event, currentValue, range }) => {
   };
 };
 
-const handleUnidentifiedLeftPad = (format, config) => {
+const handleUnidentifiedLeftPad = (
+  format: TypeFormat,
+  config: {
+    event: MouseEvent;
+    currentValue: string;
+    range: TypeRange;
+  }
+) => {
   const { value, caretPos, preventDefault } = handleUnidentified(
     format,
     config
@@ -167,23 +210,34 @@ const handleUnidentifiedLeftPad = (format, config) => {
 
 const handleYearUnidentified = handleUnidentified;
 
-const handleDelete = (format, { range, currentValue, dir }) => {
+const handleDelete = (
+  format: TypeFormat,
+  {
+    range,
+    currentValue,
+    dir,
+  }: {
+    range: TypeRange;
+    currentValue: string | number | undefined;
+    dir: -1 | 1;
+  }
+) => {
   dir = dir || 0;
 
-  if (range.start <= format.start && range.end >= format.end) {
+  if (range.start <= format.start! && range.end! >= format.end!) {
     return {
       value: format.default,
       caretPos: true,
     };
   }
 
-  const len = range.end - range.start + 1;
+  const len = range.end! - range.start + 1;
   const str = times(len)
     .map(() => '0')
     .join('');
-  const index = range.start - format.start + dir;
+  const index = range.start - (format.start as any) + dir;
 
-  let value = replaceAt({ value: currentValue, index, str, len }) * 1;
+  let value = (replaceAt({ value: currentValue, index, str, len }) as any) * 1;
 
   value = leftPad(handleUpdate(value, format, { range }));
 
@@ -193,12 +247,25 @@ const handleDelete = (format, { range, currentValue, dir }) => {
   };
 };
 
-const handleBackspace = (format, config) => {
+const handleBackspace = (
+  format: TypeFormat,
+  config: {
+    range: TypeRange;
+    currentValue: string | number | undefined;
+    dir: -1 | 1;
+  }
+) => {
   config.dir = -1;
   return handleDelete(format, config);
 };
 
-const toggleMeridiem = ({ upper, value }) => {
+const toggleMeridiem = ({
+  upper,
+  value,
+}: {
+  upper?: boolean;
+  value: 'AM' | 'PM' | 'am' | 'pm';
+}) => {
   if (upper) {
     return value == 'AM' ? 'PM' : 'AM';
   }
@@ -206,17 +273,23 @@ const toggleMeridiem = ({ upper, value }) => {
   return value == 'am' ? 'pm' : 'am';
 };
 
-const handleMeridiemArrow = (format, { currentValue }) => {
+const handleMeridiemArrow = (
+  format: TypeFormat,
+  { currentValue }: { currentValue: any }
+) => {
   return {
     value: toggleMeridiem({ upper: format.upper, value: currentValue }),
     caretPos: true,
   };
 };
 
-const handleMeridiemDelete = (format, { dir, range }) => {
+const handleMeridiemDelete = (
+  format: TypeFormat,
+  { dir, range }: { dir: -1 | 1; range: TypeRange }
+) => {
   dir = dir || 0;
 
-  if (range.start <= format.start && range.end >= format.end) {
+  if (range.start <= format.start! && range.end! >= format.end!) {
     return {
       value: format.default,
       caretPos: true,
@@ -229,12 +302,19 @@ const handleMeridiemDelete = (format, { dir, range }) => {
   };
 };
 
-const handleMeridiemBackspace = (format, config) => {
+const handleMeridiemBackspace = (
+  format: TypeFormat,
+  config: {
+    range: TypeRange;
+    currentValue: string | number | undefined;
+    dir: -1 | 1;
+  }
+) => {
   config.dir = -1;
   return handleMeridiemDelete(format, config);
 };
 
-const getFormats = () => {
+const getFormats = (): TypeFormats => {
   return {
     YYYY: {
       min: 100,

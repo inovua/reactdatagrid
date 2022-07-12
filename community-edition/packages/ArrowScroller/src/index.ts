@@ -6,5 +6,7 @@
  */
 
 import ArrowScroller from './ArrowScroller';
+import { TypeArrowScrollerProps } from './types';
 
+export { TypeArrowScrollerProps };
 export default ArrowScroller;
