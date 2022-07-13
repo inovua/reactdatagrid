@@ -7,6 +7,8 @@
 
 import moment, { Moment, MomentFormatSpecification } from 'moment';
 
+type DateType = number | object | string;
+
 /**
  * This function will be used to convert a date to a moment.
  *
@@ -27,7 +29,7 @@ import moment, { Moment, MomentFormatSpecification } from 'moment';
  * @return {Moment}
  */
 const toMoment = (
-  value: Date,
+  value: DateType,
   dateFormat: any,
   config?: {
     strict?: boolean;
@@ -54,5 +56,5 @@ const toMoment = (
   return moment(value, undefined, locale, strict);
 };
 
-export { Moment };
+export { Moment, DateType };
 export default toMoment;

@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { createRef } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../../react-class';
 import moment from 'moment';
 import assign from '../../../../common/assign';
 import join from '../../../../common/join';
@@ -153,7 +152,7 @@ const renderFooter = (props, buttonHandlers) => {
     }
     return React.createElement(Footer, { ...footerProps });
 };
-export default class MonthView extends Component {
+class MonthView extends Component {
     isInView(mom, props) {
         return isInView(mom, props || this.p);
     }
@@ -986,3 +985,4 @@ MonthView.propTypes = {
     defaultViewDate: DateType,
 };
 export { NAV_KEYS, renderFooter };
+export default MonthView;

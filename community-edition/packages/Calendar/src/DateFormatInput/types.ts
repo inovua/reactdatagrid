@@ -5,9 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { Moment, DateType } from '../toMoment';
+
 export type TypeRange = { start: number; end?: number };
 
 export type TypeConfig = { currentValue: number; key: string; dir: -1 | 1 };
+
+export type TypeCaretPosition = { start?: number; end?: number };
 
 export type TypeSuggestions = {
   Y: string[];
@@ -52,15 +56,15 @@ export type TypeFormat = {
   handleArrow?: (
     format: TypeFormat,
     { currentValue, key, dir }: TypeConfig
-  ) => { value: string; caretPos?: any };
+  ) => { value: string; caretPos?: boolean };
   handlePageUp?: (
     format: TypeFormat,
     config: TypeConfig
-  ) => { value: string; caretPos?: any };
+  ) => { value: string; caretPos?: boolean };
   handlePageDown?: (
     format: TypeFormat,
     config: TypeConfig
-  ) => { value: string; caretPos?: any };
+  ) => { value: string; caretPos?: boolean };
   handleUnidentified?: (
     format: TypeFormat,
     {
@@ -75,7 +79,7 @@ export type TypeFormat = {
   ) => {
     preventDefault?: boolean;
     value: string | number | undefined;
-    caretPos?: any;
+    caretPos?: TypeCaretPosition;
   };
 };
 
@@ -95,26 +99,50 @@ export type TypeFormats = {
   ss: TypeFormat;
 };
 
+export type TypeKeyDownEvent = {
+  key: string | number;
+  type: string;
+  stopPropagation: () => void;
+  preventDefault: () => void;
+  which?: number;
+};
+
 export type TypeDateFormatInputProps = {
   dateFormat: string;
-  defaultValue?: string;
+  defaultValue?: DateType;
   isDateInput?: boolean;
   rootClassName?: string;
   theme?: string;
   stopPropagation?: boolean;
   updateOnWheel?: boolean;
-  value?: (props: TypeDateFormatInputProps, propName: string) => void;
+  value?: DateType; // ((props: TypeDateFormatInputProps, propName: string) => void) | Date;
   changeDelay?: number;
-  minDate?: string;
-  maxDate?: string;
+  minDate?: Date;
+  maxDate?: Date;
   locale?: string;
+  className?: string;
+  cleanup?: (props: TypeDateFormatInputProps) => void;
+
+  onFocus?: (event: FocusEvent) => void;
+  onBlur?: (event: FocusEvent) => void;
+  onWheel?: (event: MouseEvent) => void;
+  onKeyDown?: (event: TypeKeyDownEvent, currentPosition: string) => boolean;
+  afterKeyDown?: (config: {
+    currentPosition: any;
+    preventDefault?: boolean;
+    event: TypeKeyDownEvent;
+    value?: string;
+    stop: boolean;
+  }) => void;
+  onChange?: (value: DateType, { dateMoment }: { dateMoment: Moment }) => void;
 };
 
 export type TypeDateFormatInputState = {
-  // positions,
-  // matches,
-  // propsValue: props.value !== undefined,
-  // value: defaultValue,
-  // minDate,
-  // maxDate,
+  positions?: string[];
+  matches?: string[];
+  propsValue?: boolean;
+  value?: DateType;
+  minDate?: Moment | null;
+  maxDate?: Moment | null;
+  focused?: boolean;
 };

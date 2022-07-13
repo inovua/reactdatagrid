@@ -5,6 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import DateFormatInput from './src/DateFormatInput';
+import DateFormatInput, {
+  TypeDateFormatInputProps,
+  TypeFormats,
+  TypeFormat,
+} from './src/DateFormatInput';
 
+export { TypeDateFormatInputProps, TypeFormats, TypeFormat };
 export default DateFormatInput;

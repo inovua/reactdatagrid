@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import DateFormatSpinnerInput from './src/DateFormatSpinnerInput';
+import DateFormatSpinnerInput, {
+  TypeDateFormatSpinnerInputProps,
+} from './src/DateFormatSpinnerInput';
 
+export { TypeDateFormatSpinnerInputProps };
 export default DateFormatSpinnerInput;

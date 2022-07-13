@@ -5,9 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
+import React, { Component, CSSProperties } from 'react';
 
-class InovuaInlineBlock extends Component {
+type TypeInlineBlockProps = {
+  style: CSSProperties;
+};
+
+const defaultProps = {
+  style: {},
+};
+class InovuaInlineBlock extends Component<TypeInlineBlockProps, {}> {
+  static defaultProps = defaultProps;
+
   render() {
     const { props } = this;
     const domProps = {
@@ -21,8 +30,5 @@ class InovuaInlineBlock extends Component {
   }
 }
 
-InovuaInlineBlock.defaultProps = {
-  style: {},
-};
-
+export { TypeInlineBlockProps };
 export default InovuaInlineBlock;

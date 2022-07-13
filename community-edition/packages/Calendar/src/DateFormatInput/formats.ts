@@ -8,7 +8,13 @@
 import leftPad from '../utils/leftPad';
 import clamp from '../utils/clamp';
 import times from '../utils/times';
-import { TypeFormat, TypeRange, TypeConfig, TypeFormats } from './types';
+import {
+  TypeFormat,
+  TypeRange,
+  TypeConfig,
+  TypeFormats,
+  TypeCaretPosition,
+} from './types';
 
 const isValid = (value: number | string | undefined, format: TypeFormat) => {
   const newValue: number = ((value as any) *= 1);
@@ -32,7 +38,7 @@ const replaceAt = ({
 const handleArrow = (
   format: TypeFormat,
   { currentValue, key, dir }: TypeConfig
-): { value: string; caretPos?: any } => {
+): { value: string; caretPos?: boolean } => {
   dir = dir || (key == 'ArrowUp' ? 1 : -1);
 
   return {
@@ -57,7 +63,7 @@ const handleArrowLeftPad = (format: TypeFormat, config: TypeConfig) => {
 const handlePage = (
   format: TypeFormat,
   config: TypeConfig
-): { value: string; caretPos?: any } => {
+): { value: string; caretPos?: boolean } => {
   config.dir = config.dir || (config.key == 'PageUp' ? 10 : -10);
 
   return handleArrow(format, config);
@@ -117,7 +123,7 @@ const handleUnidentified = (
 ): {
   preventDefault?: boolean;
   value: string | number | undefined;
-  caretPos?: any;
+  caretPos?: TypeCaretPosition;
 } => {
   const newChar: any = String.fromCharCode(event.which);
   let index = range.start - (format.start as any);

@@ -5,9 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export default function setCaretPosition(elem, caretPos) {
-  let start = caretPos;
-  let end = caretPos;
+import { TypeCaretPosition } from '../DateFormatInput/types';
+
+export default function setCaretPosition(
+  elem: any,
+  caretPos?: TypeCaretPosition
+) {
+  let start: any = caretPos;
+  let end: any = caretPos;
 
   if (caretPos && (caretPos.start != undefined || caretPos.end != undefined)) {
     start = caretPos.start || 0;

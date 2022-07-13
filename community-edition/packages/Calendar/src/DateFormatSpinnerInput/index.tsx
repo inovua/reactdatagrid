@@ -5,11 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { createRef } from 'react';
+import React, { Component, createRef, ReactNode, RefObject } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../../react-class';
 
-import { Flex, Item } from '../../../Flex';
+import { Flex } from '../../../Flex';
 import DateFormatInput from '../DateFormatInput';
 
 import assign from '../../../../common/assign';
@@ -17,28 +16,74 @@ import joinFunctions from '../joinFunctions';
 import assignDefined from '../assignDefined';
 import join from '../../../../common/join';
 import { getGlobal } from '../../../../getGlobal';
+import {
+  TypeDateFormatSpinnerInputProps,
+  TypeDateFormatSpinnerInputState,
+} from './types';
 
 const globalObject = getGlobal();
 
-export default class DateFormatSpinnerInput extends Component {
-  constructor(props) {
+const defaultProps = {
+  rootClassName: 'inovua-react-toolkit-calendar__date-format-spinner',
+  firstStepDelay: 150,
+  secondStepDelay: 100,
+  stepDelay: 50,
+  changeDelay: undefined,
+  theme: 'default',
+  disabled: false,
+  arrowSize: 10,
+  isDateInput: true,
+  stopPropagation: true,
+  updateOnWheel: true,
+};
+
+const propTypes = {
+  rootClassName: PropTypes.string,
+  firstStepDelay: PropTypes.number,
+  secondStepDelay: PropTypes.number,
+  stepDelay: PropTypes.number,
+  changeDelay: PropTypes.number,
+  theme: PropTypes.string,
+  disabled: PropTypes.bool,
+  arrowSize: PropTypes.number,
+  isDateInput: PropTypes.bool,
+  stopPropagation: PropTypes.bool,
+  updateOnWheel: PropTypes.bool,
+};
+
+class DateFormatSpinnerInput extends Component<
+  TypeDateFormatSpinnerInputProps,
+  TypeDateFormatSpinnerInputState
+> {
+  static defaultProps = defaultProps;
+  static propTypes = propTypes;
+
+  private input: RefObject<any>;
+  private started?: boolean;
+  private inputChild: any;
+  private startTime?: number;
+  inputProps: any;
+  arrows?: { 1: ReactNode; '-1': ReactNode };
+  timeoutId?: any;
+
+  constructor(props: TypeDateFormatSpinnerInputProps) {
     super(props);
     this.state = { focused: false };
 
     this.input = createRef();
   }
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
     this.started = false;
-  }
+  };
 
-  render() {
+  render = () => {
     const props = this.props;
     const { rootClassName } = props;
     const children = React.Children.toArray(props.children);
 
-    const input = (this.inputChild = children.filter(
-      c => c && c.type == 'input'
+    const input: any = (this.inputChild = children.filter(
+      (c: any) => c && c.type == 'input'
     )[0]);
     const inputProps = input ? assign({}, input.props) : {};
 
@@ -79,7 +124,7 @@ export default class DateFormatSpinnerInput extends Component {
 
     this.arrows = {
       1: (
-        <svg height={arrowSize / 2} width={arrowSize} viewBox="0 0 10 5">
+        <svg height={arrowSize! / 2} width={arrowSize} viewBox="0 0 10 5">
           <path
             fillRule="evenodd"
             d="M5.262.262l4.106 4.106c.144.144.144.379 0 .524-.07.069-.164.108-.262.108H.894c-.204 0-.37-.166-.37-.37 0-.099.039-.193.108-.262L4.738.262c.145-.145.38-.145.524 0z"
@@ -88,7 +133,7 @@ export default class DateFormatSpinnerInput extends Component {
       ),
 
       '-1': (
-        <svg height={arrowSize / 2} width={arrowSize} viewBox="0 0 10 5">
+        <svg height={arrowSize! / 2} width={arrowSize} viewBox="0 0 10 5">
           <path
             fillRule="evenodd"
             d="M4.738 4.738L.632.632C.488.488.488.253.632.108.702.04.796 0 .894 0h8.212c.204 0 .37.166.37.37 0 .099-.039.193-.108.262L5.262 4.738c-.145.145-.38.145-.524 0z"
@@ -97,7 +142,7 @@ export default class DateFormatSpinnerInput extends Component {
       ),
     };
 
-    const className = join(
+    const className: string = join(
       props.className,
       rootClassName,
       this.state.focused
@@ -119,9 +164,9 @@ export default class DateFormatSpinnerInput extends Component {
         {this.renderArrows()}
       </Flex>
     );
-  }
+  };
 
-  renderArrows() {
+  renderArrows = (): ReactNode => {
     if (this.props.renderArrows) {
       return this.props.renderArrows(this.props);
     }
@@ -132,9 +177,9 @@ export default class DateFormatSpinnerInput extends Component {
         {this.renderArrow(-1)}
       </div>
     );
-  }
+  };
 
-  renderArrow(dir) {
+  renderArrow = (dir: -1 | 1): ReactNode => {
     const { rootClassName } = this.props;
     const direction = dir === 1 ? 'up' : 'down';
     const className = join(
@@ -149,12 +194,12 @@ export default class DateFormatSpinnerInput extends Component {
         onMouseUp={this.stop}
         onMouseLeave={this.stop}
       >
-        {this.arrows[dir]}
+        {this.arrows![dir]}
       </div>
     );
-  }
+  };
 
-  onMouseDown(dir, event) {
+  onMouseDown = (dir: -1 | 1, event?: any): void => {
     if (this.props.disabled) {
       event.preventDefault();
       return;
@@ -170,9 +215,9 @@ export default class DateFormatSpinnerInput extends Component {
         this.increment(dir);
       }, 1);
     }
-  }
+  };
 
-  start(dir) {
+  start = (dir: -1 | 1): void => {
     this.started = true;
     this.startTime = Date.now();
 
@@ -184,26 +229,26 @@ export default class DateFormatSpinnerInput extends Component {
       this.timeoutId = setTimeout(() => {
         const lazyStep = () => {
           const delay =
-            this.props.stepDelay - (Date.now() - this.startTime) / 500;
+            this.props.stepDelay! - (Date.now() - this.startTime!) / 500;
           this.step(dir, lazyStep, delay);
         };
 
         lazyStep();
       }, this.props.secondStepDelay);
     }, this.props.firstStepDelay);
-  }
+  };
 
-  isStarted() {
+  isStarted = (): boolean => {
     return !!(this.started && this.input);
-  }
+  };
 
-  increment(dir) {
+  increment = (dir: -1 | 1): void => {
     if (this.input && this.input.current) {
       this.input.current.onDirection(dir);
     }
-  }
+  };
 
-  step(dir, callback, delay) {
+  step = (dir: -1 | 1, callback?: () => void, delay?: number): void => {
     if (this.isStarted()) {
       this.increment(dir);
 
@@ -218,26 +263,26 @@ export default class DateFormatSpinnerInput extends Component {
         );
       }
     }
-  }
+  };
 
-  stop() {
+  stop = (): void => {
     this.started = false;
     if (this.timeoutId) {
       globalObject.clearTimeout(this.timeoutId);
     }
-  }
+  };
 
-  focus() {
+  focus = (): void => {
     if (this.input && this.input.current) {
       this.input.current.focus();
     }
-  }
+  };
 
-  isFocused() {
-    return this.state.focused;
-  }
+  isFocused = (): boolean => {
+    return this.state.focused!;
+  };
 
-  onBlur(event) {
+  onBlur = (event: FocusEvent): void => {
     const { props } = this;
     const onBlur = joinFunctions(
       props.onBlur,
@@ -251,9 +296,9 @@ export default class DateFormatSpinnerInput extends Component {
     this.setState({
       focused: false,
     });
-  }
+  };
 
-  onFocus(event) {
+  onFocus = (event: FocusEvent): void => {
     const { props } = this;
     const onFocus = joinFunctions(
       props.onFocus,
@@ -267,33 +312,8 @@ export default class DateFormatSpinnerInput extends Component {
     this.setState({
       focused: true,
     });
-  }
+  };
 }
 
-DateFormatSpinnerInput.defaultProps = {
-  rootClassName: 'inovua-react-toolkit-calendar__date-format-spinner',
-  firstStepDelay: 150,
-  secondStepDelay: 100,
-  stepDelay: 50,
-  changeDelay: undefined,
-  theme: 'default',
-  disabled: false,
-  arrowSize: 10,
-  isDateInput: true,
-  stopPropagation: true,
-  updateOnWheel: true,
-};
-
-DateFormatSpinnerInput.propTypes = {
-  rootClassName: PropTypes.string,
-  firstStepDelay: PropTypes.number,
-  secondStepDelay: PropTypes.number,
-  stepDelay: PropTypes.number,
-  changeDelay: PropTypes.number,
-  theme: PropTypes.string,
-  disabled: PropTypes.bool,
-  arrowSize: PropTypes.number,
-  isDateInput: PropTypes.bool,
-  stopPropagation: PropTypes.bool,
-  updateOnWheel: PropTypes.bool,
-};
+export { TypeDateFormatSpinnerInputProps };
+export default DateFormatSpinnerInput;

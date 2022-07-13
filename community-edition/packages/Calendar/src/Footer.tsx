@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
 import Component from '../../react-class';
 
 import { Flex, Item } from '../../Flex';
-import InlineBlock from './InlineBlock';
 import Button from '../../Button';
 
 import assign from '../../../common/assign';

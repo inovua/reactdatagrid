@@ -4,10 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import Component from '../../../react-class';
 import { Flex } from '../../../Flex';
 import assign from '../../../../common/assign';
 import Input from '../../../Field';
@@ -21,6 +20,109 @@ import Calendar, { NAV_KEYS } from '../Calendar';
 import joinFunctions from '../joinFunctions';
 import assignDefined from '../assignDefined';
 import forwardTime from '../utils/forwardTime';
+const defaultProps = {
+    rootClassName: 'inovua-react-toolkit-date-input',
+    showClock: undefined,
+    relativeToViewport: true,
+    enableMonthDecadeViewAnimation: true,
+    showMonthDecadeViewAnimation: 300,
+    overlayProps: undefined,
+    forceValidDate: false,
+    strict: false,
+    expandOnFocus: true,
+    updateOnDateClick: true,
+    collapseOnDateClick: true,
+    theme: 'default-light',
+    footer: true,
+    okButton: false,
+    onBlur: () => { },
+    onFocus: () => { },
+    clearIcon: true,
+    validateOnBlur: true,
+    onExpandChange: () => { },
+    onCollapse: () => { },
+    onExpand: () => { },
+    minDate: moment('1000-01-01', 'YYYY-MM-DD'),
+    maxDate: moment('9999-12-31 HH:mm:ss', 'YYYY-MM-DD 23:59:59'),
+    skipTodayTime: false,
+};
+const DateType = PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.object,
+    PropTypes.string,
+]);
+const propTypes = {
+    autoFocus: PropTypes.bool,
+    rootClassName: PropTypes.string,
+    dateFormat: PropTypes.string.isRequired,
+    displayFormat: PropTypes.string,
+    relativeToViewport: PropTypes.bool,
+    showClock: PropTypes.bool,
+    strict: PropTypes.bool,
+    expandOnFocus: PropTypes.bool,
+    updateOnDateClick: PropTypes.bool,
+    collapseOnDateClick: PropTypes.bool,
+    enableMonthDecadeViewAnimation: PropTypes.bool,
+    showMonthDecadeViewAnimation: PropTypes.number,
+    theme: PropTypes.string,
+    footer: PropTypes.oneOfType([PropTypes.bool, PropTypes.node]),
+    onBlur: PropTypes.func,
+    onFocus: PropTypes.func,
+    clearIcon: PropTypes.oneOfType([PropTypes.bool, PropTypes.node]),
+    validateOnBlur: PropTypes.bool,
+    onExpandChange: PropTypes.func,
+    onCollapse: PropTypes.func,
+    onExpand: PropTypes.func,
+    skipTodayTime: PropTypes.bool,
+    date: DateType,
+    value: DateType,
+    defaultDate: DateType,
+    viewDate: DateType,
+    minDate: DateType,
+    maxDate: DateType,
+    activeDate: DateType,
+    text: PropTypes.string,
+    pickerProps: PropTypes.object,
+    overlayProps: PropTypes.object,
+    constrainTo: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.func,
+        PropTypes.object,
+        PropTypes.bool,
+    ]),
+    cleanup: PropTypes.func,
+    expanded: PropTypes.bool,
+    triggerChangeOnTimeChange: PropTypes.bool,
+    defaultExpanded: PropTypes.bool,
+    forceValidDate: PropTypes.bool,
+    valid: PropTypes.bool,
+    updateOnWheel: PropTypes.bool,
+    clearDate: DateType,
+    navBarArrows: PropTypes.bool,
+    locale: PropTypes.string,
+    focusedClassName: PropTypes.string,
+    expandedClassName: PropTypes.string,
+    invalidClassName: PropTypes.string,
+    placeholder: PropTypes.string,
+    onTextChange: PropTypes.func,
+    renderPicker: PropTypes.func,
+    onMouseDown: PropTypes.func,
+    onViewDateChange: PropTypes.func,
+    onActiveDateChange: PropTypes.func,
+    defaultViewDate: PropTypes.any,
+    onChange: PropTypes.func,
+    renderInput: PropTypes.func,
+    onLazyBlur: PropTypes.func,
+    onKeyDown: PropTypes.func,
+    position: PropTypes.oneOf(['top', 'bottom']),
+    weekNumbers: PropTypes.bool,
+    highlightWeekends: PropTypes.bool,
+    calendarProps: PropTypes.object,
+    cancelButtonText: PropTypes.string,
+    clearButtonText: PropTypes.string,
+    okButtonText: PropTypes.string,
+    todayButtonText: PropTypes.string,
+};
 const POSITIONS = { top: 'top', bottom: 'bottom' };
 const defaultOverlayProps = {
     updatePositionOnScroll: true,
@@ -30,15 +132,25 @@ const defaultOverlayProps = {
     theme: null,
     visible: true,
 };
-const getPicker = props => {
+const getPicker = (props, _instance) => {
     const { calendarProps } = props;
-    return (React.Children.toArray(props.children).filter(c => c && c.props && c.props.isDatePicker)[0] || React.createElement(Calendar, { ...calendarProps }));
+    return (React.Children.toArray(props.children).filter((c) => c && c.props && c.props.isDatePicker)[0] || React.createElement(Calendar, { ...calendarProps }));
 };
-const FIND_INPUT = c => c && (c.type === 'input' || (c.props && c.isDateInput));
-const preventDefault = event => {
+const FIND_INPUT = (c) => c && (c.type === 'input' || (c.props && c.isDateInput));
+const preventDefault = (event) => {
     event.preventDefault();
 };
-export default class DateInput extends Component {
+class DateInput extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    unmounted;
+    p;
+    lastValidDate;
+    field;
+    picker;
+    pickerView;
+    onTransitionStart;
+    time;
     constructor(props) {
         super(props);
         this.state = {
@@ -48,10 +160,10 @@ export default class DateInput extends Component {
             focused: false,
         };
     }
-    componentWillUnmount() {
+    componentWillUnmount = () => {
         this.unmounted = true;
-    }
-    render() {
+    };
+    render = () => {
         const props = this.prepareProps(this.props);
         const flexProps = assign({}, props);
         delete flexProps.activeDate;
@@ -124,16 +236,16 @@ export default class DateInput extends Component {
             this.renderClearIcon(),
             this.renderCalendarIcon(),
             this.renderPicker()));
-    }
-    handleClick(event) {
+    };
+    handleClick = (event) => {
         if (this.props.onClick) {
             this.props.onClick(event);
         }
         if (!this.isLazyFocused()) {
             this.focus();
         }
-    }
-    renderInput() {
+    };
+    renderInput = () => {
         const props = this.p;
         const inputProps = this.prepareInputProps(props);
         let input;
@@ -153,8 +265,8 @@ export default class DateInput extends Component {
             input = input ? (React.cloneElement(input, propsForInput)) : (React.createElement(FieldInput, { ...propsForInput }));
         }
         return input;
-    }
-    renderClearIcon() {
+    };
+    renderClearIcon = () => {
         const props = this.p;
         const { rootClassName, disabled, text } = props;
         if (!props.clearIcon || props.forceValidDate) {
@@ -177,14 +289,14 @@ export default class DateInput extends Component {
             result = React.createElement(InlineBlock, { ...clearIconProps });
         }
         return result;
-    }
-    onClearClick(event) {
+    };
+    onClearClick = () => {
         this.onFieldChange('');
         if (!this.isFocused()) {
             this.focus();
         }
-    }
-    renderCalendarIcon() {
+    };
+    renderCalendarIcon = () => {
         let result;
         const renderIcon = this.props.renderCalendarIcon;
         const { rootClassName, disabled } = this.props;
@@ -199,18 +311,18 @@ export default class DateInput extends Component {
             result = React.createElement("div", { ...calendarIconProps }, CALENDAR_ICON);
         }
         return result;
-    }
-    onCalendarIconMouseDown(event) {
+    };
+    onCalendarIconMouseDown = (event) => {
         if (this.props.disabled) {
             return;
         }
         event.preventDefault();
         this.toggleExpand();
-    }
-    prepareExpanded(props) {
+    };
+    prepareExpanded = (props) => {
         return props.expanded === undefined ? this.state.expanded : props.expanded;
-    }
-    prepareDate(props, pickerProps) {
+    };
+    prepareDate = (props, pickerProps) => {
         props = props || this.p;
         pickerProps = pickerProps || props.pickerProps;
         const locale = props.locale || pickerProps.locale;
@@ -243,15 +355,15 @@ export default class DateInput extends Component {
             date,
             value,
         };
-    }
-    preparePickerProps(props) {
+    };
+    preparePickerProps = (props) => {
         const picker = getPicker(props, this);
         if (!picker) {
             return null;
         }
         return picker.props || {};
-    }
-    prepareProps(thisProps) {
+    };
+    prepareProps = (thisProps) => {
         const props = (this.p = assign({}, thisProps));
         props.children = React.Children.toArray(props.children);
         props.expanded = this.prepareExpanded(props);
@@ -285,10 +397,11 @@ export default class DateInput extends Component {
             props.todayButtonText = props.calendarProps.todayButtonText;
         }
         return props;
-    }
-    prepareClassName(props) {
+    };
+    prepareClassName = (props) => {
         const { rootClassName } = props;
-        const position = POSITIONS[props.pickerProps.position || props.pickerPosition] || 'bottom';
+        const position = POSITIONS[props.pickerProps.position ||
+            props.pickerPosition] || 'bottom';
         return join([
             rootClassName,
             props.className,
@@ -302,8 +415,8 @@ export default class DateInput extends Component {
                 join(`${rootClassName}--expanded`, props.expandedClassName),
             !props.valid && join(props.invalidClassName, `${rootClassName}--invalid`),
         ]);
-    }
-    prepareInputProps(props) {
+    };
+    prepareInputProps = (props) => {
         const input = props.children.filter(FIND_INPUT)[0];
         const inputProps = (input && input.props) || {};
         const { rootClassName } = this.props;
@@ -312,7 +425,7 @@ export default class DateInput extends Component {
         const onChange = joinFunctions(inputProps.onChange, this.onFieldChange);
         const onKeyDown = joinFunctions(inputProps.onKeyDown, this.onFieldKeyDown);
         const newInputProps = assign({}, inputProps, {
-            ref: f => {
+            ref: (f) => {
                 this.field = f;
             },
             date: props.date,
@@ -333,8 +446,8 @@ export default class DateInput extends Component {
             maxDate: props.maxDate,
         });
         return newInputProps;
-    }
-    renderPicker() {
+    };
+    renderPicker = () => {
         const props = this.p;
         const { renderPicker } = this.props;
         if (this.isExpanded()) {
@@ -348,7 +461,7 @@ export default class DateInput extends Component {
             const viewDate = props.viewDate || this.state.viewDate || props.defaultViewDate;
             const activeDate = newExpand && date ? date : props.activeDate;
             const pickerElement = React.cloneElement(picker, assignDefined({
-                ref: p => {
+                ref: (p) => {
                     this.picker = this.pickerView = p;
                     if (p) {
                         const pickerView = p.getView ? p.getView() : p.view;
@@ -421,27 +534,27 @@ export default class DateInput extends Component {
             return renderPicker(null);
         }
         return null;
-    }
-    getValue() {
+    };
+    getValue = () => {
         return this.state.value || this.props.value;
-    }
-    onTimeChange(value, timeFormat) {
+    };
+    onTimeChange = (value, timeFormat) => {
         const timeMoment = this.toMoment(value, { dateFormat: timeFormat });
         const time = ['hour', 'minute', 'second', 'millisecond'].reduce((acc, part) => {
             acc[part] = timeMoment.get(part);
             return acc;
         }, {});
         this.time = time;
-    }
-    getTime() {
+    };
+    getTime = () => {
         return this.time;
-    }
-    setValue(value, config = {}) {
+    };
+    setValue = (value, config = {}) => {
         const dateMoment = this.toMoment(value);
         const dateString = this.format(dateMoment);
         this.setDate(dateString, assign(config, { dateMoment }));
-    }
-    onFooterOkClick() {
+    };
+    onFooterOkClick = () => {
         const activeDate = this.p.activeDate;
         if (activeDate) {
             const date = this.toMoment(activeDate);
@@ -449,19 +562,19 @@ export default class DateInput extends Component {
             this.setValue(date, { skipTime: !!this.time });
         }
         this.setExpanded(false);
-    }
-    onFooterCancelClick() {
+    };
+    onFooterCancelClick = () => {
         this.setExpanded(false);
-    }
-    onFooterTodayClick() {
+    };
+    onFooterTodayClick = () => {
         const today = this.toMoment(new Date()).startOf('day');
         this.onPickerChange(this.format(today), { dateMoment: today });
         if (this.pickerView && this.pickerView.gotoViewDate) {
             this.pickerView.gotoViewDate({ dateMoment: today });
         }
         return false;
-    }
-    onFooterClearClick() {
+    };
+    onFooterClearClick = () => {
         const clearDate = this.props.clearDate === undefined
             ? this.props.minDate
             : this.props.clearDate;
@@ -472,8 +585,8 @@ export default class DateInput extends Component {
         }
         this.setExpanded(false);
         return false;
-    }
-    toMoment(value, props) {
+    };
+    toMoment = (value, props) => {
         if (moment.isMoment(value)) {
             return value;
         }
@@ -494,60 +607,61 @@ export default class DateInput extends Component {
             date = toMoment(value, {
                 strict: props.strict,
                 locale: props.locale,
-                dateFormat: props.dateFormat === undefined ? this.p.dateFormat : props.dateFormat,
+                dateFormat: props.dateFormat === undefined
+                    ? this.p.dateFormat
+                    : props.dateFormat,
             });
         }
         return date;
-    }
-    isValid(text) {
+    };
+    isValid = (text) => {
         if (text === undefined) {
             text = this.p.text;
         }
         return this.toMoment(text).isValid();
-    }
-    onViewDateChange(viewDate) {
+    };
+    onViewDateChange = (viewDate) => {
         this.setState({
             viewDate,
         });
         if (this.props.onViewDateChange) {
-            this.props.onViewDateChange.apply(this, arguments);
+            this.props.onViewDateChange();
         }
-    }
-    setViewDate(viewDate) {
+    };
+    setViewDate = (viewDate) => {
         if (this.pickerView) {
             this.pickerView.gotoViewDate({ dateMoment: this.toMoment(viewDate) });
         }
-    }
-    onActiveDateChange(activeDate) {
+    };
+    onActiveDateChange = (activeDate) => {
         this.setState({
             activeDate,
         });
         if (this.props.onActiveDateChange) {
-            this.props.onActiveDateChange.apply(this, arguments);
+            this.props.onActiveDateChange();
         }
-    }
-    onViewKeyDown(event) {
-        const key = event.key;
+    };
+    onViewKeyDown = (event) => {
         if (this.pickerView) {
             this.onPickerViewKeyDown(event);
         }
-    }
-    onPickerViewKeyDown(event) {
+    };
+    onPickerViewKeyDown = (event) => {
         this.pickerView.onViewKeyDown(event);
-    }
-    onPickerMouseDown(event) {
+    };
+    onPickerMouseDown = (event) => {
         preventDefault(event);
         if (!this.isFocused()) {
             this.focus();
         }
-    }
-    isMonthDecadeViewVisible() {
+    };
+    isMonthDecadeViewVisible = () => {
         if (this.picker && this.picker.isMonthDecadeViewVisible) {
             return this.picker.isMonthDecadeViewVisible();
         }
         return false;
-    }
-    onFieldKeyDown(event) {
+    };
+    onFieldKeyDown = (event) => {
         const key = event.key;
         const expanded = this.isExpanded();
         const monthDecadeVisible = this.isMonthDecadeViewVisible();
@@ -573,23 +687,23 @@ export default class DateInput extends Component {
             }
         }
         return true;
-    }
-    getInput() {
+    };
+    getInput = () => {
         return this.field;
-    }
-    isFocused() {
+    };
+    isFocused = () => {
         return this.state.focused;
-    }
-    isLazyFocused() {
+    };
+    isLazyFocused = () => {
         return this.isFocused() || this.isTimeInputFocused();
-    }
-    isTimeInputFocused() {
+    };
+    isTimeInputFocused = () => {
         if (this.picker && this.picker.isTimeInputFocused) {
             return this.picker.isTimeInputFocused();
         }
         return false;
-    }
-    onFieldFocus(event) {
+    };
+    onFieldFocus = (event) => {
         if (this.state.focused) {
             return;
         }
@@ -600,8 +714,8 @@ export default class DateInput extends Component {
             this.setExpanded(true);
         }
         this.props.onFocus(event);
-    }
-    onFieldBlur(event) {
+    };
+    onFieldBlur = (event) => {
         if (!this.isFocused()) {
             return;
         }
@@ -614,27 +728,27 @@ export default class DateInput extends Component {
             return;
         }
         setTimeout(() => this.onLazyBlur(), 0);
-    }
-    onClockEnterKey() {
+    };
+    onClockEnterKey = () => {
         if (!this.isFocused()) {
             this.focus();
         }
         this.onFooterOkClick();
-    }
-    onClockEscapeKey() {
+    };
+    onClockEscapeKey = () => {
         if (!this.isFocused()) {
             this.focus();
         }
         this.onFooterCancelClick();
-    }
-    onClockInputBlur() {
+    };
+    onClockInputBlur = () => {
         setTimeout(() => {
             if (!this.isFocused()) {
                 this.onLazyBlur();
             }
         }, 0);
-    }
-    onLazyBlur() {
+    };
+    onLazyBlur = () => {
         if (this.unmounted) {
             return;
         }
@@ -653,15 +767,15 @@ export default class DateInput extends Component {
                 this.onFieldChange(value);
             }, 0);
         }
-    }
-    onInputChange() { }
-    isExpanded() {
+    };
+    onInputChange = () => { };
+    isExpanded = () => {
         return this.p.expanded;
-    }
-    toggleExpand() {
+    };
+    toggleExpand = () => {
         this.setExpanded(!this.p.expanded);
-    }
-    setExpanded(bool) {
+    };
+    setExpanded = (bool) => {
         const props = this.p;
         if (bool === props.expanded) {
             return;
@@ -685,14 +799,14 @@ export default class DateInput extends Component {
             });
         }
         this.props.onExpandChange(bool);
-    }
-    onCollapse() {
+    };
+    onCollapse = () => {
         this.props.onCollapse();
-    }
-    onExpand() {
+    };
+    onExpand = () => {
         this.props.onExpand();
-    }
-    onFieldChange(value) {
+    };
+    onFieldChange = (value) => {
         if (this.p.rawInput && typeof value != 'string') {
             const event = value;
             value = event.target.value;
@@ -702,8 +816,8 @@ export default class DateInput extends Component {
             this.onChange(dateMoment);
         }
         this.onTextChange(value);
-    }
-    onTextChange(text) {
+    };
+    onTextChange = (text) => {
         if (this.props.text === undefined) {
             this.setState({
                 text,
@@ -712,8 +826,8 @@ export default class DateInput extends Component {
         if (this.props.onTextChange) {
             this.props.onTextChange(text);
         }
-    }
-    onPickerChange(dateString, { dateMoment, forceUpdate, noCollapse }, event) {
+    };
+    onPickerChange = (dateString, { dateMoment, forceUpdate, noCollapse, }, event) => {
         const isEnter = event && event.key == 'Enter';
         const updateOnDateClick = forceUpdate
             ? true
@@ -732,23 +846,23 @@ export default class DateInput extends Component {
                 this.setExpanded(false);
             }
         }
-    }
-    setDate(dateString, { dateMoment, skipTime = false }) {
+    };
+    setDate = (_dateString, { dateMoment, skipTime = false, }) => {
         const props = this.p;
         const currentDate = props.date;
         if (props.valid && currentDate) {
             const dateFormat = props.dateFormat ? props.dateFormat.toLowerCase() : '';
             const hasTime = dateFormat.indexOf('k') != -1 || dateFormat.indexOf('h') != -1;
             if (hasTime && !skipTime) {
-                ['hour', 'minute', 'second', 'millisecond'].forEach(part => {
+                ['hour', 'minute', 'second', 'millisecond'].forEach((part) => {
                     dateMoment.set(part, currentDate.get(part));
                 });
             }
         }
         this.onTextChange(this.format(dateMoment));
         this.onChange(dateMoment);
-    }
-    onChange(dateMoment) {
+    };
+    onChange = (dateMoment) => {
         if (dateMoment != null && !moment.isMoment(dateMoment)) {
             dateMoment = this.toMoment(dateMoment);
         }
@@ -772,8 +886,8 @@ export default class DateInput extends Component {
             this.props.onChange(this.format(dateMoment), { dateMoment });
         }
         this.setState(newState);
-    }
-    format(mom, format) {
+    };
+    format = (mom, format) => {
         let theFormat = format;
         if (format === undefined) {
             theFormat = this.p.displayFormat;
@@ -782,117 +896,15 @@ export default class DateInput extends Component {
             theFormat = this.p.dateFormat;
         }
         return mom == null ? '' : mom.format(theFormat);
-    }
-    focusField() {
+    };
+    focusField = () => {
         const input = this.field;
         if (input) {
             input.focus();
         }
-    }
-    focus() {
+    };
+    focus = () => {
         this.focusField();
-    }
+    };
 }
-DateInput.defaultProps = {
-    rootClassName: 'inovua-react-toolkit-date-input',
-    showClock: undefined,
-    relativeToViewport: true,
-    enableMonthDecadeViewAnimation: true,
-    showMonthDecadeViewAnimation: 300,
-    overlayProps: undefined,
-    forceValidDate: false,
-    strict: false,
-    expandOnFocus: true,
-    updateOnDateClick: true,
-    collapseOnDateClick: true,
-    theme: 'default-light',
-    footer: true,
-    okButton: false,
-    onBlur: () => { },
-    onFocus: () => { },
-    clearIcon: true,
-    validateOnBlur: true,
-    onExpandChange: () => { },
-    onCollapse: () => { },
-    onExpand: () => { },
-    minDate: moment('1000-01-01', 'YYYY-MM-DD'),
-    maxDate: moment('9999-12-31 HH:mm:ss', 'YYYY-MM-DD 23:59:59'),
-    skipTodayTime: false,
-};
-const DateType = PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.object,
-    PropTypes.string,
-]);
-DateInput.propTypes = {
-    autoFocus: PropTypes.bool,
-    rootClassName: PropTypes.string,
-    dateFormat: PropTypes.string.isRequired,
-    displayFormat: PropTypes.string,
-    relativeToViewport: PropTypes.bool,
-    showClock: PropTypes.bool,
-    strict: PropTypes.bool,
-    expandOnFocus: PropTypes.bool,
-    updateOnDateClick: PropTypes.bool,
-    collapseOnDateClick: PropTypes.bool,
-    enableMonthDecadeViewAnimation: PropTypes.bool,
-    showMonthDecadeViewAnimation: PropTypes.number,
-    theme: PropTypes.string,
-    footer: PropTypes.oneOfType([PropTypes.bool, PropTypes.node]),
-    onBlur: PropTypes.func,
-    onFocus: PropTypes.func,
-    clearIcon: PropTypes.oneOfType([PropTypes.bool, PropTypes.node]),
-    validateOnBlur: PropTypes.bool,
-    onExpandChange: PropTypes.func,
-    onCollapse: PropTypes.func,
-    onExpand: PropTypes.func,
-    skipTodayTime: PropTypes.bool,
-    date: DateType,
-    value: DateType,
-    defaultDate: DateType,
-    viewDate: DateType,
-    minDate: DateType,
-    maxDate: DateType,
-    activeDate: DateType,
-    text: PropTypes.string,
-    pickerProps: PropTypes.object,
-    overlayProps: PropTypes.object,
-    constrainTo: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.func,
-        PropTypes.object,
-        PropTypes.bool,
-    ]),
-    cleanup: PropTypes.func,
-    expanded: PropTypes.bool,
-    triggerChangeOnTimeChange: PropTypes.bool,
-    defaultExpanded: PropTypes.bool,
-    forceValidDate: PropTypes.bool,
-    valid: PropTypes.bool,
-    updateOnWheel: PropTypes.bool,
-    clearDate: PropTypes.bool,
-    navBarArrows: PropTypes.bool,
-    locale: PropTypes.string,
-    focusedClassName: PropTypes.string,
-    expandedClassName: PropTypes.string,
-    invalidClassName: PropTypes.string,
-    placeholder: PropTypes.string,
-    onTextChange: PropTypes.func,
-    renderPicker: PropTypes.func,
-    onMouseDown: PropTypes.func,
-    onViewDateChange: PropTypes.func,
-    onActiveDateChange: PropTypes.func,
-    defaultViewDate: PropTypes.any,
-    onChange: PropTypes.func,
-    renderInput: PropTypes.func,
-    onLazyBlur: PropTypes.func,
-    onKeyDown: PropTypes.func,
-    position: PropTypes.oneOf(['top', 'bottom']),
-    weekNumbers: PropTypes.bool,
-    highlightWeekends: PropTypes.bool,
-    calendarProps: PropTypes.object,
-    cancelButtonText: PropTypes.string,
-    clearButtonText: PropTypes.string,
-    okButtonText: PropTypes.string,
-    todayButtonText: PropTypes.string,
-};
+export default DateInput;

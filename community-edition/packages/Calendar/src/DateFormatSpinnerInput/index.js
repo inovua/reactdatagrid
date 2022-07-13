@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { createRef } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../../react-class';
 import { Flex } from '../../../Flex';
 import DateFormatInput from '../DateFormatInput';
 import assign from '../../../../common/assign';
@@ -15,20 +14,55 @@ import assignDefined from '../assignDefined';
 import join from '../../../../common/join';
 import { getGlobal } from '../../../../getGlobal';
 const globalObject = getGlobal();
-export default class DateFormatSpinnerInput extends Component {
+const defaultProps = {
+    rootClassName: 'inovua-react-toolkit-calendar__date-format-spinner',
+    firstStepDelay: 150,
+    secondStepDelay: 100,
+    stepDelay: 50,
+    changeDelay: undefined,
+    theme: 'default',
+    disabled: false,
+    arrowSize: 10,
+    isDateInput: true,
+    stopPropagation: true,
+    updateOnWheel: true,
+};
+const propTypes = {
+    rootClassName: PropTypes.string,
+    firstStepDelay: PropTypes.number,
+    secondStepDelay: PropTypes.number,
+    stepDelay: PropTypes.number,
+    changeDelay: PropTypes.number,
+    theme: PropTypes.string,
+    disabled: PropTypes.bool,
+    arrowSize: PropTypes.number,
+    isDateInput: PropTypes.bool,
+    stopPropagation: PropTypes.bool,
+    updateOnWheel: PropTypes.bool,
+};
+class DateFormatSpinnerInput extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    input;
+    started;
+    inputChild;
+    startTime;
+    inputProps;
+    arrows;
+    timeoutId;
     constructor(props) {
         super(props);
         this.state = { focused: false };
         this.input = createRef();
     }
-    componentWillUnmount() {
+    componentWillUnmount = () => {
         this.started = false;
-    }
-    render() {
+    };
+    render = () => {
         const props = this.props;
         const { rootClassName } = props;
         const children = React.Children.toArray(props.children);
-        const input = (this.inputChild = children.filter(c => c && c.type == 'input')[0]);
+        const input = (this.inputChild = children.filter((c) => c && c.type == 'input')[0]);
         const inputProps = input ? assign({}, input.props) : {};
         const onKeyDown = joinFunctions(props.onKeyDown, inputProps.onKeyDown);
         const onChange = joinFunctions(props.onChange, inputProps.onChange);
@@ -66,22 +100,22 @@ export default class DateFormatSpinnerInput extends Component {
         return (React.createElement(Flex, { inline: true, row: true, className: className, disabled: props.disabled },
             React.createElement(DateFormatInput, { ref: this.input, theme: props.theme, value: props.value, ...inputProps }),
             this.renderArrows()));
-    }
-    renderArrows() {
+    };
+    renderArrows = () => {
         if (this.props.renderArrows) {
             return this.props.renderArrows(this.props);
         }
         return (React.createElement("div", { className: `${this.props.rootClassName}-spinner-arrow-wrapper` },
             this.renderArrow(1),
             this.renderArrow(-1)));
-    }
-    renderArrow(dir) {
+    };
+    renderArrow = (dir) => {
         const { rootClassName } = this.props;
         const direction = dir === 1 ? 'up' : 'down';
         const className = join(`${rootClassName}-spinner-arrow`, `${rootClassName}-spinner-arrow--${direction}`);
         return (React.createElement("div", { className: className, onMouseDown: this.onMouseDown.bind(this, dir), onMouseUp: this.stop, onMouseLeave: this.stop }, this.arrows[dir]));
-    }
-    onMouseDown(dir, event) {
+    };
+    onMouseDown = (dir, event) => {
         if (this.props.disabled) {
             event.preventDefault();
             return;
@@ -96,8 +130,8 @@ export default class DateFormatSpinnerInput extends Component {
                 this.increment(dir);
             }, 1);
         }
-    }
-    start(dir) {
+    };
+    start = (dir) => {
         this.started = true;
         this.startTime = Date.now();
         this.step(dir);
@@ -111,16 +145,16 @@ export default class DateFormatSpinnerInput extends Component {
                 lazyStep();
             }, this.props.secondStepDelay);
         }, this.props.firstStepDelay);
-    }
-    isStarted() {
+    };
+    isStarted = () => {
         return !!(this.started && this.input);
-    }
-    increment(dir) {
+    };
+    increment = (dir) => {
         if (this.input && this.input.current) {
             this.input.current.onDirection(dir);
         }
-    }
-    step(dir, callback, delay) {
+    };
+    step = (dir, callback, delay) => {
         if (this.isStarted()) {
             this.increment(dir);
             if (typeof callback == 'function') {
@@ -131,22 +165,22 @@ export default class DateFormatSpinnerInput extends Component {
                 }, delay === undefined ? this.props.stepDelay : delay);
             }
         }
-    }
-    stop() {
+    };
+    stop = () => {
         this.started = false;
         if (this.timeoutId) {
             globalObject.clearTimeout(this.timeoutId);
         }
-    }
-    focus() {
+    };
+    focus = () => {
         if (this.input && this.input.current) {
             this.input.current.focus();
         }
-    }
-    isFocused() {
+    };
+    isFocused = () => {
         return this.state.focused;
-    }
-    onBlur(event) {
+    };
+    onBlur = (event) => {
         const { props } = this;
         const onBlur = joinFunctions(props.onBlur, this.inputChild && this.inputChild.props && this.inputChild.props.onBlur);
         if (onBlur) {
@@ -155,8 +189,8 @@ export default class DateFormatSpinnerInput extends Component {
         this.setState({
             focused: false,
         });
-    }
-    onFocus(event) {
+    };
+    onFocus = (event) => {
         const { props } = this;
         const onFocus = joinFunctions(props.onFocus, this.inputChild && this.inputChild.props && this.inputChild.props.onFocus);
         if (onFocus) {
@@ -165,31 +199,6 @@ export default class DateFormatSpinnerInput extends Component {
         this.setState({
             focused: true,
         });
-    }
+    };
 }
-DateFormatSpinnerInput.defaultProps = {
-    rootClassName: 'inovua-react-toolkit-calendar__date-format-spinner',
-    firstStepDelay: 150,
-    secondStepDelay: 100,
-    stepDelay: 50,
-    changeDelay: undefined,
-    theme: 'default',
-    disabled: false,
-    arrowSize: 10,
-    isDateInput: true,
-    stopPropagation: true,
-    updateOnWheel: true,
-};
-DateFormatSpinnerInput.propTypes = {
-    rootClassName: PropTypes.string,
-    firstStepDelay: PropTypes.number,
-    secondStepDelay: PropTypes.number,
-    stepDelay: PropTypes.number,
-    changeDelay: PropTypes.number,
-    theme: PropTypes.string,
-    disabled: PropTypes.bool,
-    arrowSize: PropTypes.number,
-    isDateInput: PropTypes.bool,
-    stopPropagation: PropTypes.bool,
-    updateOnWheel: PropTypes.bool,
-};
+export default DateFormatSpinnerInput;

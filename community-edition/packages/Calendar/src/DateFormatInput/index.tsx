@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component, createRef, RefObject } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import throttle from '../../../../common/throttle';
 import assign from '../../../../common/assign';
@@ -17,11 +17,19 @@ import {
   setCaretPosition,
 } from '../TimeInput';
 
-import toMoment, { Moment } from '../toMoment';
+import toMoment, { Moment, DateType } from '../toMoment';
 
 import parseFormat from './parseFormat';
 import forwardTime from '../utils/forwardTime';
-import { TypeDateFormatInputProps } from './types';
+import {
+  TypeCaretPosition,
+  TypeDateFormatInputProps,
+  TypeDateFormatInputState,
+  TypeFormat,
+  TypeFormats,
+  TypeKeyDownEvent,
+  TypeRange,
+} from './types';
 
 const emptyFn = () => {};
 
@@ -56,21 +64,28 @@ const propTypes = {
   },
 };
 
-export default class DateFormatInput extends Component<
+class DateFormatInput extends Component<
   TypeDateFormatInputProps,
-  {}
+  TypeDateFormatInputState
 > {
   static defaultProps = defaultProps;
   static propTypes = propTypes;
 
   private throttleSetValue: any;
-  private dateFormatInputRef: RefObject<unknown>;
+  private dateFormatInputRef: any;
+  private caretPos?: TypeCaretPosition;
+  private displayValue?: string;
 
   constructor(props: TypeDateFormatInputProps) {
     super(props);
 
-    const { positions, matches } = parseFormat(props.dateFormat);
-    const defaultValue = props.defaultValue || Date.now();
+    const {
+      positions,
+      matches,
+    }: { positions: string[]; matches: string[] } = parseFormat(
+      props.dateFormat
+    );
+    const defaultValue: DateType = props.defaultValue || Date.now();
 
     const delay = props.changeDelay;
     this.throttleSetValue =
@@ -90,9 +105,9 @@ export default class DateFormatInput extends Component<
     this.dateFormatInputRef = createRef();
   }
 
-  getMinMax(
+  getMinMax = (
     props: TypeDateFormatInputProps
-  ): { minDate: string; maxDate: string } {
+  ): { minDate: Moment | null; maxDate: Moment | null } => {
     props = props || this.props;
 
     let minDate = null;
@@ -111,7 +126,7 @@ export default class DateFormatInput extends Component<
       minDate,
       maxDate,
     };
-  }
+  };
 
   componentDidUpdate = (prevProps: TypeDateFormatInputProps) => {
     if (this.props.value !== undefined && this.caretPos && this.isFocused()) {
@@ -133,7 +148,7 @@ export default class DateFormatInput extends Component<
     }
   };
 
-  toMoment(value: Date, props: TypeDateFormatInputProps): Moment {
+  toMoment = (value: DateType, props?: TypeDateFormatInputProps): Moment => {
     props = props || this.props;
 
     return toMoment(value, {
@@ -143,14 +158,14 @@ export default class DateFormatInput extends Component<
           ? this.props.dateFormat
           : props.dateFormat,
     });
-  }
+  };
 
-  render() {
+  render = () => {
     const { props } = this;
 
     const value = this.state.propsValue ? props.value : this.state.value;
 
-    const displayValue = (this.displayValue = this.toMoment(value).format(
+    const displayValue = (this.displayValue = this.toMoment(value!).format(
       props.dateFormat
     ));
 
@@ -191,13 +206,13 @@ export default class DateFormatInput extends Component<
         className={className}
       />
     );
-  }
+  };
 
-  focus() {
+  focus = (): void => {
     this.dateFormatInputRef.current.focus();
-  }
+  };
 
-  onFocus(event) {
+  onFocus = (event: FocusEvent): void => {
     if (this.props.onFocus) {
       this.props.onFocus(event);
     }
@@ -205,9 +220,9 @@ export default class DateFormatInput extends Component<
     this.setState({
       focused: true,
     });
-  }
+  };
 
-  onBlur(event) {
+  onBlur = (event: FocusEvent): void => {
     if (this.props.onBlur) {
       this.props.onBlur(event);
     }
@@ -215,17 +230,17 @@ export default class DateFormatInput extends Component<
     this.setState({
       focused: false,
     });
-  }
+  };
 
-  isFocused() {
-    return this.state.focused;
-  }
+  isFocused = (): boolean => {
+    return this.state.focused!;
+  };
 
-  onChange(event) {
+  onChange = (event: MouseEvent): void => {
     event.stopPropagation();
-  }
+  };
 
-  onDirection(dir, event = {}) {
+  onDirection = (dir: number, event: any = {}) => {
     this.onKeyDown({
       key: dir > 0 ? 'ArrowUp' : 'ArrowDown',
       type: event.type || 'unknown',
@@ -238,19 +253,20 @@ export default class DateFormatInput extends Component<
           ? () => event.preventDefault()
           : emptyFn,
     });
-  }
+  };
 
-  onWheel(event) {
+  onWheel = (event: WheelEvent): void => {
     if (this.props.updateOnWheel && this.isFocused()) {
-      this.onDirection(-event.deltaY, event);
+      const deltaY: number = -event.deltaY;
+      this.onDirection(deltaY, event);
     }
 
     if (this.props.onWheel) {
       this.props.onWheel(event);
     }
-  }
+  };
 
-  onKeyDown(event) {
+  onKeyDown = (event: TypeKeyDownEvent): void => {
     const { props } = this;
 
     let { key, type, which } = event;
@@ -259,7 +275,7 @@ export default class DateFormatInput extends Component<
       key = ' ';
     }
 
-    if (key != ' ' && key * 1 == key) {
+    if (key != ' ' && (key as any) * 1 == key) {
       key = 'Unidentified';
     }
 
@@ -274,14 +290,14 @@ export default class DateFormatInput extends Component<
     const { positions, matches } = this.state;
     const valueStr = `${value}`;
 
-    let currentPosition = positions[range.start];
+    let currentPosition: any = positions![range.start];
 
     if (typeof currentPosition == 'string') {
-      currentPosition = positions[range.start + (key in BACKWARDS ? -1 : 1)];
+      currentPosition = positions![range.start + (key in BACKWARDS ? -1 : 1)];
     }
 
     if (!currentPosition) {
-      currentPosition = positions[range.start - 1];
+      currentPosition = positions![range.start - 1];
     }
 
     if (props.onKeyDown && type == 'keydown') {
@@ -301,10 +317,10 @@ export default class DateFormatInput extends Component<
 
     let preventDefault;
     let newValue;
-    let newCaretPos;
+    let newCaretPos: TypeCaretPosition;
 
     if (currentPosition && currentPosition[handlerName]) {
-      const returnValue = currentPosition[handlerName](currentPosition, {
+      const returnValue: any = currentPosition[handlerName](currentPosition, {
         range,
         selectedValue,
         value,
@@ -317,7 +333,7 @@ export default class DateFormatInput extends Component<
         event,
         key,
         input: this.getInput(),
-        setCaretPosition: (...args) => this.setCaretPosition(...args),
+        setCaretPosition: (...args: any) => this.setCaretPosition(...args),
       });
 
       this.caretPos = range;
@@ -350,7 +366,13 @@ export default class DateFormatInput extends Component<
       preventDefault = true;
     }
 
-    const config = {
+    const config: {
+      currentPosition: any;
+      preventDefault?: boolean;
+      event: TypeKeyDownEvent;
+      value: any;
+      stop: boolean;
+    } = {
       currentPosition,
       preventDefault,
       event,
@@ -362,7 +384,7 @@ export default class DateFormatInput extends Component<
       this.props.afterKeyDown(config);
     }
 
-    if (!config.stop && newCaretPos !== undefined) {
+    if (!config.stop && newCaretPos! !== undefined) {
       const updateCaretPos = () => this.setCaretPosition(newCaretPos);
       this.caretPos = newCaretPos;
       this.setStateValue(newValue, updateCaretPos, {
@@ -375,25 +397,37 @@ export default class DateFormatInput extends Component<
     if (config.preventDefault) {
       event.preventDefault();
     }
-  }
+  };
 
-  getInput() {
+  getInput = (): any => {
     return this.dateFormatInputRef.current;
-  }
+  };
 
-  setCaretPosition(pos) {
+  setCaretPosition = (pos?: TypeCaretPosition): void => {
     const dom = this.getInput();
     if (dom) {
       setCaretPosition(dom, pos);
     }
-  }
+  };
 
-  format(mom, format = this.props.dateFormat) {
+  format = (mom: Moment, format: string = this.props.dateFormat) => {
     return mom.format(format);
-  }
+  };
 
-  setStateValue(value, callback, { key, oldValue, currentPosition }) {
-    let dateMoment = this.toMoment(value);
+  setStateValue = (
+    value: any,
+    callback: any,
+    {
+      key,
+      oldValue,
+      currentPosition,
+    }: {
+      key: string | number;
+      oldValue: any;
+      currentPosition: { format: string };
+    }
+  ) => {
+    let dateMoment: any = this.toMoment(value);
 
     if (!dateMoment.isValid()) {
       const dir = key == 'ArrowUp' || key == 'PageUp' ? 1 : -1;
@@ -418,7 +452,7 @@ export default class DateFormatInput extends Component<
       value = this.format(dateMoment);
     }
 
-    const { minDate, maxDate } = this.state;
+    const { minDate, maxDate }: any = this.state;
 
     if (minDate && dateMoment.isBefore(minDate)) {
       const clone = this.toMoment(dateMoment);
@@ -456,9 +490,9 @@ export default class DateFormatInput extends Component<
     if (this.props.onChange) {
       this.throttleSetValue(value, dateMoment);
     }
-  }
+  };
 
-  setValue(value, dateMoment) {
+  setValue = (value: DateType, dateMoment: Moment) => {
     if (this.props.value === undefined) {
       this.setState({
         value,
@@ -476,21 +510,24 @@ export default class DateFormatInput extends Component<
         dateMoment: dateMoment || this.toMoment(value),
       });
     }
-  }
+  };
 
-  getSelectedRange() {
+  getSelectedRange = (): TypeRange => {
     const dom = this.getInput();
 
     return {
       start: getSelectionStart(dom),
       end: getSelectionEnd(dom),
     };
-  }
+  };
 
-  getSelectedValue(range) {
+  getSelectedValue = (range: TypeRange) => {
     range = range || this.getSelectedRange();
-    const value = this.displayValue;
+    const value: string | undefined = this.displayValue;
 
-    return value.substring(range.start, range.end);
-  }
+    return value!.substring(range.start, range.end);
+  };
 }
+
+export { TypeDateFormatInputProps, TypeFormats, TypeFormat };
+export default DateFormatInput;

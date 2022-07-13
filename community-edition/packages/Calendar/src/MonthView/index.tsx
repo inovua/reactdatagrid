@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { createRef } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../../react-class';
 
 import moment from 'moment';
 import assign from '../../../../common/assign';
@@ -29,6 +28,8 @@ import BasicMonthView, {
 
 import ON_KEY_DOWN from './onKeyDown';
 import NAV_KEYS from './navKeys';
+
+import { TypeMonthViewProps, TypeMonthViewState } from './types';
 
 let TODAY;
 
@@ -222,7 +223,7 @@ const renderFooter = (props, buttonHandlers) => {
   return <Footer {...footerProps} />;
 };
 
-export default class MonthView extends Component {
+class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
   isInView(mom, props) {
     return isInView(mom, props || this.p);
   }
@@ -1365,3 +1366,4 @@ MonthView.propTypes = {
 };
 
 export { NAV_KEYS, renderFooter };
+export default MonthView;

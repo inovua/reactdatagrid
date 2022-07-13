@@ -42,14 +42,16 @@ const propTypes = {
         }
     },
 };
-export default class DateFormatInput extends Component {
+class DateFormatInput extends Component {
     static defaultProps = defaultProps;
     static propTypes = propTypes;
     throttleSetValue;
     dateFormatInputRef;
+    caretPos;
+    displayValue;
     constructor(props) {
         super(props);
-        const { positions, matches } = parseFormat(props.dateFormat);
+        const { positions, matches, } = parseFormat(props.dateFormat);
         const defaultValue = props.defaultValue || Date.now();
         const delay = props.changeDelay;
         this.throttleSetValue =
@@ -65,7 +67,7 @@ export default class DateFormatInput extends Component {
         };
         this.dateFormatInputRef = createRef();
     }
-    getMinMax(props) {
+    getMinMax = (props) => {
         props = props || this.props;
         let minDate = null;
         if (props.minDate) {
@@ -79,7 +81,7 @@ export default class DateFormatInput extends Component {
             minDate,
             maxDate,
         };
-    }
+    };
     componentDidUpdate = (prevProps) => {
         if (this.props.value !== undefined && this.caretPos && this.isFocused()) {
             this.setCaretPosition(this.caretPos);
@@ -93,7 +95,7 @@ export default class DateFormatInput extends Component {
             this.setState({ maxDate: currentMaxDate });
         }
     };
-    toMoment(value, props) {
+    toMoment = (value, props) => {
         props = props || this.props;
         return toMoment(value, {
             locale: props.locale,
@@ -101,8 +103,8 @@ export default class DateFormatInput extends Component {
                 ? this.props.dateFormat
                 : props.dateFormat,
         });
-    }
-    render() {
+    };
+    render = () => {
         const { props } = this;
         const value = this.state.propsValue ? props.value : this.state.value;
         const displayValue = (this.displayValue = this.toMoment(value).format(props.dateFormat));
@@ -122,33 +124,33 @@ export default class DateFormatInput extends Component {
             props.cleanup(inputProps);
         }
         return (React.createElement("input", { ...inputProps, ref: this.dateFormatInputRef, defaultValue: undefined, onFocus: this.onFocus, onBlur: this.onBlur, value: displayValue, onKeyDown: this.onKeyDown, onWheel: this.onWheel, onChange: this.onChange, className: className }));
-    }
-    focus() {
+    };
+    focus = () => {
         this.dateFormatInputRef.current.focus();
-    }
-    onFocus(event) {
+    };
+    onFocus = (event) => {
         if (this.props.onFocus) {
             this.props.onFocus(event);
         }
         this.setState({
             focused: true,
         });
-    }
-    onBlur(event) {
+    };
+    onBlur = (event) => {
         if (this.props.onBlur) {
             this.props.onBlur(event);
         }
         this.setState({
             focused: false,
         });
-    }
-    isFocused() {
+    };
+    isFocused = () => {
         return this.state.focused;
-    }
-    onChange(event) {
+    };
+    onChange = (event) => {
         event.stopPropagation();
-    }
-    onDirection(dir, event = {}) {
+    };
+    onDirection = (dir, event = {}) => {
         this.onKeyDown({
             key: dir > 0 ? 'ArrowUp' : 'ArrowDown',
             type: event.type || 'unknown',
@@ -159,16 +161,17 @@ export default class DateFormatInput extends Component {
                 ? () => event.preventDefault()
                 : emptyFn,
         });
-    }
-    onWheel(event) {
+    };
+    onWheel = (event) => {
         if (this.props.updateOnWheel && this.isFocused()) {
-            this.onDirection(-event.deltaY, event);
+            const deltaY = -event.deltaY;
+            this.onDirection(deltaY, event);
         }
         if (this.props.onWheel) {
             this.props.onWheel(event);
         }
-    }
-    onKeyDown(event) {
+    };
+    onKeyDown = (event) => {
         const { props } = this;
         let { key, type, which } = event;
         if (key !== 'Unidentified' && which && which >= 65 && which <= 90) {
@@ -265,20 +268,20 @@ export default class DateFormatInput extends Component {
         if (config.preventDefault) {
             event.preventDefault();
         }
-    }
-    getInput() {
+    };
+    getInput = () => {
         return this.dateFormatInputRef.current;
-    }
-    setCaretPosition(pos) {
+    };
+    setCaretPosition = (pos) => {
         const dom = this.getInput();
         if (dom) {
             setCaretPosition(dom, pos);
         }
-    }
-    format(mom, format = this.props.dateFormat) {
+    };
+    format = (mom, format = this.props.dateFormat) => {
         return mom.format(format);
-    }
-    setStateValue(value, callback, { key, oldValue, currentPosition }) {
+    };
+    setStateValue = (value, callback, { key, oldValue, currentPosition, }) => {
         let dateMoment = this.toMoment(value);
         if (!dateMoment.isValid()) {
             const dir = key == 'ArrowUp' || key == 'PageUp' ? 1 : -1;
@@ -326,8 +329,8 @@ export default class DateFormatInput extends Component {
         if (this.props.onChange) {
             this.throttleSetValue(value, dateMoment);
         }
-    }
-    setValue(value, dateMoment) {
+    };
+    setValue = (value, dateMoment) => {
         if (this.props.value === undefined) {
             this.setState({
                 value,
@@ -345,17 +348,18 @@ export default class DateFormatInput extends Component {
                 dateMoment: dateMoment || this.toMoment(value),
             });
         }
-    }
-    getSelectedRange() {
+    };
+    getSelectedRange = () => {
         const dom = this.getInput();
         return {
             start: getSelectionStart(dom),
             end: getSelectionEnd(dom),
         };
-    }
-    getSelectedValue(range) {
+    };
+    getSelectedValue = (range) => {
         range = range || this.getSelectedRange();
         const value = this.displayValue;
         return value.substring(range.start, range.end);
-    }
+    };
 }
+export default DateFormatInput;

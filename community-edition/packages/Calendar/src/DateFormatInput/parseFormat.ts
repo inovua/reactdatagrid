@@ -20,7 +20,9 @@ const SUGGESTIONS: TypeSuggestions = {
   s: ['ss'],
 };
 
-const parseFormat = (format: string) => {
+const parseFormat = (
+  format: string
+): { positions: string[]; matches: string[] } => {
   let index = 0;
   let positionIndex = 0;
 
