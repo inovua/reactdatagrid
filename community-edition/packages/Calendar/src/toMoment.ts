@@ -30,7 +30,7 @@ type DateType = number | object | string;
  */
 const toMoment = (
   value: DateType,
-  dateFormat: any,
+  dateFormat?: any,
   config?: {
     strict?: boolean;
     locale?: string;

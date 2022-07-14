@@ -13,7 +13,7 @@ import assign from '../../../../common/assign';
 import join from '../../../../common/join';
 
 import clampRange from '../clampRange';
-import toMoment from '../toMoment';
+import toMoment, { Moment, DateType } from '../toMoment';
 import isInRange from '../utils/isInRange';
 
 import NavBar from '../NavBar';
@@ -29,11 +29,17 @@ import BasicMonthView, {
 import ON_KEY_DOWN from './onKeyDown';
 import NAV_KEYS from './navKeys';
 
-import { TypeMonthViewProps, TypeMonthViewState } from './types';
+import {
+  TypeMonthViewProps,
+  TypeMonthViewState,
+  TypeRenderDayProps,
+  TypeDayPropsMap,
+} from './types';
 
-let TODAY;
+const emptyFn = () => {};
+let TODAY: number;
 
-const RENDER_DAY = props => {
+const RENDER_DAY = (props: TypeMonthViewProps) => {
   const divProps = assign({}, props);
 
   delete divProps.date;
@@ -47,7 +53,7 @@ const RENDER_DAY = props => {
   return <div {...divProps} />;
 };
 
-const isDateInMinMax = function(timestamp, props) {
+const isDateInMinMax = function(timestamp: number, props: TypeMonthViewProps) {
   if (props.minDate && timestamp < props.minDate) {
     return false;
   }
@@ -59,12 +65,16 @@ const isDateInMinMax = function(timestamp, props) {
   return true;
 };
 
-const isValidActiveDate = function(timestamp, props) {
+const isValidActiveDate = function(
+  timestamp: number,
+  props: TypeMonthViewProps
+) {
   if (!props) {
     throw new Error('props is mandatory in isValidActiveDate');
   }
 
-  const dayProps = props.dayPropsMap[timestamp];
+  const dayProps: TypeDayPropsMap =
+    props.dayPropsMap[timestamp as keyof object];
 
   if (dayProps && dayProps.disabled) {
     return false;
@@ -73,7 +83,7 @@ const isValidActiveDate = function(timestamp, props) {
   return isDateInMinMax(timestamp, props);
 };
 
-const isInView = function(mom, props) {
+const isInView = function(mom: Moment, props: TypeMonthViewProps) {
   if (!props) {
     throw new Error('props is mandatory in isInView');
   }
@@ -83,7 +93,10 @@ const isInView = function(mom, props) {
   return isInRange(mom, { range: daysInView, inclusive: true });
 };
 
-const prepareViewDate = function(props, state) {
+const prepareViewDate = function(
+  props: TypeMonthViewProps,
+  state: TypeMonthViewState
+) {
   const viewDate =
     props.viewDate === undefined ? state.viewDate : props.viewDate;
 
@@ -94,7 +107,10 @@ const prepareViewDate = function(props, state) {
   return viewDate;
 };
 
-const prepareDate = function(props, state) {
+const prepareDate = function(
+  props: TypeMonthViewProps,
+  state: TypeMonthViewState
+) {
   if (props.range) {
     return null;
   }
@@ -102,7 +118,10 @@ const prepareDate = function(props, state) {
   return props.date === undefined ? state.date : props.date;
 };
 
-const prepareRange = function(props, state) {
+const prepareRange = function(
+  props: TypeMonthViewProps,
+  state: TypeMonthViewState
+) {
   if (props.moment) {
     return null;
   }
@@ -112,7 +131,10 @@ const prepareRange = function(props, state) {
     : state.range || props.range;
 };
 
-const prepareActiveDate = function(props, state) {
+const prepareActiveDate = function(
+  props: TypeMonthViewProps,
+  state: TypeMonthViewState
+) {
   const fallbackDate =
     prepareDate(props, state) || (prepareRange(props, state) || [])[0];
 
@@ -224,6 +246,8 @@ const renderFooter = (props, buttonHandlers) => {
 };
 
 class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
+  private toMoment: (value?: DateType, dateFormat?: string) => void = emptyFn;
+
   isInView(mom, props) {
     return isInView(mom, props || this.p);
   }
@@ -254,8 +278,8 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
   };
 
   updateToMoment(props) {
-    this.toMoment = (value, dateFormat) => {
-      return toMoment(value, {
+    this.toMoment = (value?: DateType, dateFormat?: string) => {
+      return toMoment(value!, {
         locale: props.locale,
         dateFormat: dateFormat || props.dateFormat,
       });
@@ -475,7 +499,7 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     };
   }
 
-  prepareDayProps(renderDayProps, props) {
+  prepareDayProps(renderDayProps: TypeRenderDayProps, props) {
     const { timestamp, dateMoment, className } = renderDayProps;
 
     props = props || this.p;

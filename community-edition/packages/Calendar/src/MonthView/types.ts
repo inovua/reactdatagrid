@@ -5,12 +5,26 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { ReactNode } from 'react';
 import { DateType, Moment } from '../toMoment';
+
+export type TypeRenderDayProps = {
+  timestamp?: number;
+  dateMoment?: Moment;
+  className?: string;
+};
+
+export type TypeDayPropsMap = {
+  disabled?: boolean;
+};
 
 export type TypeMonthViewProps = {
   rootClassName: string;
   navOnDateClick: boolean;
-  isDisabledDay: () => void;
+  isDisabledDay: (
+    renderDayProps: TypeRenderDayProps,
+    props: TypeMonthViewProps
+  ) => boolean;
 
   onChange: (
     {
@@ -71,7 +85,7 @@ export type TypeMonthViewProps = {
   clockTabIndex: number;
   index: number;
 
-  dayPropsMap: object;
+  dayPropsMap: TypeDayPropsMap;
 
   insideMultiView: boolean;
   insideField: boolean;
@@ -93,23 +107,31 @@ export type TypeMonthViewProps = {
   // }),
 
   cancelButton: boolean;
-  // cancelButtonText: PropTypes.node,
+  cancelButtonText: ReactNode;
   okButton: boolean;
-  // okButtonText: PropTypes.oneOfType([object, string]),
+  okButtonText: object | string;
   showClock: boolean;
 
   defaultDate: DateType;
   activeDate: DateType;
   defaultActiveDate: DateType;
   rangeStart: DateType;
-  // range: PropTypes.arrayOf(DateType),
-  // defaultRange: PropTypes.arrayOf(DateType),
-  // hoverRange: PropTypes.arrayOf(DateType),
-  // defaultHoverRange: PropTypes.arrayOf(DateType),
+  range: DateType[];
+  defaultRange: DateType[];
+  hoverRange: DateType[];
+  defaultHoverRange: DateType[];
   minDate: DateType;
   maxDate: DateType;
   viewDate: DateType;
   defaultViewDate: DateType;
+  daysInView?: number;
+  moment?: Moment;
 };
 
-export type TypeMonthViewState = {};
+export type TypeMonthViewState = {
+  range: DateType[];
+  date: DateType;
+  hoverRange: DateType[];
+  activeDate: DateType;
+  viewDate: DateType;
+};

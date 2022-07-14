@@ -19,8 +19,9 @@ import assignDefined from '../assignDefined';
 import BasicMonthView, { getDaysInMonthView, } from '../BasicMonthView';
 import ON_KEY_DOWN from './onKeyDown';
 import NAV_KEYS from './navKeys';
+const emptyFn = () => { };
 let TODAY;
-const RENDER_DAY = props => {
+const RENDER_DAY = (props) => {
     const divProps = assign({}, props);
     delete divProps.date;
     delete divProps.dateMoment;
@@ -153,6 +154,7 @@ const renderFooter = (props, buttonHandlers) => {
     return React.createElement(Footer, { ...footerProps });
 };
 class MonthView extends Component {
+    toMoment = emptyFn;
     isInView(mom, props) {
         return isInView(mom, props || this.p);
     }
