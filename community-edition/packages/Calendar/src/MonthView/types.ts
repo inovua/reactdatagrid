@@ -6,12 +6,20 @@
  */
 
 import { ReactNode } from 'react';
+import { TypeNavBarProps } from '../NavBar';
 import { DateType, Moment } from '../toMoment';
 
 export type TypeRenderDayProps = {
-  timestamp?: number;
+  day?: string;
   dateMoment?: Moment;
+  timestamp?: number;
+  key?: string;
+  rootClassName?: string;
   className?: string;
+  disabled?: boolean;
+  children?: any;
+  onMouseEnter?: (renderProps: TypeRenderDayProps) => void;
+  onClick?: (event: any) => void;
 };
 
 export type TypeDayPropsMap = {
@@ -19,119 +27,183 @@ export type TypeDayPropsMap = {
 };
 
 export type TypeMonthViewProps = {
-  rootClassName: string;
-  navOnDateClick: boolean;
-  isDisabledDay: (
+  rootClassName?: string;
+  navOnDateClick?: boolean;
+  isDisabledDay?: (
     renderDayProps: TypeRenderDayProps,
     props: TypeMonthViewProps
   ) => boolean;
 
-  onChange: (
+  onChange?: (
+    dateString: string,
     {
       dateMoment,
       timestamp,
       noCollapse,
     }: {
-      dateMoment?: Moment;
+      dateMoment?: Moment | null;
       timestamp?: number;
       noCollapse?: boolean;
+      dateString?: string;
     },
-    event?: any
+    event?: Event
   ) => void;
-  onViewDateChange: () => void;
-  onActiveDateChange: () => void;
+  onViewDateChange?: (
+    date: string,
+    {
+      dateMoment,
+      dateString,
+      timestamp,
+    }: {
+      dateMoment?: Moment | null;
+      dateString?: string;
+      timestamp?: number | null;
+    }
+  ) => void;
+  onActiveDateChange?: (
+    date: string,
+    {
+      dateMoment,
+      timestamp,
+      dateString,
+    }: {
+      dateMoment?: Moment | null;
+      timestamp?: number | null;
+      dateString?: string;
+    }
+  ) => void;
 
-  dateFormat: string;
-  date: DateType;
+  dateFormat?: string;
+  date?: DateType | null;
 
-  theme: string;
+  theme?: string;
+  className?: string;
 
-  onBlur: () => void;
-  onFocus: () => void;
+  onBlur?: (event: MouseEvent) => void;
+  onFocus?: (event: MouseEvent) => void;
 
-  footerClearDate: object;
+  footerClearDate?: object;
 
-  partialRange: boolean;
+  partialRange?: boolean;
 
-  activateOnHover: boolean;
-  constrainActiveInView: boolean;
+  activateOnHover?: boolean;
+  constrainActiveInView?: boolean;
 
-  showDaysBeforeMonth: boolean;
-  showDaysAfterMonth: boolean;
+  showDaysBeforeMonth?: boolean;
+  showDaysAfterMonth?: boolean;
 
-  highlightWeekends: boolean;
-  highlightToday: boolean;
+  highlightWeekends?: boolean;
+  highlightToday?: boolean;
 
-  navigation: boolean;
+  navigation?: boolean;
 
-  constrainViewDate: boolean;
-  highlightRangeOnMouseMove: boolean;
+  constrainViewDate?: boolean;
+  highlightRangeOnMouseMove?: boolean;
 
-  isDatePicker: boolean;
-  onRenderDay: () => void;
-  getTransitionTime: () => void;
-  cleanup: () => void;
-  navigate: () => void;
-  onRangeChange: () => void;
-  onHoverRangeChange: () => void;
-  renderNavBar: () => void;
-  select: () => void;
-  renderChildren: () => void;
-  onFooterTodayClick: () => void;
-  onFooterClearClick: () => void;
-  onFooterCancelClick: () => void;
-  onMouseLeave: any;
+  isDatePicker?: boolean;
+  onRenderDay?: (renderProps: TypeRenderDayProps) => void;
+  getTransitionTime?: () => void;
+  cleanup?: () => void;
+  navigate?: (
+    dir: -1 | 1,
+    event: MouseEvent,
+    getNavigationDate: (
+      dir: -1 | 1 | ((mom: Moment) => null | undefined | Moment),
+      date: DateType,
+      dateFormat?: string
+    ) => null | undefined | Moment
+  ) => null | undefined | Moment;
+  onRangeChange?: (
+    formatted: string[],
+    newRange: DateType | null,
+    event?: Event
+  ) => void;
+  onHoverRangeChange?: (hoverRange: DateType[] | null) => void;
+  renderNavBar?: (navBarProps: TypeNavBarProps) => void;
+  select?: (
+    {
+      dateMoment,
+      timestamp,
+    }: { dateMoment?: Moment | null; timestamp?: number },
+    event?: Event
+  ) => void;
+  renderChildren?: (children: any) => void;
+  onFooterTodayClick?: () => boolean;
+  onFooterClearClick?: () => boolean;
+  onFooterCancelClick?: () => boolean;
+  onFooterOkClick?: () => boolean;
+  onMouseLeave?: any;
 
-  clockTabIndex: number;
-  index: number;
+  clockTabIndex?: number;
+  index?: number;
 
-  dayPropsMap: TypeDayPropsMap;
+  dayPropsMap?: TypeDayPropsMap;
 
-  insideMultiView: boolean;
-  insideField: boolean;
-  enableMonthDecadeView: boolean;
-  focusOnNavMouseDown: boolean;
-  focusOnFooterMouseDown: boolean;
-  maxConstrained: boolean;
-  minConstrained: boolean;
-  enableMonthDecadeViewAnimation: boolean;
-  showMonthDecadeViewAnimation: number;
+  insideMultiView?: boolean;
+  insideField?: boolean;
+  enableMonthDecadeView?: boolean;
+  focusOnNavMouseDown?: boolean;
+  focusOnFooterMouseDown?: boolean;
+  maxConstrained?: boolean;
+  minConstrained?: boolean;
+  enableMonthDecadeViewAnimation?: boolean;
+  showMonthDecadeViewAnimation?: number;
 
-  disabled: boolean;
-  footer: boolean;
-  // navBarArrows: PropTypes.shape({
-  //   prev: PropTypes.node,
-  //   next: PropTypes.node,
-  //   right: PropTypes.node,
-  //   left: PropTypes.node,
-  // }),
+  disabled?: boolean;
+  footer?: boolean;
+  navBarArrows?: {
+    prev: ReactNode;
+    next: ReactNode;
+    right: ReactNode;
+    left: ReactNode;
+  };
 
-  cancelButton: boolean;
-  cancelButtonText: ReactNode;
-  okButton: boolean;
-  okButtonText: object | string;
-  showClock: boolean;
+  cancelButton?: boolean;
+  cancelButtonText?: ReactNode;
+  okButton?: boolean;
+  okButtonText?: object | string;
+  showClock?: boolean;
 
-  defaultDate: DateType;
-  activeDate: DateType;
-  defaultActiveDate: DateType;
-  rangeStart: DateType;
-  range: DateType[];
-  defaultRange: DateType[];
-  hoverRange: DateType[];
-  defaultHoverRange: DateType[];
-  minDate: DateType;
-  maxDate: DateType;
-  viewDate: DateType;
-  defaultViewDate: DateType;
+  defaultDate?: DateType;
+  activeDate?: DateType;
+  defaultActiveDate?: DateType;
+  rangeStart?: DateType | null;
+  range?: DateType[] | null;
+  defaultRange?: DateType[];
+  hoverRange?: DateType[];
+  defaultHoverRange?: DateType[];
+  minDate?: DateType;
+  maxDate?: DateType;
+  viewDate?: DateType;
+  defaultViewDate?: DateType;
   daysInView?: number;
   moment?: Moment;
+  renderFooter?: (props: TypeMonthViewProps) => void;
+  children?: any;
+  todayButton?: () => void;
+  todayButtonText?: () => void;
+  clearButton?: () => void;
+  clearButtonText?: () => void;
+  clearDate?: DateType;
+  selectDate?: DateType;
+  locale?: string;
+  size?: { width: number; height: number };
+  viewMonthStart?: number;
+  viewMonthEnd?: number;
+  timestamp?: number;
+  renderDay?: () => void;
+  viewMoment?: Moment;
+  confirm?: (date: DateType, event: MouseEvent) => void;
+  minDateMoment?: Moment;
+  maxDateMoment?: Moment;
 };
 
 export type TypeMonthViewState = {
-  range: DateType[];
-  date: DateType;
-  hoverRange: DateType[];
-  activeDate: DateType;
-  viewDate: DateType;
+  range?: DateType[] | null;
+  date?: DateType | null;
+  hoverRange?: DateType[] | null;
+  activeDate?: DateType | null;
+  viewDate?: DateType | null;
+  rangeStart?: DateType | null;
+  focused?: boolean;
 };

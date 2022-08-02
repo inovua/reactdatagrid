@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export default (moment, configOrRange) => {
+import { Moment } from '../toMoment';
+
+export default (moment: Moment | undefined, configOrRange: any): boolean => {
   let range = configOrRange;
   let inclusive = true;
 

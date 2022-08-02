@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 import { Flex, Item } from '../../Flex';
 import InlineBlock from './InlineBlock';
 import assign from '../../../common/assign';

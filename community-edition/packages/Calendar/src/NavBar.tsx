@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { Component, ReactNode } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 import { Flex, Item } from '../../Flex';
 import InlineBlock from './InlineBlock';
 import assign from '../../../common/assign';
@@ -16,7 +15,37 @@ import assignDefined from './assignDefined';
 import toMoment from './toMoment';
 import MonthDecadeView from './MonthDecadeView';
 
-const ARROWS = {
+type TypeNavBarArrows = {
+  prev?: ReactNode;
+  next?: ReactNode;
+  right?: ReactNode;
+  left?: ReactNode;
+};
+
+type TypeNavBarProps = {
+  rootClassName?: string;
+  secondary?: boolean;
+  showClock?: boolean;
+  enableMonthDecadeViewAnimation?: boolean;
+  showMonthDecadeViewAnimation?: number;
+
+  renderNav?: () => void;
+  renderNavPrev?: () => void;
+  renderNavNext?: () => void;
+
+  arrows?: TypeNavBarArrows;
+  doubleArrows?: object;
+  navDateFormat?: string;
+
+  onUpdate?: () => void;
+  onNavClick?: () => void;
+  onViewDateChange?: () => void;
+  onClick?: any;
+};
+
+type TypeNavBarState = {};
+
+const ARROWS: TypeNavBarArrows = {
   prev: (
     <svg width="6" height="10" viewBox="0 0 6 10">
       <path
@@ -56,8 +85,11 @@ const ARROWS = {
   ),
 };
 
-export default class NavBar extends Component {
-  constructor(props) {
+export default class NavBar extends Component<
+  TypeNavBarProps,
+  TypeNavBarState
+> {
+  constructor(props: TypeNavBarProps) {
     super(props);
 
     this.state = {
@@ -475,3 +507,5 @@ NavBar.propTypes = {
   onViewDateChange: PropTypes.func,
   onClick: PropTypes.any,
 };
+
+export { TypeNavBarProps };

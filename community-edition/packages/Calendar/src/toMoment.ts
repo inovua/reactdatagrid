@@ -29,7 +29,7 @@ type DateType = number | object | string;
  * @return {Moment}
  */
 const toMoment = (
-  value: DateType,
+  value?: DateType,
   dateFormat?: any,
   config?: {
     strict?: boolean;
@@ -56,5 +56,5 @@ const toMoment = (
   return moment(value, undefined, locale, strict);
 };
 
-export { Moment, DateType };
+export { Moment, MomentFormatSpecification, DateType };
 export default toMoment;

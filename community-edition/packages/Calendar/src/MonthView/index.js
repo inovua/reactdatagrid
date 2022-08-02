@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { Component, createRef } from 'react';
+import React, { Component, createRef, } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import assign from '../../../../common/assign';
@@ -16,10 +16,115 @@ import NavBar from '../NavBar';
 import Footer from '../Footer';
 import joinFunctions from '../joinFunctions';
 import assignDefined from '../assignDefined';
-import BasicMonthView, { getDaysInMonthView, } from '../BasicMonthView';
+import BasicMonthView, { getDaysInMonthView } from '../BasicMonthView';
 import ON_KEY_DOWN from './onKeyDown';
 import NAV_KEYS from './navKeys';
-const emptyFn = () => { };
+const defaultProps = {
+    rootClassName: 'inovua-react-toolkit-calendar__month-view',
+    dateFormat: 'YYYY-MM-DD',
+    theme: 'default',
+    onBlur: () => { },
+    onFocus: () => { },
+    footerClearDate: null,
+    okButton: true,
+    partialRange: true,
+    activateOnHover: false,
+    constrainActiveInView: false,
+    showDaysBeforeMonth: true,
+    showDaysAfterMonth: true,
+    highlightWeekends: true,
+    highlightToday: true,
+    navOnDateClick: true,
+    navigation: true,
+    constrainViewDate: true,
+    highlightRangeOnMouseMove: false,
+    isDatePicker: true,
+    enableMonthDecadeView: true,
+    focusOnNavMouseDown: true,
+    focusOnFooterMouseDown: true,
+    enableMonthDecadeViewAnimation: true,
+    showMonthDecadeViewAnimation: 300,
+};
+const DateType = PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.object,
+    PropTypes.string,
+]);
+const propTypes = {
+    rootClassName: PropTypes.string,
+    navOnDateClick: PropTypes.bool,
+    isDisabledDay: PropTypes.func,
+    onChange: PropTypes.func,
+    onViewDateChange: PropTypes.func,
+    onActiveDateChange: PropTypes.func,
+    dateFormat: PropTypes.string,
+    date: DateType,
+    theme: PropTypes.string,
+    onBlur: PropTypes.func,
+    onFocus: PropTypes.func,
+    footerClearDate: PropTypes.object,
+    partialRange: PropTypes.bool,
+    activateOnHover: PropTypes.bool,
+    constrainActiveInView: PropTypes.bool,
+    showDaysBeforeMonth: PropTypes.bool,
+    showDaysAfterMonth: PropTypes.bool,
+    highlightWeekends: PropTypes.bool,
+    highlightToday: PropTypes.bool,
+    navigation: PropTypes.bool,
+    constrainViewDate: PropTypes.bool,
+    highlightRangeOnMouseMove: PropTypes.bool,
+    isDatePicker: PropTypes.bool,
+    onRenderDay: PropTypes.func,
+    getTransitionTime: PropTypes.func,
+    cleanup: PropTypes.func,
+    navigate: PropTypes.func,
+    onRangeChange: PropTypes.func,
+    onHoverRangeChange: PropTypes.func,
+    renderNavBar: PropTypes.func,
+    select: PropTypes.func,
+    renderChildren: PropTypes.func,
+    onFooterTodayClick: PropTypes.func,
+    onFooterClearClick: PropTypes.func,
+    onFooterCancelClick: PropTypes.func,
+    onMouseLeave: PropTypes.any,
+    clockTabIndex: PropTypes.number,
+    index: PropTypes.number,
+    dayPropsMap: PropTypes.object,
+    insideMultiView: PropTypes.bool,
+    insideField: PropTypes.bool,
+    enableMonthDecadeView: PropTypes.bool,
+    focusOnNavMouseDown: PropTypes.bool,
+    focusOnFooterMouseDown: PropTypes.bool,
+    maxConstrained: PropTypes.bool,
+    minConstrained: PropTypes.bool,
+    enableMonthDecadeViewAnimation: PropTypes.bool,
+    showMonthDecadeViewAnimation: PropTypes.number,
+    disabled: PropTypes.bool,
+    footer: PropTypes.bool,
+    navBarArrows: PropTypes.shape({
+        prev: PropTypes.node,
+        next: PropTypes.node,
+        right: PropTypes.node,
+        left: PropTypes.node,
+    }),
+    cancelButton: PropTypes.bool,
+    cancelButtonText: PropTypes.node,
+    okButton: PropTypes.bool,
+    okButtonText: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    showClock: PropTypes.bool,
+    defaultDate: DateType,
+    activeDate: DateType,
+    defaultActiveDate: DateType,
+    rangeStart: DateType,
+    range: PropTypes.arrayOf(DateType),
+    defaultRange: PropTypes.arrayOf(DateType),
+    hoverRange: PropTypes.arrayOf(DateType),
+    defaultHoverRange: PropTypes.arrayOf(DateType),
+    minDate: DateType,
+    maxDate: DateType,
+    viewDate: DateType,
+    defaultViewDate: DateType,
+};
 let TODAY;
 const RENDER_DAY = (props) => {
     const divProps = assign({}, props);
@@ -32,7 +137,7 @@ const RENDER_DAY = (props) => {
     delete divProps.timestamp;
     return React.createElement("div", { ...divProps });
 };
-const isDateInMinMax = function (timestamp, props) {
+const isDateInMinMax = (timestamp, props) => {
     if (props.minDate && timestamp < props.minDate) {
         return false;
     }
@@ -41,7 +146,7 @@ const isDateInMinMax = function (timestamp, props) {
     }
     return true;
 };
-const isValidActiveDate = function (timestamp, props) {
+const isValidActiveDate = (timestamp, props) => {
     if (!props) {
         throw new Error('props is mandatory in isValidActiveDate');
     }
@@ -58,20 +163,20 @@ const isInView = function (mom, props) {
     const daysInView = props.daysInView;
     return isInRange(mom, { range: daysInView, inclusive: true });
 };
-const prepareViewDate = function (props, state) {
+const prepareViewDate = (props, state) => {
     const viewDate = props.viewDate === undefined ? state.viewDate : props.viewDate;
     if (!viewDate && props.moment) {
         return toMoment(props.moment);
     }
     return viewDate;
 };
-const prepareDate = function (props, state) {
+const prepareDate = (props, state) => {
     if (props.range) {
         return null;
     }
     return props.date === undefined ? state.date : props.date;
 };
-const prepareRange = function (props, state) {
+const prepareRange = (props, state) => {
     if (props.moment) {
         return null;
     }
@@ -113,7 +218,7 @@ const renderFooter = (props, buttonHandlers) => {
         onOkClick: buttonHandlers.onFooterOkClick,
         onCancelClick: buttonHandlers.onFooterCancelClick,
     };
-    const childFooter = React.Children.toArray(props.children).filter(c => c && c.props && c.props.isDatePickerFooter)[0];
+    const childFooter = React.Children.toArray(props.children).filter((c) => c && c.props && c.props.isDatePickerFooter)[0];
     const childFooterProps = childFooter ? childFooter.props : null;
     if (childFooterProps) {
         // also take into account the props on childFooter
@@ -154,7 +259,12 @@ const renderFooter = (props, buttonHandlers) => {
     return React.createElement(Footer, { ...footerProps });
 };
 class MonthView extends Component {
-    toMoment = emptyFn;
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    toMoment;
+    p = {};
+    monthViewRef;
+    navBar;
     isInView(mom, props) {
         return isInView(mom, props || this.p);
     }
@@ -170,7 +280,7 @@ class MonthView extends Component {
         this.monthViewRef = createRef();
         this.updateToMoment(props);
     }
-    componentDidUpdate = prevProps => {
+    componentDidUpdate = (prevProps) => {
         if (prevProps.locale !== this.props.locale ||
             prevProps.dateFormat !== this.props.dateFormat) {
             this.updateToMoment(this.props);
@@ -365,7 +475,7 @@ class MonthView extends Component {
     getDOMNode() {
         return this.monthViewRef.current;
     }
-    onDayTextMouseEnter({ dateMoment, timestamp }) {
+    onDayTextMouseEnter({ dateMoment, timestamp, }) {
         if (!this.state.focused) {
             this.focus();
         }
@@ -546,8 +656,8 @@ class MonthView extends Component {
     }
     renderNavBar(props) {
         const theme = props.theme;
-        const childNavBar = React.Children.toArray(props.children).filter(c => c && c.props && c.props.isDatePickerNavBar)[0];
-        const ref = navBar => {
+        const childNavBar = React.Children.toArray(props.children).filter((c) => c && c.props && c.props.isDatePickerNavBar)[0];
+        const ref = (navBar) => {
             this.navBar = navBar;
         };
         const { okButtonText, cancelButtonText, locale } = props;
@@ -612,7 +722,7 @@ class MonthView extends Component {
         }
         return null;
     }
-    onNavMouseDown(event) {
+    onNavMouseDown(_event) {
         if (this.props.focusOnNavMouseDown && !this.isFocused()) {
             this.focus();
         }
@@ -717,7 +827,7 @@ class MonthView extends Component {
         event.target.value = timestamp;
         this.select({ dateMoment, timestamp }, event);
     }
-    select({ dateMoment, timestamp }, event) {
+    select({ dateMoment, timestamp, }, event) {
         if (dateMoment && timestamp === undefined) {
             timestamp = +dateMoment;
         }
@@ -738,7 +848,7 @@ class MonthView extends Component {
         }
         return undefined;
     }
-    selectRange({ dateMoment, timestamp }, event) {
+    selectRange({ dateMoment }, event) {
         const props = this.p;
         const range = props.range;
         const rangeStart = props.rangeStart;
@@ -795,7 +905,7 @@ class MonthView extends Component {
             this.props.onRangeChange(formatted, newRange, event);
         }
     }
-    onChange({ dateMoment, timestamp, noCollapse }, event) {
+    onChange({ dateMoment, timestamp, noCollapse, }, event) {
         if (this.props.date === undefined) {
             this.setState({
                 date: timestamp,
@@ -806,10 +916,10 @@ class MonthView extends Component {
             this.props.onChange(dateString, { dateMoment, timestamp, dateString, noCollapse }, event);
         }
     }
-    onNavViewDateChange(dateString, { dateMoment, timestamp }) {
+    onNavViewDateChange(_dateString, { dateMoment, timestamp } = {}) {
         this.onViewDateChange({ dateMoment, timestamp });
     }
-    onViewDateChange({ dateMoment, timestamp }) {
+    onViewDateChange({ dateMoment, timestamp, }) {
         let minDate;
         let maxDate;
         if (this.p.minDateMoment) {
@@ -842,7 +952,7 @@ class MonthView extends Component {
     isValidActiveDate(date, props) {
         return isValidActiveDate(date, props || this.p);
     }
-    onActiveDateChange({ dateMoment, timestamp }) {
+    onActiveDateChange({ dateMoment, timestamp, }) {
         if (!isValidActiveDate(timestamp, this.p)) {
             return;
         }
@@ -872,7 +982,7 @@ class MonthView extends Component {
             });
         }
     }
-    gotoViewDate({ dateMoment, timestamp }) {
+    gotoViewDate({ dateMoment, timestamp, }) {
         if (!timestamp) {
             timestamp = dateMoment == null ? null : +dateMoment;
         }
@@ -880,111 +990,5 @@ class MonthView extends Component {
         this.onActiveDateChange({ dateMoment, timestamp });
     }
 }
-MonthView.defaultProps = {
-    rootClassName: 'inovua-react-toolkit-calendar__month-view',
-    dateFormat: 'YYYY-MM-DD',
-    theme: 'default',
-    onBlur: () => { },
-    onFocus: () => { },
-    footerClearDate: null,
-    okButton: true,
-    partialRange: true,
-    activateOnHover: false,
-    constrainActiveInView: false,
-    showDaysBeforeMonth: true,
-    showDaysAfterMonth: true,
-    highlightWeekends: true,
-    highlightToday: true,
-    navOnDateClick: true,
-    navigation: true,
-    constrainViewDate: true,
-    highlightRangeOnMouseMove: false,
-    isDatePicker: true,
-    enableMonthDecadeView: true,
-    focusOnNavMouseDown: true,
-    focusOnFooterMouseDown: true,
-    enableMonthDecadeViewAnimation: true,
-    showMonthDecadeViewAnimation: 300,
-};
-const DateType = PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.object,
-    PropTypes.string,
-]);
-MonthView.propTypes = {
-    rootClassName: PropTypes.string,
-    navOnDateClick: PropTypes.bool,
-    isDisabledDay: PropTypes.func,
-    onChange: PropTypes.func,
-    onViewDateChange: PropTypes.func,
-    onActiveDateChange: PropTypes.func,
-    dateFormat: PropTypes.string,
-    date: DateType,
-    theme: PropTypes.string,
-    onBlur: PropTypes.func,
-    onFocus: PropTypes.func,
-    footerClearDate: PropTypes.object,
-    partialRange: PropTypes.bool,
-    activateOnHover: PropTypes.bool,
-    constrainActiveInView: PropTypes.bool,
-    showDaysBeforeMonth: PropTypes.bool,
-    showDaysAfterMonth: PropTypes.bool,
-    highlightWeekends: PropTypes.bool,
-    highlightToday: PropTypes.bool,
-    navigation: PropTypes.bool,
-    constrainViewDate: PropTypes.bool,
-    highlightRangeOnMouseMove: PropTypes.bool,
-    isDatePicker: PropTypes.bool,
-    onRenderDay: PropTypes.func,
-    getTransitionTime: PropTypes.func,
-    cleanup: PropTypes.func,
-    navigate: PropTypes.func,
-    onRangeChange: PropTypes.func,
-    onHoverRangeChange: PropTypes.func,
-    renderNavBar: PropTypes.func,
-    select: PropTypes.func,
-    renderChildren: PropTypes.func,
-    onFooterTodayClick: PropTypes.func,
-    onFooterClearClick: PropTypes.func,
-    onFooterCancelClick: PropTypes.func,
-    onMouseLeave: PropTypes.any,
-    clockTabIndex: PropTypes.number,
-    index: PropTypes.number,
-    dayPropsMap: PropTypes.object,
-    insideMultiView: PropTypes.bool,
-    insideField: PropTypes.bool,
-    enableMonthDecadeView: PropTypes.bool,
-    focusOnNavMouseDown: PropTypes.bool,
-    focusOnFooterMouseDown: PropTypes.bool,
-    maxConstrained: PropTypes.bool,
-    minConstrained: PropTypes.bool,
-    enableMonthDecadeViewAnimation: PropTypes.bool,
-    showMonthDecadeViewAnimation: PropTypes.number,
-    disabled: PropTypes.bool,
-    footer: PropTypes.bool,
-    navBarArrows: PropTypes.shape({
-        prev: PropTypes.node,
-        next: PropTypes.node,
-        right: PropTypes.node,
-        left: PropTypes.node,
-    }),
-    cancelButton: PropTypes.bool,
-    cancelButtonText: PropTypes.node,
-    okButton: PropTypes.bool,
-    okButtonText: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-    showClock: PropTypes.bool,
-    defaultDate: DateType,
-    activeDate: DateType,
-    defaultActiveDate: DateType,
-    rangeStart: DateType,
-    range: PropTypes.arrayOf(DateType),
-    defaultRange: PropTypes.arrayOf(DateType),
-    hoverRange: PropTypes.arrayOf(DateType),
-    defaultHoverRange: PropTypes.arrayOf(DateType),
-    minDate: DateType,
-    maxDate: DateType,
-    viewDate: DateType,
-    defaultViewDate: DateType,
-};
 export { NAV_KEYS, renderFooter };
 export default MonthView;
