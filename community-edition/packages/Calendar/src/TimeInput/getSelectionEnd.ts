@@ -9,9 +9,9 @@ import { getGlobal } from '../../../../getGlobal';
 
 const globalObject = getGlobal();
 
-const document = globalObject.document;
+const document: any = globalObject.document;
 
-export default function getSelectionEnd(o) {
+export default function getSelectionEnd(o: any) {
   if (o.createTextRange && !globalObject.getSelection) {
     let r = document.selection.createRange().duplicate();
     r.moveStart('character', -o.value.length);

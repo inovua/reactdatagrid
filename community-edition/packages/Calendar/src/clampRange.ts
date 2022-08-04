@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export default range => {
+export default (range: any[]) => {
   if (range[1] && range[0].isAfter(range[1])) {
     range = [range[1], range[0]];
   }

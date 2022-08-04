@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toMoment from '../toMoment';
+import toMoment, { Moment } from '../toMoment';
 
 const CONFIG = {
   // the format in which days should be displayed in month view
@@ -18,18 +18,18 @@ const CONFIG = {
   yearFormat: 'YYYY',
 };
 
-const f = (mom, format) => toMoment(mom).format(format);
+const f = (mom: Moment, format: string) => toMoment(mom).format(format);
 
 export default {
-  day(mom, format) {
+  day(mom: Moment, format: string | undefined) {
     return f(mom, format || CONFIG.dayFormat);
   },
 
-  month(mom, format) {
+  month(mom: Moment, format: string | undefined) {
     return f(mom, format || CONFIG.monthFormat);
   },
 
-  year(mom, format) {
+  year(mom: Moment, format: string | undefined) {
     return f(mom, format || CONFIG.yearFormat);
   },
 };

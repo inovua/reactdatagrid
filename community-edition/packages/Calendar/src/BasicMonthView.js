@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { forwardRef } from 'react';
+import React, { Component, forwardRef } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 import { Flex } from '../../Flex';
 import moment from 'moment';
 import assign from '../../../common/assign';
@@ -15,7 +14,47 @@ import join from '../../../common/join';
 import FORMAT from './utils/format';
 import toMoment from './toMoment';
 import weekDayNamesFactory from './utils/getWeekDayNames';
-const RENDER_DAY = props => {
+const propTypes = {
+    rootClassName: PropTypes.string,
+    defaultClassName: PropTypes.string,
+    className: PropTypes.string,
+    dateFormat: PropTypes.string,
+    alwaysShowPrevWeek: PropTypes.bool,
+    viewDate: PropTypes.any,
+    viewMoment: PropTypes.any,
+    index: PropTypes.number,
+    showClock: PropTypes.bool,
+    onMouseLeave: PropTypes.any,
+    locale: PropTypes.string,
+    weekStartDay: PropTypes.number,
+    // boolean prop to show/hide week numbers
+    weekNumbers: PropTypes.bool,
+    // the name to give to the week number column
+    weekNumberName: PropTypes.string,
+    weekDayNames(props, propName) {
+        const value = props[propName];
+        if (typeof value != 'function' &&
+            value !== false &&
+            !Array.isArray(value)) {
+            return new Error('"weekDayNames" should be a function, an array or the boolean "false"');
+        }
+        return undefined;
+    },
+    renderWeekDayNames: PropTypes.func,
+    renderWeekDayName: PropTypes.func,
+    renderWeekNumber: PropTypes.func,
+    renderDay: PropTypes.func,
+    onRenderDay: PropTypes.func,
+};
+const defaultProps = {
+    rootClassName: 'inovua-react-toolkit-calendar__basic-month-view',
+    dateFormat: 'YYYY-MM-DD',
+    alwaysShowPrevWeek: false,
+    weekNumbers: true,
+    weekNumberName: `${WHITESPACE}${WHITESPACE}`,
+    weekDayNames: weekDayNamesFactory,
+};
+const RENDER_DAY = (props) => {
     const divProps = assign({}, props);
     delete divProps.date;
     delete divProps.dateMoment;
@@ -23,7 +62,7 @@ const RENDER_DAY = props => {
     delete divProps.timestamp;
     return React.createElement("div", { ...divProps });
 };
-const getWeekStartDay = props => {
+const getWeekStartDay = (props) => {
     const locale = props.locale;
     let weekStartDay = props.weekStartDay;
     if (weekStartDay == null) {
@@ -40,7 +79,7 @@ const getWeekStartDay = props => {
  *
  * @return {Number}
  */
-const getWeekendStartDay = props => {
+const getWeekendStartDay = (props) => {
     const { weekendStartDay } = props;
     if (weekendStartDay == null) {
         return getWeekStartDay(props) + (5 % 7);
@@ -50,7 +89,7 @@ const getWeekendStartDay = props => {
 /**
  * Gets a moment that points to the first day of the week
  *
- * @param  {Moment/Date/String} value]
+ * @param  {Moment/Date/String} value
  * @param  {Object} props
  * @param  {String} props.dateFormat
  * @param  {String} props.locale
@@ -110,7 +149,7 @@ const getDaysInMonthView = (value, props) => {
  *
  * @return {String[]}
  */
-const getWeekDayNames = props => {
+const getWeekDayNames = (props) => {
     const { weekStartDay, weekDayNames, locale } = props;
     let names = weekDayNames;
     if (typeof names == 'function') {
@@ -127,35 +166,39 @@ const getWeekDayNames = props => {
     return names;
 };
 class BasicMonthView extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    toMoment;
+    p = {};
     constructor(props) {
         super(props);
         this.updateToMoment(props);
     }
-    componentDidUpdate = prevProps => {
+    componentDidUpdate = (prevProps) => {
         if (prevProps.locale !== this.props.locale ||
             prevProps.dateFormat !== this.props.dateFormat) {
             this.updateToMoment(this.props);
         }
     };
-    updateToMoment(props) {
+    updateToMoment = (props) => {
         this.toMoment = (value, dateFormat) => {
             return toMoment(value, {
                 locale: props.locale,
                 dateFormat: dateFormat || props.dateFormat,
             });
         };
-    }
-    prepareProps(thisProps) {
+    };
+    prepareProps = (thisProps) => {
         const props = assign({}, thisProps);
         props.viewMoment = props.viewMoment || this.toMoment(props.viewDate);
         props.weekStartDay = getWeekStartDay(props);
         props.className = this.prepareClassName(props);
         return props;
-    }
-    prepareClassName(props) {
+    };
+    prepareClassName = (props) => {
         return join(props.className, props.rootClassName);
-    }
-    render() {
+    };
+    render = () => {
         const props = (this.p = this.prepareProps(this.props));
         const { viewMoment } = props;
         const daysInView = props.daysInView || getDaysInMonthView(viewMoment, props);
@@ -215,13 +258,13 @@ class BasicMonthView extends Component {
             props.cleanup(flexProps);
         }
         return (React.createElement(Flex, { column: true, ref: props.innerRef, wrap: false, inline: true, alignItems: "stretch", ...flexProps, children: children }));
-    }
+    };
     /**
      * Render the week number cell
      * @param  {Moment[]} days The days in a week
      * @return {React.DOM}
      */
-    renderWeekNumber(props, days) {
+    renderWeekNumber = (props, days) => {
         const firstDayOfWeek = days[0];
         const week = firstDayOfWeek.weeks();
         const weekNumberProps = {
@@ -249,14 +292,14 @@ class BasicMonthView extends Component {
             result = React.createElement("div", { key: weekNumberProps.key, ...divProps });
         }
         return result;
-    }
+    };
     /**
      * Render the given array of days
      * @param  {Moment[]} days
      *
      * @return {React.DOM}
      */
-    renderDays(props, days) {
+    renderDays = (props, days) => {
         const nodes = days.map(date => this.renderDay(props, date));
         const len = days.length;
         const buckets = [];
@@ -274,8 +317,8 @@ class BasicMonthView extends Component {
         }
         const { rootClassName } = props;
         return buckets.map((bucket, index) => (React.createElement("div", { key: `row_${index}`, className: `${rootClassName}-row`, children: bucket })));
-    }
-    renderDay(props, dateMoment) {
+    };
+    renderDay = (props, dateMoment) => {
         const dayText = FORMAT.day(dateMoment, props.dayFormat);
         const className = join(`${props.rootClassName}-cell`, `${props.rootClassName}-day`);
         let renderDayProps = {
@@ -298,8 +341,8 @@ class BasicMonthView extends Component {
             result = RENDER_DAY(renderDayProps);
         }
         return result;
-    }
-    renderWeekDayNames() {
+    };
+    renderWeekDayNames = () => {
         const props = this.p;
         const { weekNumbers, weekNumberName, weekDayNames, renderWeekDayNames, renderWeekDayName, weekStartDay, rootClassName, } = props;
         if (weekDayNames === false) {
@@ -336,47 +379,7 @@ class BasicMonthView extends Component {
             delete divProps.rootClassName;
             return React.createElement("div", { key: keys, ...divProps });
         })));
-    }
+    };
 }
-BasicMonthView.propTypes = {
-    rootClassName: PropTypes.string,
-    defaultClassName: PropTypes.string,
-    className: PropTypes.string,
-    dateFormat: PropTypes.string,
-    alwaysShowPrevWeek: PropTypes.bool,
-    viewDate: PropTypes.any,
-    viewMoment: PropTypes.any,
-    index: PropTypes.number,
-    showClock: PropTypes.bool,
-    onMouseLeave: PropTypes.any,
-    locale: PropTypes.string,
-    weekStartDay: PropTypes.number,
-    // boolean prop to show/hide week numbers
-    weekNumbers: PropTypes.bool,
-    // the name to give to the week number column
-    weekNumberName: PropTypes.string,
-    weekDayNames(props, propName) {
-        const value = props[propName];
-        if (typeof value != 'function' &&
-            value !== false &&
-            !Array.isArray(value)) {
-            return new Error('"weekDayNames" should be a function, an array or the boolean "false"');
-        }
-        return undefined;
-    },
-    renderWeekDayNames: PropTypes.func,
-    renderWeekDayName: PropTypes.func,
-    renderWeekNumber: PropTypes.func,
-    renderDay: PropTypes.func,
-    onRenderDay: PropTypes.func,
-};
-BasicMonthView.defaultProps = {
-    rootClassName: 'inovua-react-toolkit-calendar__basic-month-view',
-    dateFormat: 'YYYY-MM-DD',
-    alwaysShowPrevWeek: false,
-    weekNumbers: true,
-    weekNumberName: `${WHITESPACE}${WHITESPACE}`,
-    weekDayNames: weekDayNamesFactory,
-};
 export default forwardRef((props, ref) => (React.createElement(BasicMonthView, { innerRef: ref, ...props })));
 export { getWeekStartDay, getWeekStartMoment, getWeekendStartDay, getDaysInMonthView, };

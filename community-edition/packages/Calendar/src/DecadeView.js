@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { createRef } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 import moment from 'moment';
 import { Flex, Item } from '../../Flex';
 import assign from '../../../common/assign';
@@ -14,19 +13,6 @@ import join from '../../../common/join';
 import times from './utils/times';
 import toMoment from './toMoment';
 import ON_KEY_DOWN from './MonthView/onKeyDown';
-const ARROWS = {
-    prev: (React.createElement("svg", { width: "5", height: "10", viewBox: "0 0 5 10" },
-        React.createElement("path", { fillRule: "evenodd", d: "M.262 4.738L4.368.632c.144-.144.379-.144.524 0C4.96.702 5 .796 5 .894v8.212c0 .204-.166.37-.37.37-.099 0-.193-.039-.262-.108L.262 5.262c-.145-.145-.145-.38 0-.524z" }))),
-    next: (React.createElement("svg", { width: "5", height: "10", viewBox: "0 0 5 10" },
-        React.createElement("path", { fillRule: "evenodd", d: "M4.738 5.262L.632 9.368c-.144.144-.379.144-.524 0C.04 9.298 0 9.204 0 9.106V.894C0 .69.166.524.37.524c.099 0 .193.039.262.108l4.106 4.106c.145.145.145.38 0 .524z" }))),
-};
-const getDecadeStartYear = mom => {
-    const year = mom.get('year');
-    return year - (year % 10);
-};
-const getDecadeEndYear = mom => {
-    return getDecadeStartYear(mom) + 9;
-};
 const NAV_KEYS = {
     ArrowUp(mom) {
         return mom.add(-5, 'year');
@@ -52,6 +38,70 @@ const NAV_KEYS = {
     PageDown(mom) {
         return mom.add(10, 'year');
     },
+};
+const defaultProps = {
+    rootClassName: 'inovua-react-toolkit-calendar__decade-view',
+    isDecadeView: true,
+    arrows: {},
+    navigation: true,
+    constrainViewDate: true,
+    navKeys: NAV_KEYS,
+    theme: 'default',
+    yearFormat: 'YYYY',
+    dateFormat: 'YYYY-MM-DD',
+    perRow: 5,
+    onlyCompareYear: true,
+    adjustDateStartOf: 'year',
+    adjustMinDateStartOf: 'year',
+    adjustMaxDateStartOf: 'year',
+};
+const propTypes = {
+    isDecadeView: PropTypes.bool,
+    rootClassName: PropTypes.string,
+    navigation: PropTypes.bool,
+    constrainViewDate: PropTypes.bool,
+    arrows: PropTypes.object,
+    navKeys: PropTypes.object,
+    theme: PropTypes.string,
+    yearFormat: PropTypes.string,
+    dateFormat: PropTypes.string,
+    perRow: PropTypes.number,
+    minDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+    maxDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+    viewDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+    date: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+    defaultDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+    viewMoment: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+    moment: PropTypes.object,
+    minDateMoment: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+    maxDateMoment: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+    onlyCompareYear: PropTypes.bool,
+    adjustDateStartOf: PropTypes.string,
+    adjustMinDateStartOf: PropTypes.string,
+    adjustMaxDateStartOf: PropTypes.string,
+    activeDate: PropTypes.number,
+    select: PropTypes.func,
+    confirm: PropTypes.func,
+    onConfirm: PropTypes.func,
+    onActiveDateChange: PropTypes.func,
+    onViewDateChange: PropTypes.func,
+    cleanup: PropTypes.func,
+    onChange: PropTypes.func,
+    renderNavigation: PropTypes.func,
+    navigate: PropTypes.func,
+};
+const ARROWS = {
+    prev: (React.createElement("svg", { width: "5", height: "10", viewBox: "0 0 5 10" },
+        React.createElement("path", { fillRule: "evenodd", d: "M.262 4.738L4.368.632c.144-.144.379-.144.524 0C4.96.702 5 .796 5 .894v8.212c0 .204-.166.37-.37.37-.099 0-.193-.039-.262-.108L.262 5.262c-.145-.145-.145-.38 0-.524z" }))),
+    next: (React.createElement("svg", { width: "5", height: "10", viewBox: "0 0 5 10" },
+        React.createElement("path", { fillRule: "evenodd", d: "M4.738 5.262L.632 9.368c-.144.144-.379.144-.524 0C.04 9.298 0 9.204 0 9.106V.894C0 .69.166.524.37.524c.099 0 .193.039.262.108l4.106 4.106c.145.145.145.38 0 .524z" }))),
+};
+const getDecadeStartYear = (mom) => {
+    const year = mom.get('year');
+    return year - (year % 10);
+};
+const getDecadeEndYear = (mom) => {
+    return getDecadeStartYear(mom) + 9;
 };
 const isDateInMinMax = (timestamp, props) => {
     if (props.minDate && timestamp < props.minDate) {
@@ -92,7 +142,7 @@ const confirm = function (date, event) {
     }
     return undefined;
 };
-const onActiveDateChange = function ({ dateMoment, timestamp }) {
+const onActiveDateChange = function ({ dateMoment, timestamp, }) {
     if (!isValidActiveDate(timestamp, this.p)) {
         return;
     }
@@ -157,18 +207,18 @@ const navigate = function (direction, event) {
     event.preventDefault();
     if (props.activeDate) {
         const nextMoment = getNavigationDate(direction, props.activeDate);
-        this.gotoViewDate({ dateMoment: nextMoment });
+        this.gotoViewDate({ dateMoment: nextMoment, timestamp: undefined });
     }
     return undefined;
 };
-const gotoViewDate = function ({ dateMoment, timestamp }) {
+const gotoViewDate = function ({ dateMoment, timestamp, }) {
     if (!timestamp) {
         timestamp = dateMoment == null ? null : +dateMoment;
     }
     this.onViewDateChange({ dateMoment, timestamp });
     this.onActiveDateChange({ dateMoment, timestamp });
 };
-const prepareDate = function (props, state) {
+const prepareDate = (props, state) => {
     return props.date === undefined ? state.date : props.date;
 };
 const prepareViewDate = function (props, state) {
@@ -178,7 +228,7 @@ const prepareViewDate = function (props, state) {
     }
     return viewDate;
 };
-const prepareActiveDate = function (props, state) {
+const prepareActiveDate = (props, state) => {
     const activeDate = props.activeDate === undefined
         ? state.activeDate || prepareDate(props, state)
         : props.activeDate;
@@ -236,30 +286,34 @@ const prepareDateProps = function (props, state) {
     result.viewMoment = viewMoment;
     return result;
 };
-const getInitialState = props => {
+const getInitialState = (props) => {
     return {
         date: props.defaultDate,
         activeDate: props.defaultActiveDate,
         viewDate: props.defaultViewDate,
     };
 };
-export default class DecadeView extends Component {
+class DecadeView extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    p = {};
+    decadeViewRef;
     constructor(props) {
         super(props);
         this.decadeViewRef = createRef();
         this.state = getInitialState(props);
     }
-    getYearsInDecade(value) {
+    getYearsInDecade = (value) => {
         const year = getDecadeStartYear(this.toMoment(value));
         const start = this.toMoment(`${year}`, 'YYYY').startOf('year');
         return times(10).map(i => {
             return this.toMoment(start).add(i, 'year');
         });
-    }
-    toMoment(date, format) {
+    };
+    toMoment = (date, format) => {
         return toMoment(date, format, this.props);
-    }
-    render() {
+    };
+    render = () => {
         const props = (this.p = assign({}, this.props));
         if (props.onlyCompareYear) {
         }
@@ -308,8 +362,8 @@ export default class DecadeView extends Component {
             props.cleanup(flexProps);
         }
         return (React.createElement(Flex, { inline: true, ref: this.decadeViewRef, column: column, alignItems: align, tabIndex: 0, ...flexProps, onKeyDown: this.onKeyDown, className: className, children: children }));
-    }
-    renderNav(dir) {
+    };
+    renderNav = (dir) => {
         const props = this.p;
         const name = dir == -1 ? 'prev' : 'next';
         const navMoment = this.toMoment(props.viewMoment).add(dir * 10, 'year');
@@ -336,16 +390,16 @@ export default class DecadeView extends Component {
             return props.renderNavigation(arrowProps, props);
         }
         return React.createElement("div", { key: `nav_arrow_${dir}`, ...arrowProps });
-    }
-    renderYears(props, years) {
+    };
+    renderYears = (props, years) => {
         const nodes = years.map(this.renderYear);
         const perRow = props.perRow;
         const buckets = times(Math.ceil(nodes.length / perRow)).map(i => {
             return nodes.slice(i * perRow, (i + 1) * perRow);
         });
         return buckets.map((bucket, i) => (React.createElement(Flex, { alignItems: "center", flex: true, row: true, inline: true, key: `row_${i}`, className: `${props.rootClassName}-row` }, bucket)));
-    }
-    renderYear(dateMoment) {
+    };
+    renderYear = (dateMoment) => {
         const props = this.p;
         const yearText = this.format(dateMoment);
         const timestamp = +dateMoment;
@@ -366,12 +420,12 @@ export default class DecadeView extends Component {
             timestamp,
         });
         return (React.createElement(Item, { key: yearText, className: className, onClick: onClick }, yearText));
-    }
-    format(mom, format) {
+    };
+    format = (mom, format) => {
         format = format || this.props.yearFormat;
         return mom.format(format);
-    }
-    handleClick({ timestamp, dateMoment }, event) {
+    };
+    handleClick = ({ timestamp, dateMoment, }, event) => {
         event.target.value = timestamp;
         const props = this.p;
         if (props.minDate && timestamp < props.minDate) {
@@ -381,87 +435,37 @@ export default class DecadeView extends Component {
             return;
         }
         this.select({ dateMoment, timestamp }, event);
-    }
-    onKeyDown(event) {
+    };
+    onKeyDown = (event) => {
         return ON_KEY_DOWN.call(this, event);
-    }
-    confirm(date, event) {
+    };
+    confirm = (date, event) => {
         return confirm.call(this, date, event);
-    }
-    navigate(direction, event) {
+    };
+    navigate = (direction, event) => {
         return navigate.call(this, direction, event);
-    }
-    select({ dateMoment, timestamp }, event) {
+    };
+    select = ({ dateMoment, timestamp, }, event) => {
         return select.call(this, { dateMoment, timestamp }, event);
-    }
-    onViewDateChange({ dateMoment, timestamp }) {
+    };
+    onViewDateChange = ({ dateMoment, timestamp, }) => {
         return onViewDateChange.call(this, { dateMoment, timestamp });
-    }
-    gotoViewDate({ dateMoment, timestamp }) {
+    };
+    gotoViewDate = ({ dateMoment, timestamp, }) => {
         return gotoViewDate.call(this, { dateMoment, timestamp });
-    }
-    onActiveDateChange({ dateMoment, timestamp }) {
+    };
+    onActiveDateChange = ({ dateMoment, timestamp, }) => {
         return onActiveDateChange.call(this, { dateMoment, timestamp });
-    }
-    onChange({ dateMoment, timestamp }, event) {
+    };
+    onChange = ({ dateMoment, timestamp, }, event) => {
         return onChange.call(this, { dateMoment, timestamp }, event);
-    }
-    getDOMNode() {
+    };
+    getDOMNode = () => {
         return this.decadeViewRef.current;
-    }
-    focus() {
+    };
+    focus = () => {
         this.decadeViewRef.current.focus();
-    }
+    };
 }
-DecadeView.defaultProps = {
-    rootClassName: 'inovua-react-toolkit-calendar__decade-view',
-    isDecadeView: true,
-    arrows: {},
-    navigation: true,
-    constrainViewDate: true,
-    navKeys: NAV_KEYS,
-    theme: 'default',
-    yearFormat: 'YYYY',
-    dateFormat: 'YYYY-MM-DD',
-    perRow: 5,
-    onlyCompareYear: true,
-    adjustDateStartOf: 'year',
-    adjustMinDateStartOf: 'year',
-    adjustMaxDateStartOf: 'year',
-};
-DecadeView.propTypes = {
-    isDecadeView: PropTypes.bool,
-    rootClassName: PropTypes.string,
-    navigation: PropTypes.bool,
-    constrainViewDate: PropTypes.bool,
-    arrows: PropTypes.object,
-    navKeys: PropTypes.object,
-    theme: PropTypes.string,
-    yearFormat: PropTypes.string,
-    dateFormat: PropTypes.string,
-    perRow: PropTypes.number,
-    minDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
-    maxDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
-    viewDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
-    date: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
-    defaultDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
-    viewMoment: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
-    moment: PropTypes.object,
-    minDateMoment: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
-    maxDateMoment: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
-    onlyCompareYear: PropTypes.bool,
-    adjustDateStartOf: PropTypes.string,
-    adjustMinDateStartOf: PropTypes.string,
-    adjustMaxDateStartOf: PropTypes.string,
-    activeDate: PropTypes.number,
-    select: PropTypes.func,
-    confirm: PropTypes.func,
-    onConfirm: PropTypes.func,
-    onActiveDateChange: PropTypes.func,
-    onViewDateChange: PropTypes.func,
-    cleanup: PropTypes.func,
-    onChange: PropTypes.func,
-    renderNavigation: PropTypes.func,
-    navigate: PropTypes.func,
-};
 export { onChange, onViewDateChange, onActiveDateChange, select, confirm, gotoViewDate, navigate, ON_KEY_DOWN as onKeyDown, prepareActiveDate, prepareViewDate, prepareMinMax, prepareDateProps, prepareDate, isDateInMinMax, isValidActiveDate, getInitialState, };
+export default DecadeView;

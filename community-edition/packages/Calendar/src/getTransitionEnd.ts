@@ -5,7 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-let map = {
+import { CSSProperties } from 'react';
+
+type TypeTransitionMap = {
+  WebkitTransition: string;
+  MozTransition: string;
+  OTransition: string;
+  msTransition: string;
+  transition: string;
+};
+
+let map: TypeTransitionMap = {
   WebkitTransition: 'webkitTransitionEnd',
   MozTransition: 'transitionend',
   OTransition: 'oTransitionEnd',
@@ -13,8 +23,8 @@ let map = {
   transition: 'transitionend',
 };
 
-let EL;
-let RESULT;
+let EL: HTMLElement;
+let RESULT: string;
 
 export default () => {
   if (!EL) {
@@ -26,8 +36,10 @@ export default () => {
   }
 
   for (let transition in map) {
-    if (EL.style[transition] != null) {
-      RESULT = map[transition];
+    if (
+      (EL.style as CSSProperties)[transition as keyof TypeTransitionMap] != null
+    ) {
+      RESULT = map[transition as keyof TypeTransitionMap];
       break;
     }
   }

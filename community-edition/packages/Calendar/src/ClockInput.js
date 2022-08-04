@@ -14,7 +14,40 @@ import join from '../../../common/join';
 import toMoment from './toMoment';
 import Clock from './Clock';
 import DateFormatSpinnerInput from './DateFormatSpinnerInput';
-export default class ClockInput extends Component {
+const defaultProps = {
+    rootClassName: 'inovua-react-toolkit-calendar__clock-input',
+    changeDelay: 50,
+    dateFormat: 'YYYY-MM-DD',
+    updateOnWheel: true,
+    theme: 'default',
+    wrapTime: false,
+    isClockInput: true,
+    onTimeChange: () => { },
+};
+const propTypes = {
+    rootClassName: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    defaultValue: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    viewIndex: PropTypes.number,
+    dateFormat: PropTypes.string,
+    format: PropTypes.string,
+    theme: PropTypes.string,
+    changeDelay: PropTypes.number,
+    updateOnWheel: PropTypes.bool,
+    wrapTime: PropTypes.bool,
+    isClockInput: PropTypes.bool,
+    cleanup: PropTypes.func,
+    onEnterKey: PropTypes.func,
+    onEscapeKey: PropTypes.func,
+    onTimeChange: PropTypes.func,
+};
+class ClockInput extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    value;
+    throttleSetValue;
+    dateFormat;
+    field;
     constructor(props) {
         super(props);
         autoBind(this);
@@ -25,10 +58,10 @@ export default class ClockInput extends Component {
             value: props.defaultValue || Date.now(),
         };
     }
-    getValue() {
+    getValue = () => {
         return this.value;
-    }
-    render() {
+    };
+    render = () => {
         const props = this.props;
         const format = props.dateFormat || props.format;
         let startIndex = format.toLowerCase().indexOf('h');
@@ -59,12 +92,12 @@ export default class ClockInput extends Component {
         return (React.createElement(Flex, { column: true, ...flexProps, value: null, defaultValue: null, className: className },
             this.renderClock(),
             this.renderTimeInput()));
-    }
-    renderTimeInput() {
+    };
+    renderTimeInput = () => {
         const props = this.props;
-        const dateInput = React.Children.toArray(props.children).filter(child => child && child.props && child.props.isDateInput)[0];
+        const dateInput = React.Children.toArray(props.children).filter((child) => child && child.props && child.props.isDateInput)[0];
         const dateInputProps = assign({}, this.props, {
-            ref: field => {
+            ref: (field) => {
                 this.field = field;
             },
             tabIndex: props.readOnly ? -1 : props.tabIndex || 0,
@@ -80,21 +113,21 @@ export default class ClockInput extends Component {
             return React.cloneElement(dateInput, dateInputProps);
         }
         return React.createElement(DateFormatSpinnerInput, { ...dateInputProps, style: null });
-    }
-    focus() {
+    };
+    focus = () => {
         if (this.field) {
             this.field.focus();
         }
-    }
-    onKeyDown(event) {
+    };
+    onKeyDown = (event) => {
         if (this.props.onEnterKey && event.key == 'Enter') {
             this.props.onEnterKey(event);
         }
         if (this.props.onEscapeKey && event.key == 'Escape') {
             this.props.onEscapeKey(event);
         }
-    }
-    onChange(value) {
+    };
+    onChange = (value) => {
         if (this.props.value === undefined) {
             this.setState({
                 value,
@@ -103,8 +136,8 @@ export default class ClockInput extends Component {
         if (this.props.onChange) {
             this.throttleSetValue(value);
         }
-    }
-    setValue(value) {
+    };
+    setValue = (value) => {
         if (this.props.value === undefined) {
             this.setState({
                 value,
@@ -113,10 +146,10 @@ export default class ClockInput extends Component {
         if (this.props.onChange) {
             this.props.onChange(value, this.dateFormat);
         }
-    }
-    renderClock() {
+    };
+    renderClock = () => {
         const props = this.props;
-        const clock = React.Children.toArray(props.children).filter(child => child && child.props && child.props.isDatePickerClock)[0];
+        const clock = React.Children.toArray(props.children).filter((child) => child && child.props && child.props.isDatePickerClock)[0];
         const dateFormat = this.dateFormat;
         const time = toMoment(this.value, { dateFormat });
         const clockProps = {
@@ -129,32 +162,6 @@ export default class ClockInput extends Component {
             return React.cloneElement(clock, clockProps);
         }
         return React.createElement(Clock, { ...clockProps });
-    }
+    };
 }
-ClockInput.defaultProps = {
-    rootClassName: 'inovua-react-toolkit-calendar__clock-input',
-    changeDelay: 50,
-    dateFormat: 'YYYY-MM-DD',
-    updateOnWheel: true,
-    theme: 'default',
-    wrapTime: false,
-    isClockInput: true,
-    onTimeChange: () => { },
-};
-ClockInput.propTypes = {
-    rootClassName: PropTypes.string,
-    value: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-    defaultValue: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-    viewIndex: PropTypes.number,
-    dateFormat: PropTypes.string,
-    format: PropTypes.string,
-    theme: PropTypes.string,
-    changeDelay: PropTypes.number,
-    updateOnWheel: PropTypes.bool,
-    wrapTime: PropTypes.bool,
-    isClockInput: PropTypes.bool,
-    cleanup: PropTypes.func,
-    onEnterKey: PropTypes.func,
-    onEscapeKey: PropTypes.func,
-    onTimeChange: PropTypes.func,
-};
+export default ClockInput;

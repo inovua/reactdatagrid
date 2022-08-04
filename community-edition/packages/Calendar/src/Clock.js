@@ -4,19 +4,18 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 import { NotifyResize } from '../../NotifyResize';
 import assign from '../../../common/assign';
 import join from '../../../common/join';
 import toMoment from './toMoment';
 const MINUTES = Array(...new Array(60)).map((_, index) => index);
-const toUpperFirst = str => {
+const toUpperFirst = (str) => {
     return str ? str.charAt(0).toUpperCase() + str.substr(1) : '';
 };
 const transformStyle = { transform: '' };
-const rotateTickStyle = (tick, { width, height }, totalSize, offset) => {
+const rotateTickStyle = (tick, { width, height }, _totalSize, offset) => {
     const result = assign({}, transformStyle);
     const deg = tick * 6;
     const transform = `translate3d(${-width / 2}px, ${-height / 2}px, 0px) ` +
@@ -26,7 +25,80 @@ const rotateTickStyle = (tick, { width, height }, totalSize, offset) => {
     });
     return result;
 };
-export default class Clock extends Component {
+const defaultProps = {
+    rootClassName: 'inovua-react-toolkit-calendar__clock',
+    centerSize: null,
+    centerOverlaySize: null,
+    size: 120,
+    updateInterval: 1000,
+    theme: 'default',
+    showSecondsHand: true,
+    showHoursHand: true,
+    showMinutesHand: true,
+    handWidth: 2,
+    secondHandWidth: 1,
+    handOffset: 10,
+    hourHandDiff: 35,
+    minuteHandDiff: 25,
+    secondHandDiff: 10,
+    tickWidth: 1,
+    bigTickWidth: 2,
+    tickOffset: 2,
+    smallTickHeight: 6,
+    bigTickHeight: 10,
+    color: '',
+    borderWidth: 0,
+    showSmallTicks: true,
+    isDatePickerClock: true,
+};
+const propTypes = {
+    rootClassName: PropTypes.string,
+    centerSize: PropTypes.number,
+    centerOverlaySize: PropTypes.number,
+    defaultSeconds: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    seconds: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    defaultTime: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    time: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    size: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    theme: PropTypes.string,
+    showSecondsHand: PropTypes.bool,
+    showHoursHand: PropTypes.bool,
+    showMinutesHand: PropTypes.bool,
+    run: PropTypes.bool,
+    updateInterval: PropTypes.number,
+    handWidth: PropTypes.number,
+    secondHandWidth: PropTypes.number,
+    handOffset: PropTypes.number,
+    bigTickOffset: PropTypes.number,
+    hourHandDiff: PropTypes.number,
+    minuteHandDiff: PropTypes.number,
+    secondHandDiff: PropTypes.number,
+    borderColor: PropTypes.string,
+    handHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    tickWidth: PropTypes.number,
+    bigTickWidth: PropTypes.number,
+    smallTickWidth: PropTypes.number,
+    tickOffset: PropTypes.number,
+    smallTickOffset: PropTypes.number,
+    smallTickHeight: PropTypes.number,
+    bigTickHeight: PropTypes.number,
+    tickHeight: PropTypes.number,
+    color: PropTypes.string,
+    borderWidth: PropTypes.number,
+    showSmallTicks: PropTypes.bool,
+    isDatePickerClock: PropTypes.bool,
+    renderTick: PropTypes.func,
+    onSecondsChange: PropTypes.func,
+    onTimeChange: PropTypes.func,
+    cleanup: PropTypes.func,
+};
+class Clock extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    p = {};
+    ignoreRender;
+    startTime;
+    timeoutId;
     constructor(props) {
         super(props);
         let time;
@@ -40,24 +112,21 @@ export default class Clock extends Component {
         if (props.defaultTime) {
             time = props.defaultTime == true ? Date.now() : +props.defaultTime;
         }
-        this.state = {};
-        if (seconds !== undefined) {
-            this.state.seconds = seconds;
-            this.state.defaultSeconds = seconds;
-        }
-        if (time !== undefined) {
-            this.state.time = time;
-            this.state.defaultTime = time;
-        }
+        this.state = {
+            seconds,
+            defaultSeconds: seconds,
+            time,
+            defaultTime: time,
+        };
     }
-    shouldRun(props) {
+    shouldRun = (props) => {
         props = props || this.props;
         if (props.run === false) {
             return false;
         }
         return !!(props.defaultSeconds || props.defaultTime);
-    }
-    componentDidMount() {
+    };
+    componentDidMount = () => {
         if (this.shouldRun(this.props)) {
             this.start();
         }
@@ -66,8 +135,8 @@ export default class Clock extends Component {
                 rendered: true,
             });
         }
-    }
-    componentDidUpdate = prevProps => {
+    };
+    componentDidUpdate = (prevProps) => {
         if (prevProps.run !== this.props.run ||
             prevProps.defaultSeconds !== this.props.defaultSeconds ||
             prevProps.defaultTime !== this.props.defaultTime) {
@@ -81,61 +150,61 @@ export default class Clock extends Component {
             }
         }
     };
-    start() {
+    start = () => {
         this.startTime = Date.now ? Date.now() : +new Date();
         this.run();
-    }
-    stop() {
+    };
+    stop = () => {
         if (this.timeoutId) {
             clearTimeout(this.timeoutId);
         }
-    }
-    run() {
+    };
+    run = () => {
         this.timeoutId = setTimeout(() => {
             this.update();
             this.run();
         }, this.props.updateInterval);
-    }
-    update() {
+    };
+    update = () => {
         const now = Date.now ? Date.now() : +new Date();
         const diff = now - this.startTime;
         const seconds = this.getPropsSeconds();
         if (seconds !== undefined) {
-            this.setSeconds(seconds + diff / 1000);
+            this.setSeconds(+seconds + diff / 1000);
             return;
         }
         const time = this.getPropsTime();
-        this.setTime(time + diff);
-    }
-    setSeconds(seconds) {
+        this.setTime(+time + diff);
+    };
+    setSeconds = (seconds) => {
         this.setState({
             seconds,
         });
         if (this.props.onSecondsChange) {
             this.props.onSecondsChange(seconds);
         }
-    }
-    setTime(time) {
+    };
+    setTime = (time) => {
         this.setState({
             time,
         });
         if (this.props.onTimeChange) {
             this.props.onTimeChange(time);
         }
-    }
-    getPropsTime() {
+    };
+    getPropsTime = () => {
         return this.props.time || this.state.defaultTime || 0;
-    }
-    getPropsSeconds() {
+    };
+    getPropsSeconds = () => {
         return this.props.seconds || this.state.defaultSeconds;
-    }
-    getSeconds() {
+    };
+    getSeconds = () => {
         return this.state.seconds || this.getPropsSeconds();
-    }
-    getTime() {
+    };
+    getTime = () => {
         return this.state.time || this.getPropsTime();
-    }
-    render() {
+    };
+    render = () => {
         const props = (this.p = assign({}, this.props));
         let size = props.size;
         if (size == 'auto') {
@@ -220,13 +289,13 @@ export default class Clock extends Component {
             this.renderCenterOverlay(),
             MINUTES.map(this.renderTick),
             this.props.size == 'auto' && (React.createElement(NotifyResize, { notifyOnMount: true, onResize: this.onResize }))));
-    }
-    renderCenter() {
+    };
+    renderCenter = () => {
         const props = this.props;
         const centerSize = props.centerSize || (props.bigTickHeight || props.tickHeight) * 3;
         return (React.createElement("div", { className: `${props.rootClassName}-center`, style: { width: centerSize, height: centerSize } }));
-    }
-    renderCenterOverlay() {
+    };
+    renderCenterOverlay = () => {
         const props = this.props;
         const centerOverlaySize = props.centerOverlaySize || props.handWidth * 4;
         return (React.createElement("div", { className: `${props.rootClassName}-overlay`, style: {
@@ -234,25 +303,25 @@ export default class Clock extends Component {
                 height: centerOverlaySize,
                 borderWidth: props.handWidth,
             } }));
-    }
-    onResize({ width, height }) {
+    };
+    onResize = ({ width, height }) => {
         if (width != height) {
             console.warn("Clock width != height. Please make sure it's a square.");
         }
         this.setState({
             size: width,
         });
-    }
-    renderSecondHand(value) {
+    };
+    renderSecondHand = (value) => {
         return this.props.showSecondsHand && this.renderHand('second', value);
-    }
-    renderMinuteHand(value) {
+    };
+    renderMinuteHand = (value) => {
         return this.props.showMinutesHand && this.renderHand('minute', value);
-    }
-    renderHourHand(value) {
+    };
+    renderHourHand = (value) => {
         return this.props.showHoursHand && this.renderHand('hour', value);
-    }
-    renderHand(name, value) {
+    };
+    renderHand = (name, value) => {
         if (this.ignoreRender) {
             return null;
         }
@@ -260,13 +329,16 @@ export default class Clock extends Component {
         const { size, borderWidth } = props;
         const height = props[`${name}HandHeight`] ||
             props.handHeight ||
-            size / 2 - props[`${name}HandDiff`] / 2;
-        const width = props[`${name}HandWidth`] || props.handWidth || props.tickWidth;
+            +size / 2 -
+                props[`${name}HandDiff`] / 2;
+        const width = props[`${name}HandWidth`] ||
+            props.handWidth ||
+            props.tickWidth;
         let offset = props[`${name}HandOffset`] || props.handOffset;
         if (!offset && offset != 0) {
             offset = 5;
         }
-        const style = rotateTickStyle(value, { width, height }, size - borderWidth, height / 2 - offset);
+        const style = rotateTickStyle(value, { width, height }, +size - borderWidth, height / 2 - offset);
         style.width = width;
         style.height = height;
         if (props.color) {
@@ -282,8 +354,8 @@ export default class Clock extends Component {
             });
         }
         return React.createElement("div", { key: name, className: className, style: style });
-    }
-    renderTick(tick) {
+    };
+    renderTick = (tick) => {
         if (this.ignoreRender) {
             return null;
         }
@@ -303,7 +375,7 @@ export default class Clock extends Component {
         const tHeight = small
             ? smallTickHeight || tickHeight
             : bigTickHeight || tickHeight;
-        const totalSize = size - borderWidth;
+        const totalSize = +size - borderWidth;
         const style = rotateTickStyle(tick, {
             width: tWidth,
             height: tHeight,
@@ -321,73 +393,6 @@ export default class Clock extends Component {
             });
         }
         return React.createElement("div", { key: tick, className: className, style: style });
-    }
+    };
 }
-Clock.defaultProps = {
-    rootClassName: 'inovua-react-toolkit-calendar__clock',
-    centerSize: null,
-    centerOverlaySize: null,
-    size: 120,
-    updateInterval: 1000,
-    theme: 'default',
-    showSecondsHand: true,
-    showHoursHand: true,
-    showMinutesHand: true,
-    handWidth: 2,
-    secondHandWidth: 1,
-    handOffset: 10,
-    hourHandDiff: 35,
-    minuteHandDiff: 25,
-    secondHandDiff: 10,
-    tickWidth: 1,
-    bigTickWidth: 2,
-    tickOffset: 2,
-    smallTickHeight: 6,
-    bigTickHeight: 10,
-    color: '',
-    borderWidth: 0,
-    showSmallTicks: true,
-    isDatePickerClock: true,
-};
-Clock.propTypes = {
-    rootClassName: PropTypes.string,
-    centerSize: PropTypes.number,
-    centerOverlaySize: PropTypes.number,
-    defaultSeconds: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    seconds: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    defaultTime: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-    time: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-    size: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    theme: PropTypes.string,
-    showSecondsHand: PropTypes.bool,
-    showHoursHand: PropTypes.bool,
-    showMinutesHand: PropTypes.bool,
-    run: PropTypes.bool,
-    updateInterval: PropTypes.number,
-    handWidth: PropTypes.number,
-    secondHandWidth: PropTypes.number,
-    handOffset: PropTypes.number,
-    bigTickOffset: PropTypes.number,
-    hourHandDiff: PropTypes.number,
-    minuteHandDiff: PropTypes.number,
-    secondHandDiff: PropTypes.number,
-    borderColor: PropTypes.string,
-    handHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    tickWidth: PropTypes.number,
-    bigTickWidth: PropTypes.number,
-    smallTickWidth: PropTypes.number,
-    tickOffset: PropTypes.number,
-    smallTickOffset: PropTypes.number,
-    smallTickHeight: PropTypes.number,
-    bigTickHeight: PropTypes.number,
-    tickHeight: PropTypes.number,
-    color: PropTypes.string,
-    borderWidth: PropTypes.number,
-    showSmallTicks: PropTypes.bool,
-    isDatePickerClock: PropTypes.bool,
-    renderTick: PropTypes.func,
-    onSecondsChange: PropTypes.func,
-    onTimeChange: PropTypes.func,
-    onTimeChange: PropTypes.func,
-    cleanup: PropTypes.func,
-};
+export default Clock;

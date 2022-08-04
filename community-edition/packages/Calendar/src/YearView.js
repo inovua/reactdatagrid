@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { createRef } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 import { Flex, Item } from '../../Flex';
 import assign from '../../../common/assign';
 import join from '../../../common/join';
@@ -69,7 +68,8 @@ const NAV_KEYS = {
         return mom;
     },
 };
-export default class YearView extends Component {
+class YearView extends Component {
+    p = {};
     constructor(props) {
         super(props);
         this.state = getInitialState(props);
@@ -136,10 +136,10 @@ export default class YearView extends Component {
         const className = `${this.props.rootClassName}-row`;
         return buckets.map((bucket, i) => (React.createElement(Flex, { alignItems: "center", flex: true, row: true, inline: true, key: `row_${i}`, className: className }, bucket)));
     }
-    format(mom, format) {
+    format = (mom, format) => {
         format = format || this.props.monthFormat;
         return mom.format(format);
-    }
+    };
     renderMonth(props, dateMoment) {
         const index = dateMoment.get('month');
         const monthText = props.monthNames
@@ -225,3 +225,4 @@ YearView.propTypes = {
     adjustMinDateStartOf: PropTypes.string,
     adjustMaxDateStartOf: PropTypes.string,
 };
+export default YearView;

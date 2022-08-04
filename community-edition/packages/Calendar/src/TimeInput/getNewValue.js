@@ -8,16 +8,16 @@ import assign from '../../../../common/assign';
 import toTimeValue from './toTimeValue';
 import leftPad from '../utils/leftPad';
 import { clampHour, clampMinute, clampSecond, clampNamed, } from '../utils/clamp';
-const removeAt = ({ value, index, len = 1 }) => {
+const removeAt = ({ value, index, len = 1, }) => {
     return value.substring(0, index) + value.substring(index + len);
 };
-const replaceAt = ({ value, index, len = 1, str }) => {
+const replaceAt = ({ value, index, len = 1, str, }) => {
     return value.substring(0, index) + str + value.substring(index + len);
 };
-const replaceBetween = ({ value, start, end, str }) => {
-    return (value.substring(0, start) || '') + str + (value.substring(end) || '');
+const replaceBetween = ({ value, start, end, str, }) => {
+    return ((value.substring(0, start) || '') + str + (value.substring(end) || ''));
 };
-const toggleMeridiem = meridiem => {
+const toggleMeridiem = (meridiem) => {
     return {
         am: 'pm',
         AM: 'PM',
@@ -25,14 +25,14 @@ const toggleMeridiem = meridiem => {
         PM: 'pm',
     }[meridiem];
 };
-const getValueOnDelete = ({ oldValue, range, key, separator, meridiem }) => {
+const getValueOnDelete = ({ oldValue, range, key, separator, meridiem, }) => {
     const { start, end } = range;
     const selectedValue = oldValue.substring(start, end);
     let value;
     if (selectedValue) {
         const replacement = selectedValue
             .split('')
-            .map(c => {
+            .map((c) => {
             if (c == separator || c == ' ') {
                 return c;
             }
@@ -97,7 +97,7 @@ const TIME_PARTS = {
         { start: 6, end: 8, name: 'seconds', max: 59 },
     ],
 };
-const getActiveTimePartIndex = ({ value, timeValue, separator, range, hours24, meridiem, }) => {
+const getActiveTimePartIndex = ({ timeValue, range, hours24, }) => {
     const { start } = range;
     const timeParts = TIME_PARTS[hours24 ? 24 : 12];
     let partIndex = 0;
@@ -138,10 +138,13 @@ const getActiveTimePart = ({ value, timeValue, separator, range, hours24, meridi
     }
     return getTimePartAt(index, { hours24 });
 };
-const getValueOnDirection = ({ oldValue, range, separator, dir, incrementNext, circular, propagate, hours24, meridiem, }) => {
-    const { start, end } = range;
+const getValueOnDirection = ({ oldValue, range, separator, dir, circular, propagate, hours24, meridiem, }) => {
     let value;
-    const timeValue = toTimeValue({ value: oldValue, separator, meridiem });
+    const timeValue = toTimeValue({
+        value: oldValue,
+        separator,
+        meridiem,
+    });
     const activeTimePart = getActiveTimePart({
         value: oldValue,
         timeValue,
@@ -151,7 +154,8 @@ const getValueOnDirection = ({ oldValue, range, separator, dir, incrementNext, c
         meridiem,
     });
     if (activeTimePart.name != 'meridiem') {
-        timeValue[activeTimePart.name] = dir + timeValue[activeTimePart.name] * 1;
+        timeValue[activeTimePart.name] =
+            dir + timeValue[activeTimePart.name] * 1;
     }
     let { hours, minutes, seconds } = timeValue;
     let toggleMeridiemValue = false;
@@ -221,7 +225,9 @@ const getValueOnNumber = ({ oldValue, num, range, separator, circular, hours24, 
         range,
         hours24,
     });
-    let activeTimePart = getTimePartAt(activeTimePartIndex, { hours24 });
+    let activeTimePart = getTimePartAt(activeTimePartIndex, {
+        hours24,
+    });
     if (activeTimePart &&
         range.start == range.end &&
         activeTimePart.end == range.end) {
@@ -229,12 +235,16 @@ const getValueOnNumber = ({ oldValue, num, range, separator, circular, hours24, 
     }
     if (!activeTimePart) {
         return {
-            value,
+            value: oldValue,
             update: false,
         };
     }
     const name = activeTimePart.name;
-    const timeParts = toTimeValue({ value: oldValue, separator, meridiem });
+    const timeParts = toTimeValue({
+        value: oldValue,
+        separator,
+        meridiem,
+    });
     const timePartValue = `${timeParts[name]}`;
     let caretPos;
     if (range.start <= activeTimePart.start) {
@@ -243,7 +253,9 @@ const getValueOnNumber = ({ oldValue, num, range, separator, circular, hours24, 
             range.start +
                 (num > maxFirstChar ? 3 : range.start < activeTimePart.start ? 2 : 1);
         timeParts[name] =
-            num > maxFirstChar ? `0${num}` : num + timeParts[name].charAt(1);
+            num > maxFirstChar
+                ? `0${num}`
+                : num + timeParts[name].charAt(1);
     }
     else {
         caretPos = range.start + 2;
@@ -265,7 +277,7 @@ const getValueOnNumber = ({ oldValue, num, range, separator, circular, hours24, 
 };
 export default function ({ oldValue, range, event, separator = ':', incrementNext, circular, propagate, hours24, meridiem, }) {
     const newChar = String.fromCharCode(event.which);
-    const { start, end } = range;
+    // const { start, end } = range;
     const { key } = event;
     if (key == 'Delete' || key == 'Backspace') {
         return getValueOnDelete({

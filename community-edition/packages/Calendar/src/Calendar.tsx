@@ -5,41 +5,146 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { Component, ReactElement, ReactNode } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 import { Flex } from '../../Flex';
 
 import assign from '../../../common/assign';
 import join from '../../../common/join';
 import assignDefined from './assignDefined';
 
-import MonthView, { NAV_KEYS } from './MonthView';
-import toMoment from './toMoment';
-import ClockInput from './ClockInput';
+import MonthView, { NAV_KEYS, TypeMonthViewProps } from './MonthView';
+import toMoment, { DateType, Moment } from './toMoment';
+import ClockInput, { TypeClockInputProps } from './ClockInput';
 import forwardTime from './utils/forwardTime';
 
-const hasTime = dateFormat => {
+type TypeCalendarProps = {
+  rootClassName?: string;
+  dateFormat?: string;
+  theme?: string;
+  clockTabIndex?: number;
+  updateOnWheel?: boolean;
+  isDatePicker?: boolean;
+  wrap?: boolean;
+  wrapTime?: boolean;
+  viewIndex?: number;
+  showClock?: boolean;
+  onTimeChange?: (value: DateType, timeFormat?: string) => void;
+  onClockEnterKey?: () => void;
+  onClockInputBlur?: () => void;
+  onClockInputFocus?: () => void;
+  onFooterTodayClick?: () => void;
+  onFooterCancelClick?: () => void;
+  onFooterClearClick?: () => void;
+  onClockInputMouseDown?: () => void;
+  onClockEscapeKey?: () => void;
+  onFooterOkClick?: () => void;
+  onChange?: (
+    date: string,
+    {
+      dateMoment,
+      timestamp,
+      dateString,
+      noCollapse,
+    }: {
+      dateMoment: Moment;
+      timestamp?: number;
+      dateString?: string;
+      noCollapse?: boolean;
+    },
+    event?: any
+  ) => void;
+  cleanup?: (monthViewProps: TypeMonthViewProps) => void;
+  triggerChangeOnTimeChange?: boolean;
+  showMonthDecadeViewAnimation?: number;
+  enableMonthDecadeViewAnimation?: boolean;
+  date?: DateType;
+  readOnly?: boolean;
+  timeFormat?: string;
+  locale?: string;
+};
+
+type TypeCalendarState = {
+  timeFocused?: boolean;
+};
+
+const defaultProps = {
+  rootClassName: 'inovua-react-toolkit-calendar__calendar',
+  dateFormat: 'YYYY-MM-DD',
+  theme: 'default-light',
+  isDatePicker: true,
+  triggerChangeOnTimeChange: true,
+  enableMonthDecadeViewAnimation: true,
+  showMonthDecadeViewAnimation: 300,
+  wrapTime: false,
+  onTimeChange: () => {},
+  onClockEnterKey: () => {},
+  onClockInputBlur: () => {},
+  onClockInputFocus: () => {},
+  onFooterTodayClick: () => {},
+  onFooterCancelClick: () => {},
+  onFooterClearClick: () => {},
+  onFooterOkClick: () => {},
+};
+
+const propTypes = {
+  rootClassName: PropTypes.string,
+  dateFormat: PropTypes.string,
+  theme: PropTypes.string,
+  clockTabIndex: PropTypes.number,
+  updateOnWheel: PropTypes.bool,
+  isDatePicker: PropTypes.bool,
+  wrap: PropTypes.bool,
+  wrapTime: PropTypes.bool,
+  viewIndex: PropTypes.number,
+  showClock: PropTypes.bool,
+  onTimeChange: PropTypes.func,
+  onClockEnterKey: PropTypes.func,
+  onClockInputBlur: PropTypes.func,
+  onClockInputFocus: PropTypes.func,
+  onFooterTodayClick: PropTypes.func,
+  onFooterCancelClick: PropTypes.func,
+  onFooterClearClick: PropTypes.func,
+  onClockInputMouseDown: PropTypes.func,
+  onClockEscapeKey: PropTypes.func,
+  onFooterOkClick: PropTypes.func,
+  onChange: PropTypes.func,
+  cleanup: PropTypes.func,
+  triggerChangeOnTimeChange: PropTypes.bool,
+  showMonthDecadeViewAnimation: PropTypes.number,
+  enableMonthDecadeViewAnimation: PropTypes.bool,
+};
+
+const hasTime = (dateFormat: string | undefined) => {
   dateFormat = dateFormat ? dateFormat.toLowerCase() : '';
 
   return dateFormat.indexOf('k') != -1 || dateFormat.indexOf('h') != -1;
 };
 
-export default class Calendar extends Component {
-  constructor(props) {
+class Calendar extends Component<TypeCalendarProps, TypeCalendarState> {
+  static defaultProps = defaultProps;
+  static propTypes = propTypes;
+
+  private view: any;
+  private clockInput: any;
+  private p: TypeCalendarProps = {};
+  private time?: DateType;
+
+  constructor(props: TypeCalendarProps) {
     super(props);
+
     this.state = { timeFocused: false };
   }
 
-  getDOMNode() {
+  getDOMNode = (): ReactNode | null => {
     return this.view ? this.view.getDOMNode() : null;
-  }
+  };
 
-  prepareDate(props) {
+  prepareDate = (props: TypeCalendarProps): Moment => {
     return toMoment(props.date, props);
-  }
+  };
 
-  render() {
+  render = () => {
     const props = (this.p = assign({}, this.props));
     const dateFormat = props.dateFormat.toLowerCase();
 
@@ -66,7 +171,7 @@ export default class Calendar extends Component {
     );
 
     const monthViewProps = assign({}, this.props);
-    const keys = monthViewProps.date / 7;
+    // const keys = monthViewProps.date / 7;
 
     delete monthViewProps.onTimeChange;
     delete monthViewProps.updateOnWheel;
@@ -97,17 +202,17 @@ export default class Calendar extends Component {
         {monthView}
       </Flex>
     );
-  }
+  };
 
-  isMonthDecadeViewVisible() {
+  isMonthDecadeViewVisible = (): boolean => {
     if (this.view && this.view.isMonthDecadeViewVisible) {
       return this.view.isMonthDecadeViewVisible();
     }
 
     return false;
-  }
+  };
 
-  renderChildren([navBar, inner, footer]) {
+  renderChildren = ([navBar, inner, footer]: any[]): ReactNode => {
     const props = this.p;
     const clockInput = props.showClock ? this.renderClockInput() : null;
 
@@ -139,37 +244,37 @@ export default class Calendar extends Component {
         ]}
       </Flex>
     );
-  }
+  };
 
-  focus() {
+  focus = (): void => {
     if (this.view) {
       this.view.focus();
     }
-  }
+  };
 
-  isFocused() {
+  isFocused = (): boolean => {
     if (this.view) {
       return this.view.isFocused();
     }
 
     return false;
-  }
+  };
 
-  onViewKeyDown(...args) {
+  onViewKeyDown = (...args: any): void => {
     if (this.view) {
       this.view.onViewKeyDown(...args);
     }
-  }
+  };
 
-  isTimeInputFocused() {
+  isTimeInputFocused = (): boolean | undefined => {
     return this.state.timeFocused;
-  }
+  };
 
-  renderClockInput() {
+  renderClockInput = (): ReactElement => {
     const clockInput = null;
     const readOnly = this.props.readOnly;
-    const clockInputProps = {
-      ref: clkInput => {
+    const clockInputProps: TypeClockInputProps = {
+      ref: (clkInput: any) => {
         this.clockInput = clkInput;
       },
       theme: this.props.theme,
@@ -196,37 +301,37 @@ export default class Calendar extends Component {
     }
 
     return <ClockInput {...clockInputProps} />;
-  }
+  };
 
-  onClockInputFocus() {
+  onClockInputFocus = (): void => {
     this.setState({
       timeFocused: true,
     });
 
-    this.props.onClockInputFocus();
-  }
+    this.props.onClockInputFocus!();
+  };
 
-  onClockInputBlur() {
+  onClockInputBlur = (): void => {
     this.setState({
       timeFocused: false,
     });
 
-    this.props.onClockInputBlur();
-  }
+    this.props.onClockInputBlur!();
+  };
 
-  onClockInputMouseDown(event) {
+  onClockInputMouseDown = (event: any): void => {
     event.stopPropagation();
     if (event.target && event.target.type != 'text') {
       // in order not to blur - in case we're in a date field
       event.preventDefault();
     }
 
-    this.clockInput.focus();
-  }
+    this.clockInput!.focus();
+  };
 
-  onTimeChange(value, timeFormat) {
+  onTimeChange = (value: DateType, timeFormat?: string): void => {
     this.time = value;
-    this.props.onTimeChange(value, timeFormat);
+    this.props.onTimeChange!(value, timeFormat);
 
     const view = this.view;
     const moment = view.p.moment;
@@ -242,9 +347,21 @@ export default class Calendar extends Component {
         noCollapse: this.props.triggerChangeOnTimeChange,
       });
     }
-  }
+  };
 
-  onChange(dateString, { dateMoment, timestamp, noCollapse }, event) {
+  onChange = (
+    dateString: string,
+    {
+      dateMoment,
+      timestamp,
+      noCollapse,
+    }: {
+      dateMoment: Moment;
+      timestamp?: number;
+      noCollapse?: boolean;
+    },
+    event?: any
+  ) => {
     const props = this.p;
 
     if (props.showClock) {
@@ -269,54 +386,9 @@ export default class Calendar extends Component {
         event
       );
     }
-  }
+  };
 }
 
-Calendar.defaultProps = {
-  rootClassName: 'inovua-react-toolkit-calendar__calendar',
-  dateFormat: 'YYYY-MM-DD',
-  theme: 'default-light',
-  isDatePicker: true,
-  triggerChangeOnTimeChange: true,
-  enableMonthDecadeViewAnimation: true,
-  showMonthDecadeViewAnimation: 300,
-  wrapTime: false,
-  onTimeChange: () => {},
-  onClockEnterKey: () => {},
-  onClockInputBlur: () => {},
-  onClockInputFocus: () => {},
-  onFooterTodayClick: () => {},
-  onFooterCancelClick: () => {},
-  onFooterClearClick: () => {},
-  onFooterOkClick: () => {},
-};
-
-Calendar.propTypes = {
-  rootClassName: PropTypes.string,
-  dateFormat: PropTypes.string,
-  theme: PropTypes.string,
-  clockTabIndex: PropTypes.number,
-  updateOnWheel: PropTypes.bool,
-  isDatePicker: PropTypes.bool,
-  wrap: PropTypes.bool,
-  wrapTime: PropTypes.bool,
-  viewIndex: PropTypes.number,
-  showClock: PropTypes.bool,
-  onTimeChange: PropTypes.func,
-  onClockEnterKey: PropTypes.func,
-  onClockInputBlur: PropTypes.func,
-  onClockInputFocus: PropTypes.func,
-  onFooterTodayClick: PropTypes.func,
-  onFooterCancelClick: PropTypes.func,
-  onFooterClearClick: PropTypes.func,
-  onClockInputMouseDown: PropTypes.func,
-  onClockEscapeKey: PropTypes.func,
-  onFooterOkClick: PropTypes.func,
-  onChange: PropTypes.func,
-  cleanup: PropTypes.func,
-  triggerChangeOnTimeChange: PropTypes.bool,
-  showMonthDecadeViewAnimation: PropTypes.number,
-  enableMonthDecadeViewAnimation: PropTypes.bool,
-};
-
+export { TypeCalendarProps };
 export { NAV_KEYS };
+export default Calendar;

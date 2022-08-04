@@ -34,6 +34,7 @@ export type TypeButtonProps = {
   primary?: boolean;
   pressed?: boolean;
   defaultPressed?: boolean;
+  tabIndex?: number;
 
   href?: string;
   align?: 'start' | 'end' | 'center' | 'left' | 'right';

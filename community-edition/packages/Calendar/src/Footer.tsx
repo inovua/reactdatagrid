@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 
 import { Flex, Item } from '../../Flex';
 import Button from '../../Button';
@@ -17,14 +16,53 @@ import join from '../../../common/join';
 
 import joinFunctions from './joinFunctions';
 
+type TypeFooterProps = {
+  isDatePickerFooter?: boolean;
+  rootClassName?: string;
+  className?: string;
+  theme?: string;
+  actionEvent?: string;
+  centerButtons?: boolean;
+  buttonFactory?: () => void | object;
+
+  clearDate?: object;
+  okButtonText?: object | string;
+  clearButtonText?: object | string;
+  cancelButtonText?: object | string;
+  todayButtonText?: object | string;
+
+  todayButton?: boolean;
+  clearButton?: boolean;
+  okButton?: boolean;
+  cancelButton?: boolean;
+  disabled?: boolean;
+
+  children?: any;
+
+  onTodayClick?: () => void;
+  onClearClick?: () => void;
+  onOkClick?: () => void;
+  onCancelClick?: () => void;
+
+  onClick?: () => void;
+  onMouseDown?: () => void;
+
+  renderChildren?: () => void;
+  cleanup?: () => void;
+
+  'data-name'?: string;
+};
+
+type TypeFooterState = {};
+
 const numbers = [1];
-const SPACER = numbers.map((item, index) => {
+const SPACER = numbers.map((_item, index) => {
   return <Item key={`footer_spacer_${index * 37}`} />;
 });
 
-const preventDefault = e => e.preventDefault();
+const preventDefault = (e: Event) => e.preventDefault();
 
-export const FooterButton = props => {
+export const FooterButton = (props: TypeFooterProps) => {
   const disabledClassName = props.disabled
     ? `${props.rootClassName}-button--disabled`
     : '';
@@ -52,8 +90,62 @@ export const FooterButton = props => {
   return <Button tabIndex={-1} {...buttonProps} className={className} />;
 };
 
-export default class Footer extends Component {
-  render() {
+const defaultProps = {
+  rootClassName: 'inovua-react-toolkit-calendar__footer',
+  actionEvent: 'onClick',
+  theme: 'default',
+
+  buttonFactory: FooterButton,
+
+  todayButton: true,
+  clearButton: false,
+  okButton: true,
+  cancelButton: true,
+
+  todayButtonText: 'Today',
+  clearButtonText: 'Clear',
+  okButtonText: 'OK',
+  cancelButtonText: 'Cancel',
+
+  isDatePickerFooter: true,
+};
+
+const propTypes = {
+  isDatePickerFooter: PropTypes.bool,
+  rootClassName: PropTypes.string,
+  theme: PropTypes.string,
+  actionEvent: PropTypes.string,
+  centerButtons: PropTypes.bool,
+  buttonFactory: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+
+  clearDate: PropTypes.object,
+  okButtonText: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+  clearButtonText: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+  cancelButtonText: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+  todayButtonText: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+
+  todayButton: PropTypes.bool,
+  clearButton: PropTypes.bool,
+  okButton: PropTypes.bool,
+  cancelButton: PropTypes.bool,
+  disabled: PropTypes.bool,
+
+  onTodayClick: PropTypes.func,
+  onClearClick: PropTypes.func,
+  onOkClick: PropTypes.func,
+  onCancelClick: PropTypes.func,
+
+  renderChildren: PropTypes.func,
+  cleanup: PropTypes.func,
+};
+
+class Footer extends Component<TypeFooterProps, TypeFooterState> {
+  static defaultProps = defaultProps;
+  static propTypes = propTypes;
+
+  p: TypeFooterProps = {};
+
+  render = () => {
     const props = (this.p = assign({}, this.props));
 
     const { rootClassName } = props;
@@ -134,9 +226,9 @@ export default class Footer extends Component {
         children={children}
       />
     );
-  }
+  };
 
-  renderTodayButton() {
+  renderTodayButton = () => {
     if (!this.props.todayButton) {
       return null;
     }
@@ -148,12 +240,12 @@ export default class Footer extends Component {
         children: this.props.todayButtonText,
         'data-name': 'today-button',
       },
-      this.props.onTodayClick,
-      theme
+      this.props.onTodayClick!,
+      theme!
     );
-  }
+  };
 
-  renderClearButton() {
+  renderClearButton = () => {
     if (!this.props.clearButton) {
       return null;
     }
@@ -166,12 +258,12 @@ export default class Footer extends Component {
         disabled: this.props.clearDate === undefined,
         'data-name': 'clear-button',
       },
-      this.props.onClearClick,
-      theme
+      this.props.onClearClick!,
+      theme!
     );
-  }
+  };
 
-  renderOkButton() {
+  renderOkButton = () => {
     if (!this.props.okButton) {
       return null;
     }
@@ -180,12 +272,12 @@ export default class Footer extends Component {
 
     return this.renderButton(
       { children: this.props.okButtonText, 'data-name': 'ok-button' },
-      this.props.onOkClick,
-      theme
+      this.props.onOkClick!,
+      theme!
     );
-  }
+  };
 
-  renderCancelButton() {
+  renderCancelButton = () => {
     if (!this.props.cancelButton) {
       return null;
     }
@@ -194,12 +286,12 @@ export default class Footer extends Component {
 
     return this.renderButton(
       { children: this.props.cancelButtonText, 'data-name': 'cancel-button' },
-      this.props.onCancelClick,
-      theme
+      this.props.onCancelClick!,
+      theme!
     );
-  }
+  };
 
-  renderButton(props, fn, theme) {
+  renderButton = (props: TypeFooterProps, fn: () => void, theme: string) => {
     let text = props.children;
     let p = props;
 
@@ -212,7 +304,7 @@ export default class Footer extends Component {
       p.onClick = fn;
     }
 
-    const Factory = this.props.buttonFactory;
+    const Factory: any = this.props.buttonFactory;
 
     const onMouseDown = p.onMouseDown
       ? joinFunctions(p.onMouseDown, preventDefault)
@@ -230,54 +322,8 @@ export default class Footer extends Component {
         {text}
       </Factory>
     );
-  }
+  };
 }
 
-Footer.defaultProps = {
-  rootClassName: 'inovua-react-toolkit-calendar__footer',
-  actionEvent: 'onClick',
-  theme: 'default',
-
-  buttonFactory: FooterButton,
-
-  todayButton: true,
-  clearButton: false,
-  okButton: true,
-  cancelButton: true,
-
-  todayButtonText: 'Today',
-  clearButtonText: 'Clear',
-  okButtonText: 'OK',
-  cancelButtonText: 'Cancel',
-
-  isDatePickerFooter: true,
-};
-
-Footer.propTypes = {
-  isDatePickerFooter: PropTypes.bool,
-  rootClassName: PropTypes.string,
-  theme: PropTypes.string,
-  actionEvent: PropTypes.string,
-  centerButtons: PropTypes.bool,
-  buttonFactory: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-
-  clearDate: PropTypes.object,
-  okButtonText: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-  clearButtonText: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-  cancelButtonText: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-  todayButtonText: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-
-  todayButton: PropTypes.bool,
-  clearButton: PropTypes.bool,
-  okButton: PropTypes.bool,
-  cancelButton: PropTypes.bool,
-  disabled: PropTypes.bool,
-
-  onTodayClick: PropTypes.func,
-  onClearClick: PropTypes.func,
-  onOkClick: PropTypes.func,
-  onCancelClick: PropTypes.func,
-
-  renderChildren: PropTypes.func,
-  cleanup: PropTypes.func,
-};
+export { TypeFooterProps };
+export default Footer;

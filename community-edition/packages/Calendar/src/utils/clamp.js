@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-const clamp = (value, { min, max, circular = true }) => {
+const clamp = (value, { min, max, circular = true, }) => {
     return value < min
         ? circular
             ? max
@@ -15,7 +15,7 @@ const clamp = (value, { min, max, circular = true }) => {
                 : max
             : value;
 };
-export const clampHour = (value, { max, min, circular }) => {
+export const clampHour = (value, { max, min, circular, }) => {
     return clamp(value, { min: min || 0, max: max || 23, circular });
 };
 export const clampMinute = (value, { circular }) => {

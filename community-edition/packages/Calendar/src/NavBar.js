@@ -32,10 +32,10 @@ export default class NavBar extends Component {
             viewDate: props.defaultViewDate,
         };
     }
-    prepareViewDate(props) {
+    prepareViewDate = props => {
         return props.viewDate === undefined ? this.state.viewDate : props.viewDate;
-    }
-    render() {
+    };
+    render = () => {
         const props = (this.p = assign({}, this.props));
         const { rootClassName, index } = props;
         const viewMoment = (props.viewMoment =
@@ -85,8 +85,8 @@ export default class NavBar extends Component {
             this.renderNav(1, viewMoment, 'next'),
             secondary && this.renderNav(2, viewMoment, 'right'),
             monthDecadeView));
-    }
-    renderMonthDecadeView() {
+    };
+    renderMonthDecadeView = () => {
         if (!this.state.monthDecadeView) {
             return null;
         }
@@ -119,29 +119,29 @@ export default class NavBar extends Component {
         }
         return (React.createElement("div", { style: { animationDuration: `${showMonthDecadeViewAnimation}ms` }, className: modalWrapperClassName },
             React.createElement(MonthDecadeView, { ...monthDecadeViewProps })));
-    }
-    toggleMonthDecadeView(event) {
+    };
+    toggleMonthDecadeView = event => {
         if (this.isMonthDecadeViewVisible()) {
             this.hideMonthDecadeView(event);
         }
         else {
             this.showMonthDecadeView(event);
         }
-    }
-    getMonthDecadeViewView() {
+    };
+    getMonthDecadeViewView = () => {
         return this.monthDecadeView;
-    }
-    isMonthDecadeViewVisible() {
+    };
+    isMonthDecadeViewVisible = () => {
         return !!this.monthDecadeView;
-    }
-    onMonthDecadeViewOk(dateString, { dateMoment, timestamp }) {
+    };
+    onMonthDecadeViewOk = (dateString, { dateMoment, timestamp }) => {
         this.hideMonthDecadeView();
         this.onViewDateChange({ dateMoment, timestamp });
-    }
-    onMonthDecadeViewCancel() {
+    };
+    onMonthDecadeViewCancel = () => {
         this.hideMonthDecadeView();
-    }
-    showMonthDecadeView(event) {
+    };
+    showMonthDecadeView = event => {
         event.preventDefault();
         this.setState({
             monthDecadeView: true,
@@ -149,8 +149,8 @@ export default class NavBar extends Component {
         if (this.props.onShowMonthDecadeView) {
             this.props.onShowMonthDecadeView();
         }
-    }
-    hideMonthDecadeView(event) {
+    };
+    hideMonthDecadeView = event => {
         if (event && event.preventDefault) {
             event.preventDefault();
         }
@@ -160,15 +160,15 @@ export default class NavBar extends Component {
         if (this.props.onHideMonthDecadeView) {
             this.props.onHideMonthDecadeView();
         }
-    }
-    toMoment(value, props) {
+    };
+    toMoment = (value, props) => {
         props = props || this.props;
         return toMoment(value, {
             locale: props.locale,
             dateFormat: props.dateFormat,
         });
-    }
-    renderNav(dir, viewMoment, name) {
+    };
+    renderNav = (dir, viewMoment, name) => {
         const props = this.p;
         let disabled = dir < 0 ? props.prevDisabled : props.nextDisabled;
         const secondary = Math.abs(dir) == 2;
@@ -220,16 +220,16 @@ export default class NavBar extends Component {
             return props.renderNavNext(navProps);
         }
         return React.createElement(InlineBlock, { key: name, ...navProps, disabled: null, name: null });
-    }
-    getGotoMoment(dir, viewMoment) {
+    };
+    getGotoMoment = (dir, viewMoment) => {
         viewMoment = viewMoment || this.p.viewMoment;
         const sign = dir < 0 ? -1 : 1;
         const abs = Math.abs(dir);
         const mom = this.toMoment(viewMoment);
         mom.add(sign, abs == 1 ? 'month' : 'year');
         return mom;
-    }
-    onNavClick(dir, viewMoment, event) {
+    };
+    onNavClick = (dir, viewMoment, event) => {
         const props = this.props;
         let dateMoment = this.toMoment(viewMoment);
         if (props.onUpdate) {
@@ -250,16 +250,16 @@ export default class NavBar extends Component {
             dateMoment,
             timestamp,
         });
-    }
-    renderNavDate(viewMoment) {
+    };
+    renderNavDate = viewMoment => {
         const props = this.props;
         const text = viewMoment.format(props.navDateFormat);
         if (props.renderNavDate) {
             return props.renderNavDate(viewMoment, text);
         }
         return text;
-    }
-    onViewDateChange({ dateMoment, timestamp }) {
+    };
+    onViewDateChange = ({ dateMoment, timestamp }) => {
         if (this.props.viewDate === undefined) {
             this.setState({
                 viewDate: timestamp,
@@ -273,7 +273,7 @@ export default class NavBar extends Component {
                 timestamp,
             });
         }
-    }
+    };
 }
 NavBar.defaultProps = {
     rootClassName: 'inovua-react-toolkit-calendar__nav-bar',

@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export default (from, to) => {
+export default (from: any, to: any) => {
   if (from) {
-    ['hour', 'minute', 'second', 'millisecond'].forEach(part => {
+    ['hour', 'minute', 'second', 'millisecond'].forEach((part: any) => {
       to.set(part, from.get ? from.get(part) : from[part]);
     });
   }

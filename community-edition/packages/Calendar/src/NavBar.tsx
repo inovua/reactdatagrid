@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component, ReactNode } from 'react';
+import React, { Component, CSSProperties, ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import { Flex, Item } from '../../Flex';
 import InlineBlock from './InlineBlock';
@@ -41,6 +41,7 @@ type TypeNavBarProps = {
   onNavClick?: () => void;
   onViewDateChange?: () => void;
   onClick?: any;
+  style?: any;
 };
 
 type TypeNavBarState = {};
@@ -97,11 +98,11 @@ export default class NavBar extends Component<
     };
   }
 
-  prepareViewDate(props) {
+  prepareViewDate = props => {
     return props.viewDate === undefined ? this.state.viewDate : props.viewDate;
-  }
+  };
 
-  render() {
+  render = () => {
     const props = (this.p = assign({}, this.props));
     const { rootClassName, index } = props;
     const viewMoment = (props.viewMoment =
@@ -178,9 +179,9 @@ export default class NavBar extends Component<
         {monthDecadeView}
       </Flex>
     );
-  }
+  };
 
-  renderMonthDecadeView() {
+  renderMonthDecadeView = () => {
     if (!this.state.monthDecadeView) {
       return null;
     }
@@ -250,34 +251,34 @@ export default class NavBar extends Component<
         <MonthDecadeView {...monthDecadeViewProps} />
       </div>
     );
-  }
+  };
 
-  toggleMonthDecadeView(event) {
+  toggleMonthDecadeView = event => {
     if (this.isMonthDecadeViewVisible()) {
       this.hideMonthDecadeView(event);
     } else {
       this.showMonthDecadeView(event);
     }
-  }
+  };
 
-  getMonthDecadeViewView() {
+  getMonthDecadeViewView = () => {
     return this.monthDecadeView;
-  }
+  };
 
-  isMonthDecadeViewVisible() {
+  isMonthDecadeViewVisible = () => {
     return !!this.monthDecadeView;
-  }
+  };
 
-  onMonthDecadeViewOk(dateString, { dateMoment, timestamp }) {
+  onMonthDecadeViewOk = (dateString, { dateMoment, timestamp }) => {
     this.hideMonthDecadeView();
     this.onViewDateChange({ dateMoment, timestamp });
-  }
+  };
 
-  onMonthDecadeViewCancel() {
+  onMonthDecadeViewCancel = () => {
     this.hideMonthDecadeView();
-  }
+  };
 
-  showMonthDecadeView(event) {
+  showMonthDecadeView = event => {
     event.preventDefault();
 
     this.setState({
@@ -287,9 +288,9 @@ export default class NavBar extends Component<
     if (this.props.onShowMonthDecadeView) {
       this.props.onShowMonthDecadeView();
     }
-  }
+  };
 
-  hideMonthDecadeView(event) {
+  hideMonthDecadeView = event => {
     if (event && event.preventDefault) {
       event.preventDefault();
     }
@@ -301,18 +302,18 @@ export default class NavBar extends Component<
     if (this.props.onHideMonthDecadeView) {
       this.props.onHideMonthDecadeView();
     }
-  }
+  };
 
-  toMoment(value, props) {
+  toMoment = (value, props) => {
     props = props || this.props;
 
     return toMoment(value, {
       locale: props.locale,
       dateFormat: props.dateFormat,
     });
-  }
+  };
 
-  renderNav(dir, viewMoment, name) {
+  renderNav = (dir, viewMoment, name) => {
     const props = this.p;
 
     let disabled = dir < 0 ? props.prevDisabled : props.nextDisabled;
@@ -401,9 +402,9 @@ export default class NavBar extends Component<
     }
 
     return <InlineBlock key={name} {...navProps} disabled={null} name={null} />;
-  }
+  };
 
-  getGotoMoment(dir, viewMoment) {
+  getGotoMoment = (dir, viewMoment) => {
     viewMoment = viewMoment || this.p.viewMoment;
 
     const sign = dir < 0 ? -1 : 1;
@@ -414,9 +415,9 @@ export default class NavBar extends Component<
     mom.add(sign, abs == 1 ? 'month' : 'year');
 
     return mom;
-  }
+  };
 
-  onNavClick(dir, viewMoment, event) {
+  onNavClick = (dir, viewMoment, event) => {
     const props = this.props;
 
     let dateMoment = this.toMoment(viewMoment);
@@ -444,9 +445,9 @@ export default class NavBar extends Component<
       dateMoment,
       timestamp,
     });
-  }
+  };
 
-  renderNavDate(viewMoment) {
+  renderNavDate = viewMoment => {
     const props = this.props;
     const text = viewMoment.format(props.navDateFormat);
 
@@ -455,9 +456,9 @@ export default class NavBar extends Component<
     }
 
     return text;
-  }
+  };
 
-  onViewDateChange({ dateMoment, timestamp }) {
+  onViewDateChange = ({ dateMoment, timestamp }) => {
     if (this.props.viewDate === undefined) {
       this.setState({
         viewDate: timestamp,
@@ -472,7 +473,7 @@ export default class NavBar extends Component<
         timestamp,
       });
     }
-  }
+  };
 }
 
 NavBar.defaultProps = {

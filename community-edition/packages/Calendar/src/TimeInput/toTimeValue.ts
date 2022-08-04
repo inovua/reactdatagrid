@@ -7,14 +7,29 @@
 
 import leftPad from '../utils/leftPad';
 
-export default ({ value, separator = ':', meridiem }) => {
-  const parts = value.split(separator);
+export type TypeTimeValue = {
+  hours?: string;
+  minutes?: string;
+  seconds?: string;
+  meridiem?: string | boolean;
+};
 
-  const hours = parts[0];
-  const minutes = parts[1];
-  const seconds = parts[2];
+export default ({
+  value,
+  separator = ':',
+  meridiem,
+}: {
+  value?: string;
+  separator?: string;
+  meridiem?: string | boolean;
+}): TypeTimeValue => {
+  const parts: string[] = value!.split(separator);
 
-  const result = { hours, minutes };
+  const hours: any = parts[0];
+  const minutes: any = parts[1];
+  const seconds: any = parts[2];
+
+  const result: TypeTimeValue = { hours, minutes };
 
   if (typeof seconds == 'string' && seconds.length) {
     result.seconds = seconds;

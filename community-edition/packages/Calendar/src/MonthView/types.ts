@@ -26,6 +26,12 @@ export type TypeDayPropsMap = {
   disabled?: boolean;
 };
 
+export type GetNavigationDate = (
+  dir: -1 | 1 | ((mom: Moment) => null | undefined | Moment),
+  date: DateType,
+  dateFormat?: string
+) => null | undefined | Moment;
+
 export type TypeMonthViewProps = {
   rootClassName?: string;
   navOnDateClick?: boolean;
@@ -49,7 +55,7 @@ export type TypeMonthViewProps = {
     event?: Event
   ) => void;
   onViewDateChange?: (
-    date: string,
+    date: string | undefined,
     {
       dateMoment,
       dateString,
@@ -61,7 +67,7 @@ export type TypeMonthViewProps = {
     }
   ) => void;
   onActiveDateChange?: (
-    date: string,
+    date: string | undefined,
     {
       dateMoment,
       timestamp,
@@ -77,7 +83,7 @@ export type TypeMonthViewProps = {
   date?: DateType | null;
 
   theme?: string;
-  className?: string;
+  className?: string | null;
 
   onBlur?: (event: MouseEvent) => void;
   onFocus?: (event: MouseEvent) => void;
@@ -106,12 +112,8 @@ export type TypeMonthViewProps = {
   cleanup?: () => void;
   navigate?: (
     dir: -1 | 1,
-    event: MouseEvent,
-    getNavigationDate: (
-      dir: -1 | 1 | ((mom: Moment) => null | undefined | Moment),
-      date: DateType,
-      dateFormat?: string
-    ) => null | undefined | Moment
+    event: any,
+    getNavigationDate: GetNavigationDate
   ) => null | undefined | Moment;
   onRangeChange?: (
     formatted: string[],
@@ -164,19 +166,19 @@ export type TypeMonthViewProps = {
   okButtonText?: object | string;
   showClock?: boolean;
 
-  defaultDate?: DateType;
+  defaultDate?: DateType | null;
   activeDate?: DateType;
   defaultActiveDate?: DateType;
   rangeStart?: DateType | null;
   range?: DateType[] | null;
-  defaultRange?: DateType[];
-  hoverRange?: DateType[];
-  defaultHoverRange?: DateType[];
+  defaultRange?: DateType[] | null;
+  hoverRange?: DateType[] | null;
+  defaultHoverRange?: DateType[] | null;
   minDate?: DateType;
   maxDate?: DateType;
   viewDate?: DateType;
   defaultViewDate?: DateType;
-  daysInView?: number;
+  daysInView?: Moment[];
   moment?: Moment;
   renderFooter?: (props: TypeMonthViewProps) => void;
   children?: any;

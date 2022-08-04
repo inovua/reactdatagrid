@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import assign from '../../../common/assign';
-const filter = object => {
+const filter = (object) => {
     return Object.keys(object).reduce((acc, prop) => {
         const value = object[prop];
         if (value !== undefined) {

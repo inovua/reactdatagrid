@@ -7,8 +7,8 @@
 
 import assign from '../../../common/assign';
 
-const filter = object => {
-  return Object.keys(object).reduce((acc, prop) => {
+const filter = (object: any) => {
+  return Object.keys(object).reduce((acc: any, prop: any) => {
     const value = object[prop];
 
     if (value !== undefined) {
@@ -19,6 +19,6 @@ const filter = object => {
   }, {});
 };
 
-export default (target, ...args) => {
+export default (target: any, ...args: any[]) => {
   return assign(target, ...args.map(filter));
 };

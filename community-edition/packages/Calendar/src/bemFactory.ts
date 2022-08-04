@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export default className => {
-  return (element, modifier) => {
+const bemFactory = (className: string) => {
+  return (element: string, modifier: string) => {
     const el = element ? `-${element}` : '';
     const mod = modifier ? `--${modifier}` : '';
 
     return `${className}${el}${mod}`;
   };
 };
+
+export default bemFactory;

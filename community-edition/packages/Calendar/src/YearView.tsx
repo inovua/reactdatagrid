@@ -5,14 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { createRef } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 import { Flex, Item } from '../../Flex';
 import assign from '../../../common/assign';
 import join from '../../../common/join';
 import times from './utils/times';
-import toMoment from './toMoment';
+import toMoment, { DateType, Moment } from './toMoment';
 import bemFactory from './bemFactory';
 
 import {
@@ -27,6 +26,49 @@ import {
   confirm,
   gotoViewDate,
 } from './DecadeView';
+
+type TypeYearViewProps = {
+  rootClassName?: string;
+  navKeys?: object;
+  isYearView?: boolean;
+  constrainViewDate?: boolean;
+  onlyCompareMonth?: boolean;
+  theme?: string;
+  monthFormat?: string;
+  dateFormat?: string;
+  adjustDateStartOf?: string;
+  adjustMinDateStartOf?: string;
+  adjustMaxDateStartOf?: string;
+  activeDate?: number;
+  viewDate?: number | object;
+  date?: number | object;
+
+  minDate?: DateType;
+  maxDate?: DateType;
+
+  tabIndex?: number | null;
+
+  select?: (
+    {
+      dateMoment,
+      timestamp,
+    }: { dateMoment?: Moment; timestamp?: number | null },
+    event?: any
+  ) => void;
+  confirm?: (date: DateType, event: any) => void;
+  onConfirm?: () => void;
+  onActiveDateChange?: () => void;
+  onViewDateChange?: () => void;
+  cleanup?: () => void;
+  onChange?: () => void;
+  renderNavigation?: () => void;
+  navigate?: () => void;
+
+  onFocus?: () => void;
+  onMouseDown?: (e: Event) => void;
+};
+
+type TypeYearViewState = {};
 
 const bem = bemFactory('react-calendar__year-view');
 
@@ -87,7 +129,9 @@ const NAV_KEYS = {
   },
 };
 
-export default class YearView extends Component {
+class YearView extends Component<TypeYearViewProps, TypeYearViewState> {
+  public p: TypeYearViewProps = {};
+
   constructor(props) {
     super(props);
     this.state = getInitialState(props);
@@ -202,10 +246,10 @@ export default class YearView extends Component {
     ));
   }
 
-  format(mom, format) {
+  format = (mom: Moment, format?: string): string => {
     format = format || this.props.monthFormat;
     return mom.format(format);
-  }
+  };
 
   renderMonth(props, dateMoment) {
     const index = dateMoment.get('month');
@@ -325,3 +369,6 @@ YearView.propTypes = {
   adjustMinDateStartOf: PropTypes.string,
   adjustMaxDateStartOf: PropTypes.string,
 };
+
+export { TypeYearViewProps };
+export default YearView;

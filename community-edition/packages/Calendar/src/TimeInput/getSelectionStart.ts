@@ -8,11 +8,11 @@
 import { getGlobal } from '../../../../getGlobal';
 
 const globalObject = getGlobal();
-const document = globalObject.document;
+const document: any = globalObject.document;
 
 // from http://javascript.nwbox.com/cursor_position/, but added the !window.getSelection check, which
 // is needed for newer versions of IE, which adhere to standards
-export default function getSelectionStart(o) {
+export default function getSelectionStart(o: any) {
   if (o.createTextRange && !globalObject.getSelection) {
     let r = document.selection.createRange().duplicate();
     r.moveEnd('character', o.value.length);

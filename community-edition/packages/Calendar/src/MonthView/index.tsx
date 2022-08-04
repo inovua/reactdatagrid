@@ -41,6 +41,7 @@ import {
   TypeMonthViewState,
   TypeRenderDayProps,
   TypeDayPropsMap,
+  GetNavigationDate,
 } from './types';
 
 const defaultProps = {
@@ -325,7 +326,7 @@ type TypeButtonHandlers = {
 };
 
 const renderFooter = (
-  props: TypeMonthViewProps,
+  props: any,
   buttonHandlers: {
     onFooterTodayClick: () => void;
     onFooterClearClick: () => void;
@@ -455,7 +456,7 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     }
   };
 
-  updateToMoment(props: TypeMonthViewProps) {
+  updateToMoment = (props: TypeMonthViewProps) => {
     this.toMoment = (value?: DateType | null, dateFormat?: string) => {
       return toMoment(value!, {
         locale: props.locale,
@@ -464,18 +465,21 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     };
 
     TODAY = +this.toMoment().startOf!('day');
-  }
+  };
 
-  prepareClassName(props: TypeMonthViewProps) {
+  prepareClassName = (props: TypeMonthViewProps) => {
     return join(
       props.className,
       props.rootClassName,
       `${props.rootClassName}--theme-${props.theme}`,
       props.size === undefined ? `${props.rootClassName}-relative` : null
     );
-  }
+  };
 
-  prepareProps(thisProps: TypeMonthViewProps, state?: TypeMonthViewState) {
+  prepareProps = (
+    thisProps: TypeMonthViewProps,
+    state?: TypeMonthViewState
+  ) => {
     const props = (this.p = assign({}, thisProps));
 
     state = state || this.state;
@@ -548,20 +552,20 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     }
 
     return props;
-  }
+  };
 
-  getViewMoment(this: any) {
+  getViewMoment = () => {
     return this.p.viewMoment;
-  }
+  };
 
-  getViewSize() {
+  getViewSize = () => {
     return 1;
-  }
+  };
 
-  preparePrevNextClassName(
+  preparePrevNextClassName = (
     timestamp: number | undefined,
     props: TypeMonthViewProps
-  ) {
+  ) => {
     const { viewMonthStart, viewMonthEnd, rootClassName } = props;
     const before = timestamp! < viewMonthStart!;
     const after = timestamp! > viewMonthEnd!;
@@ -578,9 +582,12 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
       after && !props.showDaysAfterMonth && `${rootClassName}-day--hidden`,
       thisMonth && `${rootClassName}-day--this-month`
     );
-  }
+  };
 
-  prepareMinMaxProps(timestamp: number | undefined, props: TypeMonthViewProps) {
+  prepareMinMaxProps = (
+    timestamp: number | undefined,
+    props: TypeMonthViewProps
+  ) => {
     const classes = [];
     const { rootClassName } = this.props;
 
@@ -605,12 +612,12 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
       isAfterMaxDate,
       disabled: isBeforeMinDate || isAfterMaxDate,
     };
-  }
+  };
 
-  prepareWeekendClassName(
+  prepareWeekendClassName = (
     dateMoment: Moment | undefined,
     { highlightWeekends }: { highlightWeekends?: boolean }
-  ) {
+  ) => {
     const weekDay = dateMoment!.day();
     const { rootClassName } = this.props;
     if (weekDay === 0 /* Sunday */ || weekDay === 6 /* Saturday */) {
@@ -621,9 +628,12 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     }
 
     return '';
-  }
+  };
 
-  prepareRangeProps(dateMoment: Moment | undefined, props: TypeMonthViewProps) {
+  prepareRangeProps = (
+    dateMoment: Moment | undefined,
+    props: TypeMonthViewProps
+  ) => {
     let inRange = false;
     const className = [];
     const { hoverRange, range, rootClassName } = props;
@@ -681,12 +691,12 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
       inRange,
       className: join(className),
     };
-  }
+  };
 
-  prepareDayProps(
+  prepareDayProps = (
     renderDayProps: TypeRenderDayProps,
     props: TypeMonthViewProps
-  ) {
+  ) => {
     const { timestamp, dateMoment, className } = renderDayProps;
 
     props = props || this.p;
@@ -721,34 +731,34 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     }
 
     return result;
-  }
+  };
 
-  focus() {
+  focus = () => {
     const domNode: HTMLElement | null = this.getDOMNode();
 
     if (domNode) {
       domNode.focus();
     }
-  }
+  };
 
-  getDOMNode(): HTMLElement | null {
+  getDOMNode = (): HTMLElement | null => {
     return this.monthViewRef.current;
-  }
+  };
 
-  onDayTextMouseEnter({
+  onDayTextMouseEnter = ({
     dateMoment,
     timestamp,
   }: {
     dateMoment?: Moment;
     timestamp?: number;
-  }) {
+  }) => {
     if (!this.state.focused) {
       this.focus();
     }
     this.onActiveDateChange({ dateMoment, timestamp });
-  }
+  };
 
-  renderDay(renderProps: TypeRenderDayProps) {
+  renderDay = (renderProps: TypeRenderDayProps) => {
     const props: TypeMonthViewProps = this.p;
     const { dateMoment, timestamp } = renderProps;
     const rootClassName = renderProps.rootClassName || this.props.rootClassName;
@@ -813,9 +823,9 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     }
 
     return result;
-  }
+  };
 
-  render() {
+  render = () => {
     const props = (this.p = this.prepareProps(this.props));
 
     const basicViewProps = assign({}, props);
@@ -915,9 +925,9 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
         }
       />
     );
-  }
+  };
 
-  handleViewMouseLeave(event: MouseEvent) {
+  handleViewMouseLeave = (event: MouseEvent) => {
     if (this.props.onMouseLeave) {
       this.props.onMouseLeave(event);
     }
@@ -925,9 +935,9 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     if (this.state.hoverRange) {
       this.setHoverRange(null);
     }
-  }
+  };
 
-  renderChildren(children: any) {
+  renderChildren = (children: any) => {
     const props = this.p;
     const navBar = this.renderNavBar(props);
     const footer = this.renderFooter(props);
@@ -939,15 +949,15 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     }
 
     return result;
-  }
+  };
 
-  focusFromFooter() {
+  focusFromFooter = () => {
     if (!this.isFocused() && this.props.focusOnFooterMouseDown) {
       this.focus();
     }
-  }
+  };
 
-  onFooterTodayClick() {
+  onFooterTodayClick = () => {
     this.focusFromFooter();
 
     if (this.props.onFooterTodayClick) {
@@ -957,9 +967,9 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     }
 
     this.select({ dateMoment: this.toMoment!(Date.now()) });
-  }
+  };
 
-  onFooterClearClick() {
+  onFooterClearClick = () => {
     this.focusFromFooter();
 
     if (this.props.onFooterClearClick) {
@@ -969,23 +979,23 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     }
 
     this.select({ dateMoment: null });
-  }
+  };
 
-  onFooterOkClick() {
+  onFooterOkClick = () => {
     this.focusFromFooter();
 
     if (this.props.onFooterOkClick) {
       this.props.onFooterOkClick();
     }
-  }
+  };
 
-  onFooterCancelClick() {
+  onFooterCancelClick = () => {
     if (this.props.onFooterCancelClick) {
       this.props.onFooterCancelClick();
     }
-  }
+  };
 
-  renderFooter(props: TypeMonthViewProps) {
+  renderFooter = (props: TypeMonthViewProps) => {
     return renderFooter(
       assign({}, props, {
         selectDate: this.select,
@@ -993,9 +1003,9 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
       }),
       this
     );
-  }
+  };
 
-  renderNavBar(props: TypeMonthViewProps) {
+  renderNavBar = (props: TypeMonthViewProps) => {
     const theme = props.theme;
 
     const childNavBar: any = React.Children.toArray(props.children).filter(
@@ -1095,15 +1105,15 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     }
 
     return null;
-  }
+  };
 
-  onNavMouseDown(_event: MouseEvent) {
+  onNavMouseDown = (_event: MouseEvent) => {
     if (this.props.focusOnNavMouseDown && !this.isFocused()) {
       this.focus();
     }
-  }
+  };
 
-  renderNavBarComponent(navBarProps: TypeNavBarProps) {
+  renderNavBarComponent = (navBarProps: TypeNavBarProps) => {
     if (this.props.renderNavBar) {
       return this.props.renderNavBar(navBarProps);
     }
@@ -1115,21 +1125,21 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
         {...navBarProps}
       />
     );
-  }
+  };
 
-  isFocused() {
-    return this.state.focused;
-  }
+  isFocused = (): boolean => {
+    return this.state.focused!;
+  };
 
-  onFocus(event: MouseEvent) {
+  onFocus = (event: MouseEvent) => {
     this.setState({
       focused: true,
     });
 
     this.props.onFocus!(event);
-  }
+  };
 
-  onBlur(event: MouseEvent) {
+  onBlur = (event: MouseEvent) => {
     this.setState({
       focused: false,
     });
@@ -1137,29 +1147,29 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     this.hideMonthDecadeView();
 
     this.props.onBlur!(event);
-  }
+  };
 
-  showMonthDecadeView() {
+  showMonthDecadeView = () => {
     if (this.navBar) {
       this.navBar.showMonthDecadeView();
     }
-  }
+  };
 
-  hideMonthDecadeView() {
+  hideMonthDecadeView = () => {
     if (this.navBar) {
       this.navBar.hideMonthDecadeView();
     }
-  }
+  };
 
-  isMonthDecadeViewVisible() {
+  isMonthDecadeViewVisible = () => {
     if (this.navBar) {
       return this.navBar.isMonthDecadeViewVisible();
     }
 
     return false;
-  }
+  };
 
-  tryNavBarKeyDown(event: MouseEvent) {
+  tryNavBarKeyDown = (event: MouseEvent) => {
     if (this.navBar && this.navBar.getMonthDecadeView) {
       const monthDecadeViewView = this.navBar.getMonthDecadeView();
 
@@ -1170,17 +1180,17 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     }
 
     return false;
-  }
+  };
 
-  onViewKeyDown(event: MouseEvent) {
+  onViewKeyDown = (event: any) => {
     if (this.tryNavBarKeyDown(event)) {
       return;
     }
 
     return ON_KEY_DOWN.call(this, event);
-  }
+  };
 
-  confirm(date: DateType, event: MouseEvent) {
+  confirm = (date: DateType, event: MouseEvent) => {
     event.preventDefault();
 
     if (this.props.confirm) {
@@ -1192,16 +1202,12 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     this.select({ dateMoment, timestamp: +dateMoment }, event);
 
     return undefined;
-  }
+  };
 
-  navigate(dir: -1 | 1, event: MouseEvent): null | undefined | Moment {
+  navigate = (dir: -1 | 1, event: MouseEvent): null | undefined | Moment => {
     const props = this.p;
 
-    const getNavigationDate = (
-      dir: -1 | 1 | ((mom: Moment) => null | undefined | Moment),
-      date: DateType,
-      dateFormat?: string
-    ): null | undefined | Moment => {
+    const getNavigationDate: GetNavigationDate = (dir, date, dateFormat) => {
       const mom = moment.isMoment(date)
         ? date
         : this.toMoment!(date, dateFormat);
@@ -1222,9 +1228,9 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     }
 
     return undefined;
-  }
+  };
 
-  handleDayMouseEnter(dayProps: TypeRenderDayProps) {
+  handleDayMouseEnter = (dayProps: TypeRenderDayProps) => {
     const props: TypeMonthViewProps = this.p;
 
     const { rangeStart, range } = props;
@@ -1234,12 +1240,12 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     if (partial) {
       this.setHoverRange(clampRange([rangeStart, dayProps.dateMoment]));
     }
-  }
+  };
 
-  handleClick(
+  handleClick = (
     { timestamp, dateMoment }: { timestamp?: number; dateMoment?: Moment },
     event?: any
-  ) {
+  ) => {
     const props = this.p;
 
     if (props.minDate && timestamp! < props.minDate) {
@@ -1253,15 +1259,15 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     event!.target!.value = timestamp;
 
     this.select({ dateMoment, timestamp }, event);
-  }
+  };
 
-  select(
+  select = (
     {
       dateMoment,
       timestamp,
     }: { dateMoment?: Moment | null; timestamp?: number },
     event?: Event
-  ) {
+  ) => {
     if (dateMoment && timestamp === undefined) {
       timestamp = +dateMoment;
     }
@@ -1280,12 +1286,12 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
       this.onChange({ dateMoment, timestamp }, event);
     }
     return undefined;
-  }
+  };
 
-  selectRange(
+  selectRange = (
     { dateMoment }: { dateMoment?: Moment | null; timestamp?: number },
     event?: Event
-  ) {
+  ) => {
     const props = this.p;
     const range = props.range;
     const rangeStart = props.rangeStart;
@@ -1313,13 +1319,13 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
 
       this.onRangeChange(clampRange([rangeStart, dateMoment]), event);
     }
-  }
+  };
 
-  format(mom: Moment | null | undefined) {
+  format = (mom: Moment | null | undefined) => {
     return mom == null ? '' : mom.format(this.props.dateFormat);
-  }
+  };
 
-  setHoverRange(hoverRange: DateType[] | null) {
+  setHoverRange = (hoverRange: DateType[] | null) => {
     if (this.props.hoverRange === undefined) {
       this.setState({
         hoverRange,
@@ -1329,9 +1335,9 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
     if (this.props.onHoverRangeChange) {
       this.props.onHoverRangeChange(hoverRange);
     }
-  }
+  };
 
-  onRangeChange(range: DateType[] | null, event?: Event) {
+  onRangeChange = (range: DateType[] | null, event?: Event) => {
     this.setState({
       range: this.props.range === undefined ? range : null,
     });
@@ -1353,16 +1359,16 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
 
       this.props.onRangeChange(formatted, newRange, event);
     }
-  }
+  };
 
-  onChange(
+  onChange = (
     {
       dateMoment,
       timestamp,
       noCollapse,
     }: { dateMoment?: Moment | null; timestamp?: number; noCollapse?: boolean },
     event?: Event
-  ) {
+  ) => {
     if (this.props.date === undefined) {
       this.setState({
         date: timestamp,
@@ -1377,22 +1383,22 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
         event
       );
     }
-  }
+  };
 
-  onNavViewDateChange(
+  onNavViewDateChange = (
     _dateString?: string,
     { dateMoment, timestamp }: { dateMoment?: Moment; timestamp?: number } = {}
-  ) {
+  ) => {
     this.onViewDateChange({ dateMoment, timestamp });
-  }
+  };
 
-  onViewDateChange({
+  onViewDateChange = ({
     dateMoment,
     timestamp,
   }: {
     dateMoment?: Moment | null;
     timestamp?: number | null;
-  }) {
+  }) => {
     let minDate;
     let maxDate;
 
@@ -1427,19 +1433,19 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
         timestamp,
       });
     }
-  }
+  };
 
-  isValidActiveDate(date: number, props: TypeMonthViewProps) {
+  isValidActiveDate = (date: number, props: TypeMonthViewProps) => {
     return isValidActiveDate(date, props || this.p);
-  }
+  };
 
-  onActiveDateChange({
+  onActiveDateChange = ({
     dateMoment,
     timestamp,
   }: {
     dateMoment?: Moment | null;
     timestamp?: number | null;
-  }) {
+  }) => {
     if (!isValidActiveDate(timestamp, this.p)) {
       return;
     }
@@ -1474,23 +1480,24 @@ class MonthView extends Component<TypeMonthViewProps, TypeMonthViewState> {
         dateString,
       });
     }
-  }
+  };
 
-  gotoViewDate({
+  gotoViewDate = ({
     dateMoment,
     timestamp,
   }: {
     dateMoment?: Moment | null;
     timestamp?: number | null;
-  }) {
+  }) => {
     if (!timestamp) {
       timestamp = dateMoment == null ? null : +dateMoment;
     }
 
     this.onViewDateChange({ dateMoment, timestamp });
     this.onActiveDateChange({ dateMoment, timestamp });
-  }
+  };
 }
 
+export { TypeMonthViewProps, TypeRenderDayProps };
 export { NAV_KEYS, renderFooter };
 export default MonthView;

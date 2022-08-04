@@ -5,16 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { Component, ReactElement } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 import { Flex } from '../../Flex';
 import assign from '../../../common/assign';
 import join from '../../../common/join';
-import toMoment from './toMoment';
+import toMoment, { DateType, Moment } from './toMoment';
 import joinFunctions from './joinFunctions';
 import Footer from './Footer';
-import YearView from './YearView';
+import YearView, { TypeYearViewProps } from './YearView';
 import assignDefined from './assignDefined';
 
 import DecadeView, {
@@ -27,28 +26,160 @@ import DecadeView, {
   select,
   confirm,
   gotoViewDate,
+  TypeDecadeViewProps,
 } from './DecadeView';
 
-const preventDefault = e => {
+type TypeMonthDecadeViewProps = {
+  rootClassName?: string;
+  className?: string;
+
+  okOnEnter?: boolean;
+  navigation?: boolean;
+  focusYearView?: boolean;
+  focusDecadeView?: boolean;
+  footer?: boolean;
+
+  minDate?: number | object | string;
+  maxDate?: number | object | string;
+  viewMoment?: number | object | string;
+  activeDate?: number | object | string;
+  date?: number | object | string;
+  defaultDate?: number | object | string;
+  defaultViewDate?: number | object | string;
+
+  moment?: object;
+
+  locale?: string;
+  theme?: string;
+  dateFormat?: string;
+  adjustDateStartOf?: string;
+  adjustMinDateStartOf?: string;
+  adjustMaxDateStartOf?: string;
+
+  cleanup?: (props: TypeMonthDecadeViewProps) => void;
+  onCancelClick?: () => void;
+  onOkClick?: (
+    dateString: string,
+    { dateMoment, timestamp }: { dateMoment?: Moment; timestamp?: number }
+  ) => void;
+  onChange?: () => void;
+};
+
+type TypeMonthDecadeViewState = {};
+
+type TypeNewFooterProps = {
+  onOkClick: Function;
+  onCancelClick: Function;
+  centerButtons?: boolean;
+  todayButton?: boolean;
+  clearButton?: boolean;
+};
+
+const defaultProps = {
+  rootClassName: 'inovua-react-toolkit-calendar__month-decade-view',
+  okOnEnter: true,
+
+  footer: true,
+  theme: 'default',
+  navigation: true,
+
+  focusYearView: false,
+  focusDecadeView: true,
+
+  dateFormat: 'YYYY-MM-DD',
+
+  adjustDateStartOf: 'month',
+  adjustMinDateStartOf: 'month',
+  adjustMaxDateStartOf: 'month',
+};
+
+const propTypes = {
+  okOnEnter: PropTypes.bool,
+  navigation: PropTypes.bool,
+  focusYearView: PropTypes.bool,
+  focusDecadeView: PropTypes.bool,
+  footer: PropTypes.bool,
+
+  minDate: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.object,
+    PropTypes.string,
+  ]),
+  maxDate: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.object,
+    PropTypes.string,
+  ]),
+  viewMoment: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.object,
+    PropTypes.string,
+  ]),
+  activeDate: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.object,
+    PropTypes.string,
+  ]),
+  date: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.object,
+    PropTypes.string,
+  ]),
+  defaultDate: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.object,
+    PropTypes.string,
+  ]),
+  defaultViewDate: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.object,
+    PropTypes.string,
+  ]),
+  dateFormat: PropTypes.string,
+  moment: PropTypes.object,
+
+  locale: PropTypes.string,
+  theme: PropTypes.string,
+  adjustDateStartOf: PropTypes.string,
+  adjustMinDateStartOf: PropTypes.string,
+  adjustMaxDateStartOf: PropTypes.string,
+
+  cleanup: PropTypes.func,
+  onCancelClick: PropTypes.func,
+  onOkClick: PropTypes.func,
+  onChange: PropTypes.func,
+};
+
+const preventDefault = (e: Event) => {
   e.preventDefault();
 };
 
-export default class MonthDecadeView extends Component {
-  constructor(props) {
+class MonthDecadeView extends Component<
+  TypeMonthDecadeViewProps,
+  TypeMonthDecadeViewState
+> {
+  static defaultProps = defaultProps;
+  static propTypes = propTypes;
+
+  private p: any;
+  private decadeView: any;
+  unmounted?: boolean;
+
+  constructor(props: TypeMonthDecadeViewProps) {
     super(props);
 
     this.state = getInitialState(props);
   }
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
     this.unmounted = true;
-  }
+  };
 
-  toMoment(date, format) {
+  toMoment = (date: DateType, format: string): Moment => {
     return toMoment(date, format, this.props);
-  }
+  };
 
-  render() {
+  render = () => {
     const dateProps = prepareDateProps(this.props, this.state);
 
     const props = (this.p = { ...this.props, ...dateProps });
@@ -83,7 +214,7 @@ export default class MonthDecadeView extends Component {
     const yearViewProps = assign({}, commonProps);
 
     const decadeViewProps = assign({}, commonProps, {
-      ref: view => {
+      ref: (view: any) => {
         this.decadeView = view;
       },
     });
@@ -134,9 +265,9 @@ export default class MonthDecadeView extends Component {
         {this.renderFooter()}
       </Flex>
     );
-  }
+  };
 
-  renderFooter() {
+  renderFooter = (): ReactElement | null => {
     const props = this.p;
     const children = props.children;
 
@@ -152,11 +283,11 @@ export default class MonthDecadeView extends Component {
     );
 
     const footerChild = children.filter(
-      c => c && c.props && c.props.isDatePickerFooter
+      (c: any) => c && c.props && c.props.isDatePickerFooter
     )[0];
 
     if (footerChild) {
-      const newFooterProps = {
+      const newFooterProps: TypeNewFooterProps = {
         onOkClick: joinFunctions(this.onOkClick, footerChild.props.onOkClick),
         onCancelClick: joinFunctions(
           this.onCancelClick,
@@ -190,9 +321,9 @@ export default class MonthDecadeView extends Component {
         centerButtons
       />
     );
-  }
+  };
 
-  onOkClick() {
+  onOkClick = (): void => {
     if (this.props.onOkClick) {
       const dateMoment = this.p.activeMoment;
       const dateString = this.format(dateMoment);
@@ -200,20 +331,20 @@ export default class MonthDecadeView extends Component {
 
       this.props.onOkClick(dateString, { dateMoment, timestamp });
     }
-  }
+  };
 
-  onCancelClick() {
+  onCancelClick = (): void => {
     if (this.props.onCancelClick) {
       this.props.onCancelClick();
     }
-  }
+  };
 
-  renderYearView(yearViewProps) {
+  renderYearView = (yearViewProps: TypeYearViewProps): ReactElement => {
     const props = this.p;
     const children = props.children;
 
     const yearViewChild = children.filter(
-      c => c && c.props && c.props.isYearView
+      (c: any) => c && c.props && c.props.isYearView
     )[0];
     const yearViewChildProps = yearViewChild ? yearViewChild.props : {};
 
@@ -248,13 +379,13 @@ export default class MonthDecadeView extends Component {
     }
 
     return <YearView {...yearViewProps} />;
-  }
+  };
 
-  renderDecadeView(decadeViewProps) {
+  renderDecadeView = (decadeViewProps: TypeDecadeViewProps) => {
     const props = this.p;
     const children = props.children;
     const decadeViewChild = children.filter(
-      c => c && c.props && c.props.isDecadeView
+      (c: any) => c && c.props && c.props.isDecadeView
     )[0];
 
     const decadeViewChildProps = decadeViewChild ? decadeViewChild.props : {};
@@ -295,46 +426,47 @@ export default class MonthDecadeView extends Component {
     }
 
     return <DecadeView {...decadeViewProps} />;
-  }
+  };
 
-  onYearViewFocus() {
+  onYearViewFocus = (): void => {
     if (this.props.focusYearView === false) {
       this.focus();
     }
-  }
+  };
 
-  focus() {
+  focus = (): void => {
     if (this.decadeView && this.props.focusDecadeView) {
       this.decadeView.focus();
     }
-  }
+  };
 
-  getDOMNode() {
+  getDOMNode = (): any => {
     return this.decadeView;
-  }
-  onYearViewMouseDown(e) {
+  };
+
+  onYearViewMouseDown = (e: Event): void => {
     preventDefault(e);
 
     this.focus();
-  }
+  };
 
-  onDecadeViewMouseDown(e) {
+  onDecadeViewMouseDown = (e: Event): void => {
     preventDefault(e);
-  }
+  };
 
-  format(mom, format) {
+  format = (mom: Moment, format?: string): string => {
     format = format || this.props.dateFormat;
 
     return mom.format(format);
-  }
+  };
 
-  handleDecadeViewOnConfirm() {
+  handleDecadeViewOnConfirm = (): void => {
     if (this.props.okOnEnter) {
       this.onOkClick();
     }
-  }
+  };
 
-  onKeyDown(event) {
+  onKeyDown = (event: KeyboardEvent): void => {
     if (event.key == 'Escape') {
       return this.onCancelClick();
     }
@@ -344,161 +476,127 @@ export default class MonthDecadeView extends Component {
     }
 
     return undefined;
-  }
+  };
 
-  confirm(date, event) {
+  confirm = (date: DateType, event: Event): void => {
     return confirm.call(this, date, event);
-  }
+  };
 
-  navigate(direction, event) {
+  navigate = (direction: -1 | 1, event: Event): void => {
     return navigate.call(this, direction, event);
-  }
+  };
 
-  select({ dateMoment, timestamp }, event) {
+  select = (
+    { dateMoment, timestamp }: { dateMoment?: Moment; timestamp?: number },
+    event?: Event
+  ): void => {
     return select.call(this, { dateMoment, timestamp }, event);
-  }
+  };
 
-  handleDecadeOnViewDateChange(dateString, { dateMoment, timestamp }) {
+  handleDecadeOnViewDateChange = (
+    dateString: string,
+    { dateMoment, timestamp }: { dateMoment?: Moment; timestamp?: number }
+  ): void => {
     const props = this.p;
     const currentViewMoment = props.viewMoment;
 
     if (currentViewMoment) {
-      dateMoment.set('month', currentViewMoment.get('month'));
-      dateString = this.format(dateMoment);
-      timestamp = +dateMoment;
+      dateMoment!.set('month', currentViewMoment.get('month'));
+      dateString = this.format(dateMoment!);
+      timestamp = +dateMoment!;
     }
 
     this.onViewDateChange(dateString, { dateMoment, timestamp });
-  }
+  };
 
-  handleDecadeOnActiveDateChange(dateString, { dateMoment, timestamp }) {
+  handleDecadeOnActiveDateChange = (
+    dateString: string,
+    { dateMoment, timestamp }: { dateMoment?: Moment; timestamp?: number }
+  ): void => {
     const props = this.p;
     const currentViewMoment = props.viewMoment;
 
     if (currentViewMoment) {
-      dateMoment.set('month', currentViewMoment.get('month'));
-      dateString = this.format(dateMoment);
-      timestamp = +dateMoment;
+      dateMoment!.set('month', currentViewMoment.get('month'));
+      dateString = this.format(dateMoment!);
+      timestamp = +dateMoment!;
     }
 
     this.onActiveDateChange(dateString, { dateMoment, timestamp });
-  }
+  };
 
-  handleDecadeOnChange(dateString, { dateMoment, timestamp }, event) {
+  handleDecadeOnChange = (
+    dateString: string,
+    {
+      dateMoment,
+      timestamp,
+    }: {
+      dateMoment?: Moment;
+      timestamp?: number;
+    },
+    event?: Event
+  ): void => {
     const props = this.p;
     const currentViewMoment = props.viewMoment;
 
     if (currentViewMoment) {
-      dateMoment.set('month', currentViewMoment.get('month'));
-      dateString = this.format(dateMoment);
-      timestamp = +dateMoment;
+      dateMoment!.set('month', currentViewMoment.get('month'));
+      dateString = this.format(dateMoment!);
+      timestamp = +dateMoment!;
     }
 
     this.onChange(dateString, { dateMoment, timestamp }, event);
-  }
+  };
 
-  handleYearViewOnChange(dateString, { dateMoment, timestamp }, event) {
+  handleYearViewOnChange = (
+    dateString: string,
+    { dateMoment, timestamp }: { dateMoment?: Moment; timestamp?: number },
+    event?: Event
+  ): void => {
     const props = this.p;
     const currentMoment = props.moment;
 
     if (currentMoment) {
-      dateMoment.set('year', currentMoment.get('year'));
-      dateString = this.format(dateMoment);
-      timestamp = +dateMoment;
+      dateMoment!.set('year', currentMoment.get('year'));
+      dateString = this.format(dateMoment!);
+      timestamp = +dateMoment!;
     }
 
     this.onChange(dateString, { dateMoment, timestamp }, event);
-  }
+  };
 
-  onViewDateChange(dateString, { dateMoment, timestamp }) {
+  onViewDateChange = (
+    _dateString: string,
+    { dateMoment, timestamp }: { dateMoment?: Moment; timestamp?: number }
+  ): void => {
     return onViewDateChange.call(this, { dateMoment, timestamp });
-  }
+  };
 
-  gotoViewDate({ dateMoment, timestamp }) {
+  gotoViewDate = ({
+    dateMoment,
+    timestamp,
+  }: {
+    dateMoment?: Moment;
+    timestamp?: number;
+  }): void => {
     return gotoViewDate.call(this, { dateMoment, timestamp });
-  }
+  };
 
-  onActiveDateChange(dateString, { dateMoment, timestamp }) {
+  onActiveDateChange = (
+    _dateString: string,
+    { dateMoment, timestamp }: { dateMoment?: Moment; timestamp?: number }
+  ): void => {
     return onActiveDateChange.call(this, { dateMoment, timestamp });
-  }
+  };
 
-  onChange(dateString, { dateMoment, timestamp }, event) {
+  onChange = (
+    _dateString: string,
+    { dateMoment, timestamp }: { dateMoment?: Moment; timestamp?: number },
+    event?: Event
+  ): void => {
     return onChange.call(this, { dateMoment, timestamp }, event);
-  }
+  };
 }
 
-MonthDecadeView.defaultProps = {
-  rootClassName: 'inovua-react-toolkit-calendar__month-decade-view',
-  okOnEnter: true,
-
-  footer: true,
-  theme: 'default',
-  navigation: true,
-
-  focusYearView: false,
-  focusDecadeView: true,
-
-  dateFormat: 'YYYY-MM-DD',
-
-  adjustDateStartOf: 'month',
-  adjustMinDateStartOf: 'month',
-  adjustMaxDateStartOf: 'month',
-};
-
-MonthDecadeView.propTypes = {
-  okOnEnter: PropTypes.bool,
-  navigation: PropTypes.bool,
-  focusYearView: PropTypes.bool,
-  focusDecadeView: PropTypes.bool,
-  footer: PropTypes.bool,
-
-  minDate: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.object,
-    PropTypes.string,
-  ]),
-  maxDate: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.object,
-    PropTypes.string,
-  ]),
-  viewMoment: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.object,
-    PropTypes.string,
-  ]),
-  activeDate: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.object,
-    PropTypes.string,
-  ]),
-  date: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.object,
-    PropTypes.string,
-  ]),
-  defaultDate: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.object,
-    PropTypes.string,
-  ]),
-  defaultViewDate: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.object,
-    PropTypes.string,
-  ]),
-  dateFormat: PropTypes.string,
-  moment: PropTypes.object,
-
-  locale: PropTypes.string,
-  theme: PropTypes.string,
-  dateFormat: PropTypes.string,
-  adjustDateStartOf: PropTypes.string,
-  adjustMinDateStartOf: PropTypes.string,
-  adjustMaxDateStartOf: PropTypes.string,
-
-  cleanup: PropTypes.func,
-  onCancelClick: PropTypes.func,
-  onOkClick: PropTypes.func,
-  onChange: PropTypes.func,
-};
+export { TypeMonthDecadeViewProps };
+export default MonthDecadeView;

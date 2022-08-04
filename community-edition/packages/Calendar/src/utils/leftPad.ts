@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export default str => {
+export default (str: string | number | undefined) => {
   if (typeof str == 'string' && str.length < 2) {
     return str.length ? `0${str}` : '00';
   }

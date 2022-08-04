@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import leftPad from '../utils/leftPad';
-export default ({ value, separator = ':', meridiem }) => {
+export default ({ value, separator = ':', meridiem, }) => {
     const parts = value.split(separator);
     const hours = parts[0];
     const minutes = parts[1];

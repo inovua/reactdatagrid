@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { createRef } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../../react-class';
 import raf from '../../../../common/raf';
 import assign from '../../../../common/assign';
 import Clock from '../Clock';
@@ -15,8 +14,32 @@ import getSelectionEnd from './getSelectionEnd';
 import setCaretPosition from './setCaretPosition';
 import getNewValue from './getNewValue';
 import toTimeValue from './toTimeValue';
-export { getSelectionStart, getSelectionEnd, getNewValue, setCaretPosition, toTimeValue, };
-export default class TimeInput extends Component {
+import cleanProps from '../../../../common/cleanProps';
+const defaultProps = {
+    theme: 'default',
+    circular: true,
+    propagate: true,
+    incrementNext: true,
+};
+const propTypes = {
+    theme: PropTypes.string,
+    circular: PropTypes.bool,
+    propagate: PropTypes.bool,
+    incrementNext: PropTypes.bool,
+    format: PropTypes.string,
+    timeFormat: PropTypes.string,
+    value: (props, propName) => {
+        if (props[propName] !== undefined) {
+            console.warn('Due to performance considerations, TimeInput will only be uncontrolled.');
+        }
+    },
+};
+class TimeInput extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    timeInputRef;
+    p = {};
+    updateCallback;
     constructor(props) {
         super(props);
         const format = props.format || props.timeFormat;
@@ -31,7 +54,9 @@ export default class TimeInput extends Component {
         if (format.indexOf('hh') == 0 && format.indexOf('kk') == 0) {
             hours24 = false;
         }
-        const separator = props.separator || (format && format.length > 2) ? format.charAt(2) : ':';
+        const separator = props.separator || (format && format.length > 2)
+            ? format.charAt(2)
+            : ':';
         const hasSeconds = format.indexOf('ss') != -1;
         if (hasSeconds && format.charAt(5) != separator) {
             console.warn('Expected minutes-seconds separator to be same as hours-minutes separator. (at position 5)');
@@ -51,17 +76,14 @@ export default class TimeInput extends Component {
             value: props.defaultValue || defaultValue,
         };
     }
-    render() {
+    render = () => {
         const props = (this.p = assign({}, this.props));
         props.value = this.state.value;
-        return (React.createElement("input", { ...props, ref: this.timeInputRef, defaultValue: undefined, value: props.value, onKeyDown: this.onKeyDown, onChange: this.onChange }));
-    }
-    onChange(event) {
-        event.stopPropagation();
-    }
-    onKeyDown(event) {
+        const domProps = cleanProps(props, TimeInput.propTypes);
+        return (React.createElement("input", { ...domProps, ref: this.timeInputRef, defaultValue: undefined, value: props.value, onKeyDown: this.onKeyDown, onChange: this.onChange }));
+    };
+    onKeyDown = (event) => {
         const value = this.p.value;
-        const valueRange = this.state.valueRange;
         if (this.props.onKeyDown) {
             this.props.onKeyDown(event);
         }
@@ -92,15 +114,15 @@ export default class TimeInput extends Component {
         else {
             raf(updateCaretPos);
         }
-    }
-    getInput() {
+    };
+    getInput = () => {
         return this.timeInputRef.current;
-    }
-    setCaretPosition(pos) {
+    };
+    setCaretPosition = (pos) => {
         const dom = this.getInput();
         dom && setCaretPosition(dom, pos);
-    }
-    setValue(value, callback) {
+    };
+    setValue = (value, callback) => {
         this.setState({
             now: Date.now(),
             value,
@@ -108,37 +130,39 @@ export default class TimeInput extends Component {
         if (this.props.onChange) {
             this.props.onChange(value);
         }
-    }
+    };
     componentDidUpdate() {
         if (this.updateCallback) {
             this.updateCallback();
             this.updateCallback = null;
         }
     }
-    getSelectedRange() {
+    getSelectedRange = () => {
         const dom = this.getInput();
         return {
             start: getSelectionStart(dom),
             end: getSelectionEnd(dom),
         };
-    }
-    getSelectedValue() {
+    };
+    getSelectedValue = () => {
         const range = this.getSelectedRange();
         const value = this.p.value;
         return value.substring(range.start, range.end);
-    }
-    onChange(event) {
+    };
+    onChange = (event) => {
+        event.stopPropagation();
         const value = event.target.value;
-    }
-    onTimeChange(value) {
+        return value;
+    };
+    onTimeChange = (value) => {
         const time = value.split(':');
         this.setState({
             minutes: time[0] * 60 + time[1],
         });
-    }
-    renderClock() {
+    };
+    renderClock = () => {
         const props = this.p;
-        const clock = props.children.filter(child => child && child.props && child.props.isTimePickerClock)[0];
+        const clock = props.children.filter((child) => child && child.props && child.props.isTimePickerClock)[0];
         const clockProps = {
             time: this.state.minutes || props.date,
             showSecondsHand: true,
@@ -147,23 +171,7 @@ export default class TimeInput extends Component {
             return React.cloneElement(clock, clockProps);
         }
         return React.createElement(Clock, { ...clockProps });
-    }
+    };
 }
-TimeInput.defaultProps = {
-    theme: 'default',
-    circular: true,
-    propagate: true,
-    incrementNext: true,
-};
-TimeInput.propTypes = {
-    theme: PropTypes.string,
-    circular: PropTypes.bool,
-    propagate: PropTypes.bool,
-    incrementNext: PropTypes.bool,
-    format: PropTypes.string,
-    value: (props, propName) => {
-        if (props[propName] !== undefined) {
-            console.warn('Due to performance considerations, TimeInput will only be uncontrolled.');
-        }
-    },
-};
+export { getSelectionStart, getSelectionEnd, getNewValue, setCaretPosition, toTimeValue, };
+export default TimeInput;

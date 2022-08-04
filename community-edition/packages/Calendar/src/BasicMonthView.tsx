@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { forwardRef } from 'react';
+import React, { Component, forwardRef } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 import { Flex } from '../../Flex';
 import moment from 'moment';
+import { DateType, Moment } from './toMoment';
 
 import assign from '../../../common/assign';
 import WHITESPACE from '../../../common/whitespace';
@@ -17,8 +17,112 @@ import join from '../../../common/join';
 import FORMAT from './utils/format';
 import toMoment from './toMoment';
 import weekDayNamesFactory from './utils/getWeekDayNames';
+import { TypeRenderDayProps } from './MonthView';
 
-const RENDER_DAY = props => {
+type TypeBasicMonthViewProps = {
+  rootClassName?: string;
+  defaultClassName?: string;
+  className?: string;
+  dateFormat?: string;
+  alwaysShowPrevWeek?: boolean;
+  viewDate?: any;
+  viewMoment?: any;
+  index?: number;
+  showClock?: boolean;
+  onMouseLeave?: any;
+
+  locale?: string;
+  localeData?: any;
+  weekStartDay?: number; // 0 is Sunday in the English locale
+  weekendStartDay?: Moment;
+  dayFormat?: string;
+
+  weekNumbers?: boolean;
+  weekNumberName?: string;
+
+  weekDayNames?:
+    | ((startDate?: number, locale?: string) => any)
+    | string[]
+    | boolean;
+
+  innerRef?: any;
+
+  renderWeekDayNames?: (props: {
+    className?: string;
+    names?: string[];
+  }) => void;
+  renderWeekDayName?: (props: TypeBasicMonthViewProps) => void;
+
+  renderWeekNumber?: (weekNumberProps: {
+    key: string;
+    className?: string;
+    week?: number;
+    days?: Moment[];
+    date?: Moment;
+    children?: any;
+  }) => void;
+  renderDay?: (dayProps: TypeRenderDayProps) => Element | JSX.Element;
+  onRenderDay?: (dayProps: TypeRenderDayProps) => void;
+};
+
+type TypeBasicMonthViewState = {};
+
+const propTypes = {
+  rootClassName: PropTypes.string,
+  defaultClassName: PropTypes.string,
+  className: PropTypes.string,
+  dateFormat: PropTypes.string,
+  alwaysShowPrevWeek: PropTypes.bool,
+  viewDate: PropTypes.any,
+  viewMoment: PropTypes.any,
+  index: PropTypes.number,
+  showClock: PropTypes.bool,
+  onMouseLeave: PropTypes.any,
+
+  locale: PropTypes.string,
+  weekStartDay: PropTypes.number, // 0 is Sunday in the English locale
+
+  // boolean prop to show/hide week numbers
+  weekNumbers: PropTypes.bool,
+
+  // the name to give to the week number column
+  weekNumberName: PropTypes.string,
+
+  weekDayNames(props: TypeBasicMonthViewProps, propName: string) {
+    const value = props[propName as keyof TypeBasicMonthViewProps];
+
+    if (
+      typeof value != 'function' &&
+      value !== false &&
+      !Array.isArray(value)
+    ) {
+      return new Error(
+        '"weekDayNames" should be a function, an array or the boolean "false"'
+      );
+    }
+
+    return undefined;
+  },
+
+  renderWeekDayNames: PropTypes.func,
+  renderWeekDayName: PropTypes.func,
+
+  renderWeekNumber: PropTypes.func,
+  renderDay: PropTypes.func,
+  onRenderDay: PropTypes.func,
+};
+
+const defaultProps = {
+  rootClassName: 'inovua-react-toolkit-calendar__basic-month-view',
+  dateFormat: 'YYYY-MM-DD',
+  alwaysShowPrevWeek: false,
+  weekNumbers: true,
+  weekNumberName: `${WHITESPACE}${WHITESPACE}`,
+
+  weekDayNames: weekDayNamesFactory,
+};
+
+const RENDER_DAY = (props: TypeRenderDayProps) => {
   const divProps = assign({}, props);
 
   delete divProps.date;
@@ -29,12 +133,12 @@ const RENDER_DAY = props => {
   return <div {...divProps} />;
 };
 
-const getWeekStartDay = props => {
+const getWeekStartDay = (props: TypeBasicMonthViewProps) => {
   const locale = props.locale;
   let weekStartDay = props.weekStartDay;
 
   if (weekStartDay == null) {
-    const localeData = props.localeData || moment.localeData(locale);
+    const localeData: any = props.localeData || moment.localeData(locale);
     weekStartDay = localeData._week ? localeData._week.dow : null;
   }
 
@@ -49,11 +153,11 @@ const getWeekStartDay = props => {
  *
  * @return {Number}
  */
-const getWeekendStartDay = props => {
+const getWeekendStartDay = (props: TypeBasicMonthViewProps) => {
   const { weekendStartDay } = props;
 
   if (weekendStartDay == null) {
-    return getWeekStartDay(props) + (5 % 7);
+    return getWeekStartDay(props)! + (5 % 7);
   }
 
   return weekendStartDay;
@@ -62,7 +166,7 @@ const getWeekendStartDay = props => {
 /**
  * Gets a moment that points to the first day of the week
  *
- * @param  {Moment/Date/String} value]
+ * @param  {Moment/Date/String} value
  * @param  {Object} props
  * @param  {String} props.dateFormat
  * @param  {String} props.locale
@@ -70,7 +174,10 @@ const getWeekendStartDay = props => {
  *
  * @return {Moment}
  */
-const getWeekStartMoment = (value, props) => {
+const getWeekStartMoment = (
+  value: DateType,
+  props: TypeBasicMonthViewProps
+) => {
   const locale = props.locale;
   const dateFormat = props.dateFormat;
 
@@ -79,7 +186,7 @@ const getWeekStartMoment = (value, props) => {
   return toMoment(value, {
     locale,
     dateFormat,
-  }).day(weekStartDay);
+  }).day(weekStartDay!);
 };
 
 /**
@@ -95,7 +202,10 @@ const getWeekStartMoment = (value, props) => {
  *
  * @return {Moment[]}
  */
-const getDaysInMonthView = (value, props) => {
+const getDaysInMonthView = (
+  value: DateType,
+  props: TypeBasicMonthViewProps
+): Moment[] => {
   const { locale, dateFormat } = props;
   const toMomentParam = { locale, dateFormat };
 
@@ -135,7 +245,7 @@ const getDaysInMonthView = (value, props) => {
  *
  * @return {String[]}
  */
-const getWeekDayNames = props => {
+const getWeekDayNames = (props: TypeBasicMonthViewProps): any => {
   const { weekStartDay, weekDayNames, locale } = props;
 
   let names = weekDayNames;
@@ -145,10 +255,10 @@ const getWeekDayNames = props => {
   } else if (Array.isArray(names)) {
     names = [...names];
 
-    let index = weekStartDay;
+    let index = weekStartDay!;
 
     while (index > 0) {
-      names.push(names.shift());
+      names.push(names.shift()!);
       index--;
     }
   }
@@ -156,14 +266,23 @@ const getWeekDayNames = props => {
   return names;
 };
 
-class BasicMonthView extends Component {
-  constructor(props) {
+class BasicMonthView extends Component<
+  TypeBasicMonthViewProps,
+  TypeBasicMonthViewState
+> {
+  static defaultProps = defaultProps;
+  static propTypes = propTypes;
+
+  private toMoment?: any;
+  private p: TypeBasicMonthViewProps = {};
+
+  constructor(props: TypeBasicMonthViewProps) {
     super(props);
 
     this.updateToMoment(props);
   }
 
-  componentDidUpdate = prevProps => {
+  componentDidUpdate = (prevProps: TypeBasicMonthViewProps) => {
     if (
       prevProps.locale !== this.props.locale ||
       prevProps.dateFormat !== this.props.dateFormat
@@ -172,29 +291,29 @@ class BasicMonthView extends Component {
     }
   };
 
-  updateToMoment(props) {
-    this.toMoment = (value, dateFormat) => {
+  updateToMoment = (props: TypeBasicMonthViewProps) => {
+    this.toMoment = (value: DateType, dateFormat: any) => {
       return toMoment(value, {
         locale: props.locale,
         dateFormat: dateFormat || props.dateFormat,
       });
     };
-  }
+  };
 
-  prepareProps(thisProps) {
+  prepareProps = (thisProps: TypeBasicMonthViewProps) => {
     const props = assign({}, thisProps);
     props.viewMoment = props.viewMoment || this.toMoment(props.viewDate);
     props.weekStartDay = getWeekStartDay(props);
     props.className = this.prepareClassName(props);
 
     return props;
-  }
+  };
 
-  prepareClassName(props) {
+  prepareClassName = (props: TypeBasicMonthViewProps) => {
     return join(props.className, props.rootClassName);
-  }
+  };
 
-  render() {
+  render = () => {
     const props = (this.p = this.prepareProps(this.props));
 
     const { viewMoment } = props;
@@ -273,14 +392,14 @@ class BasicMonthView extends Component {
         children={children}
       />
     );
-  }
+  };
 
   /**
    * Render the week number cell
    * @param  {Moment[]} days The days in a week
    * @return {React.DOM}
    */
-  renderWeekNumber(props, days) {
+  renderWeekNumber = (props: TypeBasicMonthViewProps, days: Moment[]) => {
     const firstDayOfWeek = days[0];
     const week = firstDayOfWeek.weeks();
 
@@ -321,7 +440,7 @@ class BasicMonthView extends Component {
     }
 
     return result;
-  }
+  };
 
   /**
    * Render the given array of days
@@ -329,8 +448,8 @@ class BasicMonthView extends Component {
    *
    * @return {React.DOM}
    */
-  renderDays(props, days) {
-    const nodes = days.map(date => this.renderDay(props, date));
+  renderDays = (props: TypeBasicMonthViewProps, days: Moment[]) => {
+    const nodes: any = days.map(date => this.renderDay(props, date));
 
     const len = days.length;
     const buckets = [];
@@ -360,16 +479,19 @@ class BasicMonthView extends Component {
         children={bucket}
       />
     ));
-  }
+  };
 
-  renderDay(props, dateMoment) {
+  renderDay = (
+    props: TypeBasicMonthViewProps,
+    dateMoment: Moment
+  ): Element | JSX.Element => {
     const dayText = FORMAT.day(dateMoment, props.dayFormat);
     const className = join(
       `${props.rootClassName}-cell`,
       `${props.rootClassName}-day`
     );
 
-    let renderDayProps = {
+    let renderDayProps: TypeRenderDayProps = {
       day: dayText,
       dateMoment,
       timestamp: +dateMoment,
@@ -395,9 +517,9 @@ class BasicMonthView extends Component {
     }
 
     return result;
-  }
+  };
 
-  renderWeekDayNames() {
+  renderWeekDayNames = () => {
     const props = this.p;
     const {
       weekNumbers,
@@ -426,7 +548,7 @@ class BasicMonthView extends Component {
 
     return (
       <div key="week_day_names" className={className}>
-        {names.map((name, index) => {
+        {names.map((name: string, index: number) => {
           const props = {
             weekStartDay,
             index,
@@ -450,68 +572,14 @@ class BasicMonthView extends Component {
         })}
       </div>
     );
-  }
+  };
 }
-
-BasicMonthView.propTypes = {
-  rootClassName: PropTypes.string,
-  defaultClassName: PropTypes.string,
-  className: PropTypes.string,
-  dateFormat: PropTypes.string,
-  alwaysShowPrevWeek: PropTypes.bool,
-  viewDate: PropTypes.any,
-  viewMoment: PropTypes.any,
-  index: PropTypes.number,
-  showClock: PropTypes.bool,
-  onMouseLeave: PropTypes.any,
-
-  locale: PropTypes.string,
-  weekStartDay: PropTypes.number, // 0 is Sunday in the English locale
-
-  // boolean prop to show/hide week numbers
-  weekNumbers: PropTypes.bool,
-
-  // the name to give to the week number column
-  weekNumberName: PropTypes.string,
-
-  weekDayNames(props, propName) {
-    const value = props[propName];
-
-    if (
-      typeof value != 'function' &&
-      value !== false &&
-      !Array.isArray(value)
-    ) {
-      return new Error(
-        '"weekDayNames" should be a function, an array or the boolean "false"'
-      );
-    }
-
-    return undefined;
-  },
-
-  renderWeekDayNames: PropTypes.func,
-  renderWeekDayName: PropTypes.func,
-
-  renderWeekNumber: PropTypes.func,
-  renderDay: PropTypes.func,
-  onRenderDay: PropTypes.func,
-};
-
-BasicMonthView.defaultProps = {
-  rootClassName: 'inovua-react-toolkit-calendar__basic-month-view',
-  dateFormat: 'YYYY-MM-DD',
-  alwaysShowPrevWeek: false,
-  weekNumbers: true,
-  weekNumberName: `${WHITESPACE}${WHITESPACE}`,
-
-  weekDayNames: weekDayNamesFactory,
-};
 
 export default forwardRef((props, ref) => (
   <BasicMonthView innerRef={ref} {...props} />
 ));
 
+export { TypeBasicMonthViewProps };
 export {
   getWeekStartDay,
   getWeekStartMoment,
