@@ -14,6 +14,7 @@ export type TypeRange = { start: number; end?: number };
 
 export type TypeTimeInputProps = {
   theme?: string;
+  className?: string;
   circular?: boolean;
   propagate?: boolean;
   incrementNext?: boolean;
@@ -27,7 +28,7 @@ export type TypeTimeInputProps = {
   children?: any;
   date?: DateType;
   onKeyDown?: (event: KeyboardEvent) => void;
-  onChange?: (value?: string) => void;
+  onChange?: (value: string) => void;
 };
 
 export type TypeTimeInputState = {

@@ -161,9 +161,9 @@ export type TypeMonthViewProps = {
   };
 
   cancelButton?: boolean;
-  cancelButtonText?: ReactNode;
+  cancelButtonText?: ReactNode | string;
   okButton?: boolean;
-  okButtonText?: object | string;
+  okButtonText?: ReactNode | string;
   showClock?: boolean;
 
   defaultDate?: DateType | null;

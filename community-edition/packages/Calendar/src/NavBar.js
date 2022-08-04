@@ -13,6 +13,34 @@ import join from '../../../common/join';
 import assignDefined from './assignDefined';
 import toMoment from './toMoment';
 import MonthDecadeView from './MonthDecadeView';
+const defaultProps = {
+    rootClassName: 'inovua-react-toolkit-calendar__nav-bar',
+    arrows: {},
+    doubleArrows: {},
+    theme: 'default',
+    isDatePickerNavBar: true,
+    navDateFormat: 'MMM YYYY',
+    enableMonthDecadeView: true,
+    onNavClick: (_dir, _viewMoment) => { },
+    onViewDateChange: () => { },
+};
+const propTypes = {
+    rootClassName: PropTypes.string,
+    secondary: PropTypes.bool,
+    showClock: PropTypes.bool,
+    enableMonthDecadeViewAnimation: PropTypes.bool,
+    showMonthDecadeViewAnimation: PropTypes.number,
+    renderNav: PropTypes.func,
+    renderNavPrev: PropTypes.func,
+    renderNavNext: PropTypes.func,
+    arrows: PropTypes.object,
+    doubleArrows: PropTypes.object,
+    navDateFormat: PropTypes.string,
+    onUpdate: PropTypes.func,
+    onNavClick: PropTypes.func,
+    onViewDateChange: PropTypes.func,
+    onClick: PropTypes.any,
+};
 const ARROWS = {
     prev: (React.createElement("svg", { width: "6", height: "10", viewBox: "0 0 6 10" },
         React.createElement("path", { fillRule: "evenodd", d: "M2.197 5l2.865-2.866c.311-.31.311-.814 0-1.125-.31-.31-.814-.31-1.125 0L.477 4.47c-.293.294-.293.769 0 1.061l3.46 3.46c.311.311.815.311 1.125 0 .311-.31.311-.814 0-1.124L2.197 5z" }))),
@@ -25,19 +53,23 @@ const ARROWS = {
         React.createElement("g", { fillRule: "evenodd" },
             React.createElement("path", { d: "M3.803 4.5L.938 7.366c-.311.31-.311.814 0 1.125.31.31.814.31 1.125 0l3.46-3.46c.293-.294.293-.769 0-1.061L2.063.51C1.751.198 1.247.198.936.51c-.31.31-.31.814 0 1.124L3.803 4.5zM9.803 4.5L6.937 7.366c-.31.31-.31.814 0 1.125.311.31.815.31 1.125 0l3.461-3.46c.293-.294.293-.769 0-1.061L8.063.51c-.311-.311-.815-.311-1.126 0-.31.31-.31.814 0 1.124L9.803 4.5z", transform: "rotate(180 6 4.75)" })))),
 };
-export default class NavBar extends Component {
+class NavBar extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
+    p = {};
+    monthDecadeView;
     constructor(props) {
         super(props);
         this.state = {
             viewDate: props.defaultViewDate,
         };
     }
-    prepareViewDate = props => {
+    prepareViewDate = (props) => {
         return props.viewDate === undefined ? this.state.viewDate : props.viewDate;
     };
     render = () => {
         const props = (this.p = assign({}, this.props));
-        const { rootClassName, index } = props;
+        const { rootClassName } = props;
         const viewMoment = (props.viewMoment =
             props.viewMoment || this.toMoment(this.prepareViewDate(props)));
         props.monthDecadeViewEnabled =
@@ -99,7 +131,7 @@ export default class NavBar extends Component {
         const monthDecadeViewProps = assignDefined({
             defaultViewDate: viewMoment,
             defaultDate: viewMoment,
-            ref: view => {
+            ref: (view) => {
                 this.monthDecadeView = view;
             },
             focusDecadeView: false,
@@ -120,7 +152,7 @@ export default class NavBar extends Component {
         return (React.createElement("div", { style: { animationDuration: `${showMonthDecadeViewAnimation}ms` }, className: modalWrapperClassName },
             React.createElement(MonthDecadeView, { ...monthDecadeViewProps })));
     };
-    toggleMonthDecadeView = event => {
+    toggleMonthDecadeView = (event) => {
         if (this.isMonthDecadeViewVisible()) {
             this.hideMonthDecadeView(event);
         }
@@ -134,14 +166,14 @@ export default class NavBar extends Component {
     isMonthDecadeViewVisible = () => {
         return !!this.monthDecadeView;
     };
-    onMonthDecadeViewOk = (dateString, { dateMoment, timestamp }) => {
+    onMonthDecadeViewOk = (_dateString, { dateMoment, timestamp, }) => {
         this.hideMonthDecadeView();
         this.onViewDateChange({ dateMoment, timestamp });
     };
     onMonthDecadeViewCancel = () => {
         this.hideMonthDecadeView();
     };
-    showMonthDecadeView = event => {
+    showMonthDecadeView = (event) => {
         event.preventDefault();
         this.setState({
             monthDecadeView: true,
@@ -150,7 +182,7 @@ export default class NavBar extends Component {
             this.props.onShowMonthDecadeView();
         }
     };
-    hideMonthDecadeView = event => {
+    hideMonthDecadeView = (event) => {
         if (event && event.preventDefault) {
             event.preventDefault();
         }
@@ -191,7 +223,9 @@ export default class NavBar extends Component {
         const className = join(`${rootClassName}-arrow`, `${rootClassName}-arrow--${name}`, secondary && `${rootClassName}-secondary-arrow`, disabled && `${rootClassName}-arrow--disabled`);
         const arrowClass = `${rootClassName}-arrows-pos`;
         const arrowDivClass = `${rootClassName}-arrows-div`;
-        const arrow = props.arrows[dir] || props.arrows[name] || ARROWS[name];
+        const arrow = props.arrows[dir] ||
+            props.arrows[name] ||
+            ARROWS[name];
         let children;
         const dirArrow = props.arrows[dir];
         if (dirArrow) {
@@ -206,7 +240,7 @@ export default class NavBar extends Component {
             dir,
             name,
             disabled,
-            onClick: !disabled ? this.onNavClick.bind(this, dir, viewMoment) : null,
+            onClick: !disabled ? this.onNavClick(dir, viewMoment) : null,
             className,
             children,
         };
@@ -251,7 +285,7 @@ export default class NavBar extends Component {
             timestamp,
         });
     };
-    renderNavDate = viewMoment => {
+    renderNavDate = (viewMoment) => {
         const props = this.props;
         const text = viewMoment.format(props.navDateFormat);
         if (props.renderNavDate) {
@@ -259,7 +293,7 @@ export default class NavBar extends Component {
         }
         return text;
     };
-    onViewDateChange = ({ dateMoment, timestamp }) => {
+    onViewDateChange = ({ dateMoment, timestamp, }) => {
         if (this.props.viewDate === undefined) {
             this.setState({
                 viewDate: timestamp,
@@ -275,31 +309,4 @@ export default class NavBar extends Component {
         }
     };
 }
-NavBar.defaultProps = {
-    rootClassName: 'inovua-react-toolkit-calendar__nav-bar',
-    arrows: {},
-    doubleArrows: {},
-    theme: 'default',
-    isDatePickerNavBar: true,
-    navDateFormat: 'MMM YYYY',
-    enableMonthDecadeView: true,
-    onNavClick: (dir, viewMoment) => { },
-    onViewDateChange: () => { },
-};
-NavBar.propTypes = {
-    rootClassName: PropTypes.string,
-    secondary: PropTypes.bool,
-    showClock: PropTypes.bool,
-    enableMonthDecadeViewAnimation: PropTypes.bool,
-    showMonthDecadeViewAnimation: PropTypes.number,
-    renderNav: PropTypes.func,
-    renderNavPrev: PropTypes.func,
-    renderNavNext: PropTypes.func,
-    arrows: PropTypes.object,
-    doubleArrows: PropTypes.object,
-    navDateFormat: PropTypes.string,
-    onUpdate: PropTypes.func,
-    onNavClick: PropTypes.func,
-    onViewDateChange: PropTypes.func,
-    onClick: PropTypes.any,
-};
+export default NavBar;

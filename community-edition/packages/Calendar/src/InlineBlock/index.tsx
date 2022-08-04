@@ -9,7 +9,8 @@ import React, { Component, CSSProperties } from 'react';
 
 type TypeInlineBlockProps = {
   style: CSSProperties;
-};
+  disabled?: boolean | boolean;
+} & any;
 
 const defaultProps = {
   style: {},
@@ -19,7 +20,7 @@ class InovuaInlineBlock extends Component<TypeInlineBlockProps, {}> {
 
   render() {
     const { props } = this;
-    const domProps = {
+    const domProps: any = {
       ...props,
       style: {
         display: 'inline-block',

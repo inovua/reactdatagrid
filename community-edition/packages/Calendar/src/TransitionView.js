@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
 import { Flex } from '../../Flex';
 import assign from '../../../common/assign';
 import join from '../../../common/join';
@@ -17,19 +16,44 @@ import assignDefined from './assignDefined';
 import { renderFooter } from './MonthView';
 import NavBar from './NavBar';
 import times from './utils/times';
+import joinFunctions from './joinFunctions';
 import InlineBlock from './InlineBlock';
-const renderHiddenNav = props => (React.createElement(InlineBlock, { ...props, style: { visibility: 'hidden' } }));
-const joinFunctions = (a, b) => {
-    if (a && b) {
-        return (...args) => {
-            a(...args);
-            b(...args);
-        };
-    }
-    return a || b;
+const propTypes = {
+    children: PropTypes.node.isRequired,
+    rootClassName: PropTypes.string,
+    focusOnNavMouseDown: PropTypes.bool,
+    onTransitionStart: PropTypes.func,
+    onTransitionEnd: PropTypes.func,
+    footerClearDate: PropTypes.bool,
+    enableMonthDecadeView: PropTypes.bool,
+    constrainActiveInView: PropTypes.bool,
+    focusOnTransitionEnd: PropTypes.bool,
+    navigation: PropTypes.bool,
+    theme: PropTypes.string,
+    isDatePicker: PropTypes.bool,
+    enableMonthDecadeViewAnimation: PropTypes.bool,
+    showMonthDecadeViewAnimation: PropTypes.number,
 };
+const defaultProps = {
+    rootClassName: 'inovua-react-toolkit-calendar__transition-month-view',
+    focusOnNavMouseDown: true,
+    enableMonthDecadeViewAnimation: true,
+    showMonthDecadeViewAnimation: 300,
+    onTransitionStart: () => { },
+    onTransitionEnd: () => { },
+    footerClearDate: null,
+    enableMonthDecadeView: true,
+    constrainActiveInView: false,
+    focusOnTransitionEnd: false,
+    navigation: true,
+    theme: 'default-light',
+    isDatePicker: true,
+};
+const renderHiddenNav = (props) => (React.createElement(InlineBlock, { ...props, style: { visibility: 'hidden' } }));
 const TRANSITION_DURATION = '0.4s';
-export default class TransitionView extends Component {
+class TransitionView extends Component {
+    static defaultProps = defaultProps;
+    static propTypes = propTypes;
     constructor(props) {
         super(props);
         const child = React.Children.toArray(this.props.children)[0];
@@ -49,22 +73,22 @@ export default class TransitionView extends Component {
             viewDate: this.toMoment(viewDate, { dateFormat, locale }),
         };
     }
-    toMoment(value, props) {
+    toMoment = (value, props) => {
         props = props || this.props;
         return toMoment(value, {
             locale: props.locale,
             dateFormat: props.dateFormat,
         });
-    }
-    format(mom, props) {
+    };
+    format = (mom, props) => {
         props = props || this.props;
         return mom.format(props.dateFormat);
-    }
-    componentDidMount() {
+    };
+    componentDidMount = () => {
         this.setState({
             rendered: true,
         });
-    }
+    };
     componentDidUpdate = prevProps => {
         if (prevProps.viewDate !== this.props.viewDate) {
             // this is in order to transition when the prop changes
@@ -72,22 +96,22 @@ export default class TransitionView extends Component {
             this.transitionTo(this.props.viewDate, this.props);
         }
     };
-    transitionTo(date, props) {
+    transitionTo = (date, props) => {
         props = props || this.props;
         const dateMoment = this.toMoment(date, props);
         this.doTransition(dateMoment);
-    }
-    getViewChild() {
+    };
+    getViewChild = () => {
         return React.Children.toArray(this.props.children).filter(c => c && c.props && c.props.isDatePicker)[0];
-    }
-    prepareChildProps(child, extraProps) {
+    };
+    prepareChildProps = (child, extraProps) => {
         if (this.view) {
             return this.view.p;
         }
         child = child || this.getViewChild();
         return assign({}, child.props, extraProps);
-    }
-    render() {
+    };
+    render = () => {
         const props = this.props;
         const { rootClassName } = props;
         const child = (this.child = this.getViewChild());
@@ -207,8 +231,8 @@ export default class TransitionView extends Component {
                 clone,
                 this.renderAt(1, { multiView, navBarProps })),
             footer));
-    }
-    tryNavBarKeyDown(event) {
+    };
+    tryNavBarKeyDown = event => {
         if (this.navBar && this.navBar.getMonthDecadeView) {
             const monthDecadeView = this.navBar.getMonthDecadeView();
             if (monthDecadeView && monthDecadeView.onKeyDown) {
@@ -217,8 +241,8 @@ export default class TransitionView extends Component {
             }
         }
         return false;
-    }
-    onKeyDown(event) {
+    };
+    onKeyDown = event => {
         const initialKeyDown = this.child.onKeyDown;
         if (this.tryNavBarKeyDown(event)) {
             return false;
@@ -226,31 +250,31 @@ export default class TransitionView extends Component {
         if (initialKeyDown) {
             return initialKeyDown(event);
         }
-    }
-    isMonthDecadeViewVisible() {
+    };
+    isMonthDecadeViewVisible = () => {
         if (this.navBar && this.navBar.isMonthDecadeViewVisible) {
             return this.navBar.isMonthDecadeViewVisible();
         }
         return false;
-    }
-    showMonthDecadeView() {
+    };
+    showMonthDecadeView = () => {
         if (this.navBar) {
             this.navBar.showMonthDecadeView();
         }
-    }
-    hideMonthDecadeView() {
+    };
+    hideMonthDecadeView = () => {
         if (this.navBar) {
             this.navBar.hideMonthDecadeView();
         }
-    }
-    onBlur(event) {
+    };
+    onBlur = event => {
         const initialBlur = this.child.onBlur;
         this.hideMonthDecadeView();
         if (initialBlur) {
             initialBlur(event);
         }
         return true;
-    }
+    };
     /**
      * This method is only called when rendering the NavBar of the MonthViews
      * that are not on the first row of the MultiMonthView
@@ -259,7 +283,7 @@ export default class TransitionView extends Component {
      * @param  {Object} config
      * @return {ReactNode}
      */
-    renderMultiViewNavBar(navBarProps, config) {
+    renderMultiViewNavBar = (navBarProps, config) => {
         const { index } = config;
         const count = this.child.props.perRow;
         if (index >= count) {
@@ -267,8 +291,8 @@ export default class TransitionView extends Component {
             return (React.createElement(NavBar, { ...navBarProps, renderNavNext: renderHiddenNav, renderNavPrev: renderHiddenNav, onViewDateChange: null, viewDate: this.toMoment(viewDate) }));
         }
         return null;
-    }
-    renderNavBar(navBarProps) {
+    };
+    renderNavBar = navBarProps => {
         navBarProps = assign({}, navBarProps);
         if (navBarProps.mainNavBar) {
             navBarProps.ref = navBar => {
@@ -319,13 +343,13 @@ export default class TransitionView extends Component {
             return React.createElement(Flex, { row: true, children: bars });
         }
         return navBar ? (React.cloneElement(navBar, newProps)) : (React.createElement(NavBar, { ...newProps }));
-    }
-    getViewSize() {
+    };
+    getViewSize = () => {
         return this.view && this.view.getViewSize
             ? this.view.getViewSize() || 1
             : 1;
-    }
-    renderAt(index, { multiView, navBarProps }) {
+    };
+    renderAt = (index, { multiView, navBarProps }) => {
         if (!this.state.rendered || !this.view) {
             return null;
         }
@@ -371,17 +395,17 @@ export default class TransitionView extends Component {
             newProps.renderNavBar = this.renderMultiViewNavBar.bind(this, assign({}, navBarProps, { viewDate, onViewDateChange: null }));
         }
         return React.cloneElement(this.child, newProps);
-    }
-    getView() {
+    };
+    getView = () => {
         return this.view;
-    }
-    isInView(...args) {
+    };
+    isInView = (...args) => {
         return this.view.isInView(...args);
-    }
-    onViewDateChange(dateString, { dateMoment }) {
+    };
+    onViewDateChange = (dateString, { dateMoment }) => {
         this.doTransition(dateMoment);
-    }
-    doTransition(dateMoment) {
+    };
+    doTransition = dateMoment => {
         if (this.state.transition) {
             return;
         }
@@ -423,23 +447,23 @@ export default class TransitionView extends Component {
                 });
             });
         });
-    }
-    getViewDOMNode() {
+    };
+    getViewDOMNode = () => {
         return this.view.getDOMNode ? this.view.getDOMNode() : null;
-    }
-    addTransitionEnd() {
+    };
+    addTransitionEnd = () => {
         const dom = this.getViewDOMNode();
         if (dom) {
             dom.addEventListener(getTransitionEnd(), this.onTransitionEnd, false);
         }
-    }
-    removeTransitionEnd(dom) {
+    };
+    removeTransitionEnd = dom => {
         dom = dom || this.getViewDOMNode();
         if (dom) {
             dom.removeEventListener(getTransitionEnd(), this.onTransitionEnd);
         }
-    }
-    onTransitionEnd() {
+    };
+    onTransitionEnd = () => {
         this.removeTransitionEnd();
         if (!this.nextViewDate) {
             return;
@@ -453,51 +477,21 @@ export default class TransitionView extends Component {
             this.focus();
         }
         delete this.nextViewDate;
-    }
-    onNavMouseDown() {
+    };
+    onNavMouseDown = () => {
         if (this.props.focusOnNavMouseDown && !this.isFocused()) {
             this.focus();
         }
-    }
-    isFocused() {
+    };
+    isFocused = () => {
         const view = this.getView();
         if (view) {
             return view.isFocused();
         }
         return false;
-    }
-    focus() {
+    };
+    focus = () => {
         this.getView().focus();
-    }
+    };
 }
-TransitionView.propTypes = {
-    children: PropTypes.node.isRequired,
-    rootClassName: PropTypes.string,
-    focusOnNavMouseDown: PropTypes.bool,
-    onTransitionStart: PropTypes.func,
-    onTransitionEnd: PropTypes.func,
-    footerClearDate: PropTypes.bool,
-    enableMonthDecadeView: PropTypes.bool,
-    constrainActiveInView: PropTypes.bool,
-    focusOnTransitionEnd: PropTypes.bool,
-    navigation: PropTypes.bool,
-    theme: PropTypes.string,
-    isDatePicker: PropTypes.bool,
-    enableMonthDecadeViewAnimation: PropTypes.bool,
-    showMonthDecadeViewAnimation: PropTypes.number,
-};
-TransitionView.defaultProps = {
-    rootClassName: 'inovua-react-toolkit-calendar__transition-month-view',
-    focusOnNavMouseDown: true,
-    enableMonthDecadeViewAnimation: true,
-    showMonthDecadeViewAnimation: 300,
-    onTransitionStart: () => { },
-    onTransitionEnd: () => { },
-    footerClearDate: null,
-    enableMonthDecadeView: true,
-    constrainActiveInView: false,
-    focusOnTransitionEnd: false,
-    navigation: true,
-    theme: 'default-light',
-    isDatePicker: true,
-};
+export default TransitionView;

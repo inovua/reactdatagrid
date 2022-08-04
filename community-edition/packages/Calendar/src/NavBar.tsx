@@ -5,21 +5,30 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component, CSSProperties, ReactNode } from 'react';
+import React, { Component, ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import { Flex, Item } from '../../Flex';
 import InlineBlock from './InlineBlock';
 import assign from '../../../common/assign';
 import join from '../../../common/join';
 import assignDefined from './assignDefined';
-import toMoment from './toMoment';
-import MonthDecadeView from './MonthDecadeView';
+import toMoment, { DateType, Moment } from './toMoment';
+import MonthDecadeView, { TypeMonthDecadeViewProps } from './MonthDecadeView';
 
 type TypeNavBarArrows = {
   prev?: ReactNode;
   next?: ReactNode;
   right?: ReactNode;
   left?: ReactNode;
+};
+
+type TypeNavProps = {
+  dir?: number;
+  name?: string;
+  disabled?: boolean | null;
+  onClick?: any;
+  className?: string;
+  children?: any;
 };
 
 type TypeNavBarProps = {
@@ -29,22 +38,97 @@ type TypeNavBarProps = {
   enableMonthDecadeViewAnimation?: boolean;
   showMonthDecadeViewAnimation?: number;
 
-  renderNav?: () => void;
-  renderNavPrev?: () => void;
-  renderNavNext?: () => void;
-
   arrows?: TypeNavBarArrows;
   doubleArrows?: object;
   navDateFormat?: string;
 
-  onUpdate?: () => void;
-  onNavClick?: () => void;
-  onViewDateChange?: () => void;
-  onClick?: any;
+  defaultViewDate?: DateType;
+  viewDate?: DateType;
+  locale?: string;
+  dateFormat?: string;
+
+  prevDisabled?: boolean;
+  nextDisabled?: boolean;
+
+  viewMoment?: DateType;
+  theme?: string;
+  minDate?: DateType;
+  maxDate?: DateType;
+  size?: number;
+  okButtonText?: ReactNode | string;
+  cancelButtonText?: ReactNode | string;
+
   style?: any;
+
+  onClick?: any;
+  renderNav?: (navProps: TypeNavProps) => void;
+  renderNavPrev?: (navProps: TypeNavProps) => void;
+  renderNavNext?: (navProps: TypeNavProps) => void;
+
+  renderNavDate?: (viewMoment: DateType, text: string) => string;
+
+  onUpdate?: (dateMoment: DateType | undefined, dir: number) => Moment;
+  onNavClick?: (
+    dir: number,
+    viewMoment: DateType | undefined,
+    event?: Event
+  ) => void;
+  onViewDateChange?: (
+    date: string | undefined,
+    {
+      dateString,
+      dateMoment,
+      timestamp,
+    }: {
+      dateString?: string;
+      dateMoment?: Moment | null;
+      timestamp?: number | null;
+    }
+  ) => void;
+  renderMonthDecadeView?: (
+    monthDecadeViewProps: TypeMonthDecadeViewProps
+  ) => ReactNode;
+  onShowMonthDecadeView?: () => void;
+  onHideMonthDecadeView?: () => void;
 };
 
-type TypeNavBarState = {};
+type TypeNavBarState = {
+  viewDate?: DateType | null;
+  monthDecadeView?: boolean;
+};
+
+const defaultProps = {
+  rootClassName: 'inovua-react-toolkit-calendar__nav-bar',
+  arrows: {},
+  doubleArrows: {},
+  theme: 'default',
+  isDatePickerNavBar: true,
+  navDateFormat: 'MMM YYYY',
+  enableMonthDecadeView: true,
+  onNavClick: (_dir: -1 | 1, _viewMoment: Moment) => {},
+  onViewDateChange: () => {},
+};
+
+const propTypes = {
+  rootClassName: PropTypes.string,
+  secondary: PropTypes.bool,
+  showClock: PropTypes.bool,
+  enableMonthDecadeViewAnimation: PropTypes.bool,
+  showMonthDecadeViewAnimation: PropTypes.number,
+
+  renderNav: PropTypes.func,
+  renderNavPrev: PropTypes.func,
+  renderNavNext: PropTypes.func,
+
+  arrows: PropTypes.object,
+  doubleArrows: PropTypes.object,
+  navDateFormat: PropTypes.string,
+
+  onUpdate: PropTypes.func,
+  onNavClick: PropTypes.func,
+  onViewDateChange: PropTypes.func,
+  onClick: PropTypes.any,
+};
 
 const ARROWS: TypeNavBarArrows = {
   prev: (
@@ -86,10 +170,13 @@ const ARROWS: TypeNavBarArrows = {
   ),
 };
 
-export default class NavBar extends Component<
-  TypeNavBarProps,
-  TypeNavBarState
-> {
+class NavBar extends Component<TypeNavBarProps, TypeNavBarState> {
+  static defaultProps = defaultProps;
+  static propTypes = propTypes;
+
+  private p: TypeNavBarProps = {};
+  private monthDecadeView?: ReactNode;
+
   constructor(props: TypeNavBarProps) {
     super(props);
 
@@ -98,15 +185,15 @@ export default class NavBar extends Component<
     };
   }
 
-  prepareViewDate = props => {
+  prepareViewDate = (props: TypeNavBarProps): DateType | undefined | null => {
     return props.viewDate === undefined ? this.state.viewDate : props.viewDate;
   };
 
   render = () => {
     const props = (this.p = assign({}, this.props));
-    const { rootClassName, index } = props;
+    const { rootClassName } = props;
     const viewMoment = (props.viewMoment =
-      props.viewMoment || this.toMoment(this.prepareViewDate(props)));
+      props.viewMoment || this.toMoment(this.prepareViewDate(props)!));
     props.monthDecadeViewEnabled =
       props.expandedMonthDecadeView || props.enableMonthDecadeView;
     const secondary = props.secondary;
@@ -181,7 +268,7 @@ export default class NavBar extends Component<
     );
   };
 
-  renderMonthDecadeView = () => {
+  renderMonthDecadeView = (): ReactNode => {
     if (!this.state.monthDecadeView) {
       return null;
     }
@@ -201,7 +288,7 @@ export default class NavBar extends Component<
     } = this.p;
     const className = join(
       `${rootClassName}-month-decade-view`,
-      (size <= 1 || size === undefined) &&
+      (size! <= 1 || size === undefined) &&
         `${rootClassName}-month-decade-view-month`,
       showClock && `${rootClassName}-month-decade-view-calendar`
     );
@@ -211,15 +298,15 @@ export default class NavBar extends Component<
       enableMonthDecadeViewAnimation &&
         `${rootClassName}-month-decade-view-show-animation`
     );
-    const modalWrapperClassName =
+    const modalWrapperClassName: any =
       size || size === undefined ? modalClassName : null;
 
-    const monthDecadeViewProps = assignDefined(
+    const monthDecadeViewProps: TypeMonthDecadeViewProps = assignDefined(
       {
         defaultViewDate: viewMoment,
         defaultDate: viewMoment,
 
-        ref: view => {
+        ref: (view: ReactNode) => {
           this.monthDecadeView = view;
         },
         focusDecadeView: false,
@@ -253,7 +340,7 @@ export default class NavBar extends Component<
     );
   };
 
-  toggleMonthDecadeView = event => {
+  toggleMonthDecadeView = (event: Event): void => {
     if (this.isMonthDecadeViewVisible()) {
       this.hideMonthDecadeView(event);
     } else {
@@ -261,24 +348,30 @@ export default class NavBar extends Component<
     }
   };
 
-  getMonthDecadeViewView = () => {
+  getMonthDecadeViewView = (): ReactNode => {
     return this.monthDecadeView;
   };
 
-  isMonthDecadeViewVisible = () => {
+  isMonthDecadeViewVisible = (): boolean => {
     return !!this.monthDecadeView;
   };
 
-  onMonthDecadeViewOk = (dateString, { dateMoment, timestamp }) => {
+  onMonthDecadeViewOk = (
+    _dateString: string | undefined,
+    {
+      dateMoment,
+      timestamp,
+    }: { dateMoment?: Moment | null; timestamp?: number | null }
+  ): void => {
     this.hideMonthDecadeView();
     this.onViewDateChange({ dateMoment, timestamp });
   };
 
-  onMonthDecadeViewCancel = () => {
+  onMonthDecadeViewCancel = (): void => {
     this.hideMonthDecadeView();
   };
 
-  showMonthDecadeView = event => {
+  showMonthDecadeView = (event: Event): void => {
     event.preventDefault();
 
     this.setState({
@@ -290,7 +383,7 @@ export default class NavBar extends Component<
     }
   };
 
-  hideMonthDecadeView = event => {
+  hideMonthDecadeView = (event?: Event): void => {
     if (event && event.preventDefault) {
       event.preventDefault();
     }
@@ -304,7 +397,7 @@ export default class NavBar extends Component<
     }
   };
 
-  toMoment = (value, props) => {
+  toMoment = (value: DateType | undefined, props?: TypeNavBarProps): Moment => {
     props = props || this.props;
 
     return toMoment(value, {
@@ -313,7 +406,7 @@ export default class NavBar extends Component<
     });
   };
 
-  renderNav = (dir, viewMoment, name) => {
+  renderNav = (dir: number, viewMoment: DateType, name: string): ReactNode => {
     const props = this.p;
 
     let disabled = dir < 0 ? props.prevDisabled : props.nextDisabled;
@@ -350,11 +443,14 @@ export default class NavBar extends Component<
     const arrowClass = `${rootClassName}-arrows-pos`;
     const arrowDivClass = `${rootClassName}-arrows-div`;
 
-    const arrow = props.arrows[dir] || props.arrows[name] || ARROWS[name];
+    const arrow =
+      (props.arrows as any)[dir as number] ||
+      props.arrows![name as keyof TypeNavBarArrows] ||
+      ARROWS[name as keyof TypeNavBarArrows];
 
     let children;
 
-    const dirArrow = props.arrows[dir];
+    const dirArrow = (props.arrows as any)[dir];
 
     if (dirArrow) {
       children = dirArrow;
@@ -380,11 +476,11 @@ export default class NavBar extends Component<
         );
     }
 
-    const navProps = {
+    const navProps: TypeNavProps = {
       dir,
       name,
       disabled,
-      onClick: !disabled ? this.onNavClick.bind(this, dir, viewMoment) : null,
+      onClick: !disabled ? this.onNavClick(dir, viewMoment) : null,
       className,
       children,
     };
@@ -404,7 +500,7 @@ export default class NavBar extends Component<
     return <InlineBlock key={name} {...navProps} disabled={null} name={null} />;
   };
 
-  getGotoMoment = (dir, viewMoment) => {
+  getGotoMoment = (dir: number, viewMoment: DateType | undefined): Moment => {
     viewMoment = viewMoment || this.p.viewMoment;
 
     const sign = dir < 0 ? -1 : 1;
@@ -417,7 +513,11 @@ export default class NavBar extends Component<
     return mom;
   };
 
-  onNavClick = (dir, viewMoment, event) => {
+  onNavClick = (
+    dir: number,
+    viewMoment: DateType | undefined,
+    event?: Event
+  ): void | null => {
     const props = this.props;
 
     let dateMoment = this.toMoment(viewMoment);
@@ -433,7 +533,7 @@ export default class NavBar extends Component<
 
     const timestamp = +dateMoment;
 
-    props.onNavClick(dir, viewMoment, event);
+    props.onNavClick!(dir, viewMoment, event);
 
     const disabled = dir < 0 ? props.prevDisabled : props.nextDisabled;
 
@@ -447,9 +547,9 @@ export default class NavBar extends Component<
     });
   };
 
-  renderNavDate = viewMoment => {
+  renderNavDate = (viewMoment: Moment): string => {
     const props = this.props;
-    const text = viewMoment.format(props.navDateFormat);
+    const text = viewMoment!.format(props.navDateFormat);
 
     if (props.renderNavDate) {
       return props.renderNavDate(viewMoment, text);
@@ -458,7 +558,13 @@ export default class NavBar extends Component<
     return text;
   };
 
-  onViewDateChange = ({ dateMoment, timestamp }) => {
+  onViewDateChange = ({
+    dateMoment,
+    timestamp,
+  }: {
+    dateMoment?: Moment | null;
+    timestamp?: number | null;
+  }) => {
     if (this.props.viewDate === undefined) {
       this.setState({
         viewDate: timestamp,
@@ -466,7 +572,7 @@ export default class NavBar extends Component<
     }
 
     if (this.props.onViewDateChange) {
-      const dateString = dateMoment.format(this.props.dateFormat);
+      const dateString = dateMoment!.format(this.props.dateFormat);
       this.props.onViewDateChange(dateString, {
         dateString,
         dateMoment,
@@ -476,37 +582,5 @@ export default class NavBar extends Component<
   };
 }
 
-NavBar.defaultProps = {
-  rootClassName: 'inovua-react-toolkit-calendar__nav-bar',
-  arrows: {},
-  doubleArrows: {},
-  theme: 'default',
-  isDatePickerNavBar: true,
-  navDateFormat: 'MMM YYYY',
-  enableMonthDecadeView: true,
-  onNavClick: (dir, viewMoment) => {},
-  onViewDateChange: () => {},
-};
-
-NavBar.propTypes = {
-  rootClassName: PropTypes.string,
-  secondary: PropTypes.bool,
-  showClock: PropTypes.bool,
-  enableMonthDecadeViewAnimation: PropTypes.bool,
-  showMonthDecadeViewAnimation: PropTypes.number,
-
-  renderNav: PropTypes.func,
-  renderNavPrev: PropTypes.func,
-  renderNavNext: PropTypes.func,
-
-  arrows: PropTypes.object,
-  doubleArrows: PropTypes.object,
-  navDateFormat: PropTypes.string,
-
-  onUpdate: PropTypes.func,
-  onNavClick: PropTypes.func,
-  onViewDateChange: PropTypes.func,
-  onClick: PropTypes.any,
-};
-
-export { TypeNavBarProps };
+export { TypeNavBarProps, TypeNavProps };
+export default NavBar;

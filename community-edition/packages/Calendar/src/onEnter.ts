@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export default fn => {
-  return event => {
+export default (fn: any) => {
+  return (event: any) => {
     if (event.key == 'Enter') {
       fn(event);
     }

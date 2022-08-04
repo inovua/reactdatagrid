@@ -5,24 +5,55 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { Component, ReactNode } from 'react';
 import PropTypes from 'prop-types';
-import Component from '../../react-class';
-import { Flex, Item } from '../../Flex';
+import { Flex } from '../../Flex';
 import assign from '../../../common/assign';
 import join from '../../../common/join';
 import TimeInput from './TimeInput';
-import moment from 'moment';
-import toMoment from './toMoment';
 import Clock from './Clock';
 
-export default class TimePicker extends Component {
-  constructor(props) {
+type TypeTimePickerProps = {
+  rootClassName?: string;
+  theme?: string;
+  format?: string;
+  timeFormat?: string;
+  isTimePicker?: boolean;
+  value?: string;
+  defaultValue?: string;
+  children?: any;
+  onChange?: (value: string) => void;
+};
+
+type TypeTimePickerState = {
+  seconds?: number;
+};
+
+const defaultProps = {
+  rootClassName: 'inovua-react-toolkit-calendar__time-picker',
+  format: 'HH:mm:ss a',
+  theme: 'default',
+  isTimePicker: true,
+};
+
+const propTypes = {
+  format: PropTypes.string,
+  theme: PropTypes.string,
+  isTimePicker: PropTypes.bool,
+};
+
+class TimePicker extends Component<TypeTimePickerProps, TypeTimePickerState> {
+  static defaultProps = defaultProps;
+  static propTypes = propTypes;
+
+  private p: TypeTimePickerProps = {};
+
+  constructor(props: TypeTimePickerProps) {
     super(props);
     this.state = {};
   }
 
-  render() {
+  render = () => {
     const props = (this.p = assign({}, this.props));
     const { rootClassName } = props;
     props.children = React.Children.toArray(props.children);
@@ -44,9 +75,9 @@ export default class TimePicker extends Component {
         {this.renderInput()}
       </Flex>
     );
-  }
+  };
 
-  renderInput() {
+  renderInput = (): ReactNode => {
     return (
       <TimeInput
         className={`${this.props.rootClassName}__time-picker-input`}
@@ -55,11 +86,11 @@ export default class TimePicker extends Component {
         onChange={this.onTimeChange}
       />
     );
-  }
+  };
 
-  onTimeChange(value) {
-    const time = value.split(':');
-    let seconds = time[0] * 3600 + parseInt(time[1], 10) * 60;
+  onTimeChange = (value: string): void => {
+    const time: string[] = value.split(':');
+    let seconds = +time[0] * 3600 + parseInt(time[1], 10) * 60;
     if (time[2]) {
       seconds += parseInt(time[2], 10);
     }
@@ -69,12 +100,12 @@ export default class TimePicker extends Component {
     if (this.props.onChange) {
       this.props.onChange(value);
     }
-  }
+  };
 
-  renderClock() {
+  renderClock = () => {
     const props = this.p;
     const clock = props.children.filter(
-      child => child && child.props && child.props.isTimePickerClock
+      (child: any) => child && child.props && child.props.isTimePickerClock
     )[0];
 
     const clockProps = {
@@ -87,18 +118,7 @@ export default class TimePicker extends Component {
     }
 
     return <Clock {...clockProps} />;
-  }
+  };
 }
 
-TimePicker.defaultProps = {
-  rootClassName: 'inovua-react-toolkit-calendar__time-picker',
-  format: 'HH:mm:ss a',
-  theme: 'default',
-  isTimePicker: true,
-};
-
-TimePicker.propTypes = {
-  format: PropTypes.string,
-  theme: PropTypes.string,
-  isTimePicker: PropTypes.bool,
-};
+export default TimePicker;
