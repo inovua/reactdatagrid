@@ -26,7 +26,7 @@ const StickyRowsContainer = (props: TypeProps) => {
   const [content, setContent] = useState<JSX.Element | null>(null);
 
   const currentHeightRef = useRef<number>(0);
-  const domNodeRef = useRef<HTMLElement>(null);
+  const domNodeRef = useRef<HTMLDivElement>(null);
 
   const nonEmptyRowElementsRefRef = useRef<any>(null);
   const rowElementsRef = useRef<any>(null);
@@ -46,7 +46,7 @@ const StickyRowsContainer = (props: TypeProps) => {
     // we can cancel all transforms
     if (enteringRow == null) {
       scrollTopRef.current = scrollTop;
-      const domNode = domNodeRef.current;
+      const domNode: any = domNodeRef.current;
       [...domNode.children].forEach(rowNode => {
         rowNode.style.transform = `translate3d(0px, 0px, 0px)`;
       });
@@ -65,10 +65,10 @@ const StickyRowsContainer = (props: TypeProps) => {
       return result;
     });
 
-    rowsToTranslate.forEach((rowToTranslate, i) => {
+    rowsToTranslate.forEach((_rowToTranslate, i) => {
       const rowToTranslateIndex = rowsToTranslateIndexes[i];
       const domNode = domNodeRef.current;
-      const rowNode = domNode!.children[rowToTranslateIndex];
+      const rowNode: any = domNode!.children[rowToTranslateIndex];
 
       if (rowNode) {
         const y =
@@ -122,15 +122,15 @@ const StickyRowsContainer = (props: TypeProps) => {
   };
 
   useLayoutEffect(() => {
-    const domNode = domNodeRef.current;
+    const domNode: any = domNodeRef.current;
 
     let totalHeight = 0;
     if (domNode && domNode.children) {
       // make top rows zIndex bigger, so
       //rows with a bigger scale will slide under those with a lesser scale
       // on scrolling
-      [...domNode.children].forEach((c, i) => {
-        c.style.zIndex = 1000 - i;
+      [...domNode.children].forEach((c: HTMLDivElement, i: number) => {
+        c.style.zIndex = `${1000 - i}`;
         totalHeight += c.offsetHeight;
       });
 
@@ -159,18 +159,20 @@ const StickyRowsContainer = (props: TypeProps) => {
     <div
       className={StickyRowsContainerClassName}
       ref={domNodeRef}
-      style={{
-        position: stickyString,
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 0,
-        zIndex: 1,
-        contain: 'layout',
-        [props.rtl ? 'transform' : '']: props.rtl
-          ? `translate3d(${props.stickyOffset}px, 0px, 0px)`
-          : '',
-      }}
+      style={
+        {
+          position: stickyString,
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 0,
+          zIndex: 1,
+          contain: 'layout',
+          [props.rtl ? 'transform' : '']: props.rtl
+            ? `translate3d(${props.stickyOffset}px, 0px, 0px)`
+            : '',
+        } as any
+      }
     >
       {content}
     </div>

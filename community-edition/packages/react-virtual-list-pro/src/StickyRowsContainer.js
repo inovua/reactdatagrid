@@ -37,7 +37,7 @@ const StickyRowsContainer = (props) => {
             }
             return result;
         });
-        rowsToTranslate.forEach((rowToTranslate, i) => {
+        rowsToTranslate.forEach((_rowToTranslate, i) => {
             const rowToTranslateIndex = rowsToTranslateIndexes[i];
             const domNode = domNodeRef.current;
             const rowNode = domNode.children[rowToTranslateIndex];
@@ -84,7 +84,7 @@ const StickyRowsContainer = (props) => {
             //rows with a bigger scale will slide under those with a lesser scale
             // on scrolling
             [...domNode.children].forEach((c, i) => {
-                c.style.zIndex = 1000 - i;
+                c.style.zIndex = `${1000 - i}`;
                 totalHeight += c.offsetHeight;
             });
             currentHeightRef.current = totalHeight;

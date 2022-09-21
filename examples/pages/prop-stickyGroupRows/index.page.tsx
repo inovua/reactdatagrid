@@ -31,23 +31,17 @@ const columns = [
 
 const App = () => {
   const [defaultGroupBy, setDefaultGroupBy] = useState(['country']);
-  const [stickyGroupRows, setStickyGroupRows] = useState(false);
+  const [stickyGroupRows, setStickyGroupRows] = useState(true);
 
   return (
     <div>
       <div style={{ marginBottom: 20 }}>
-        <CheckBox
-          theme="default-dark"
-          checked={stickyGroupRows}
-          onChange={setStickyGroupRows}
-        >
+        <CheckBox checked={stickyGroupRows} onChange={setStickyGroupRows}>
           Use sticky group rows
         </CheckBox>
       </div>
       <ReactDataGrid
         idProperty="id"
-        theme="default-dark"
-        licenseKey={process.env.NEXT_PUBLIC_LICENSE_KEY}
         style={gridStyle}
         stickyGroupRows={stickyGroupRows}
         stickyTreeNodes
