@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { useState, useCallback, } from 'react';
+import { useState, useCallback, useEffect, } from 'react';
 import useProperty from '../useProperty';
 import isSelectionEnabled from './isSelectionEnabled';
 import isMultiSelect from './isMultiSelect';
@@ -129,10 +129,12 @@ const useSelected = (props, computedProps, computedPropsRef) => {
 export default (props, computedProps, computedPropsRef) => {
     const { selected: computedSelected, setSelected, rowMultiSelectionEnabled, rowSelectionEnabled, } = useSelected(props, computedProps, computedPropsRef);
     const previousRowMultiSelectionEnabled = usePrevious(rowMultiSelectionEnabled, rowMultiSelectionEnabled);
-    if (previousRowMultiSelectionEnabled === true &&
-        rowMultiSelectionEnabled === false) {
-        setSelected({});
-    }
+    useEffect(() => {
+        if (previousRowMultiSelectionEnabled === true &&
+            rowMultiSelectionEnabled === false) {
+            setSelected({});
+        }
+    }, [previousRowMultiSelectionEnabled, rowMultiSelectionEnabled]);
     const computedRowSelectionEnabled = rowSelectionEnabled;
     const computedRowMultiSelectionEnabled = rowMultiSelectionEnabled;
     const { unselected: computedUnselected, setUnselected } = useUnselected(props, {

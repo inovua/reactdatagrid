@@ -77,6 +77,23 @@ const useClipboard = (_props, computedProps, computedPropsRef) => {
     if (!computedProps.enableClipboard) {
         return null;
     }
+    const copySelectedRowsToClipboard = () => {
+        const { current: computedProps } = computedPropsRef;
+        if (!computedProps)
+            return null;
+        if (!computedProps.checkboxColumn)
+            return null;
+        const selectedRows = computedProps.computedSelected;
+        if (selectedRows) {
+            const rows = Object.keys(selectedRows).map(row => selectedRows[row]);
+            console.log('selectedRows', rows);
+        }
+    };
+    const pasteSelectedRowsFromClipboard = () => {
+        const { current: computedProps } = computedPropsRef;
+        if (!computedProps)
+            return null;
+    };
     const copyActiveRowToClipboard = () => {
         const { current: computedProps } = computedPropsRef;
         if (!computedProps) {
@@ -226,7 +243,9 @@ const useClipboard = (_props, computedProps, computedPropsRef) => {
     clipboardContextMenu();
     return {
         copyActiveRowToClipboard,
+        copySelectedRowsToClipboard,
         pasteActiveRowFromClipboard,
+        pasteSelectedRowsFromClipboard,
         copySelectedCellsToClipboard,
         pasteSelectedCellsFromClipboard,
         clipboard,

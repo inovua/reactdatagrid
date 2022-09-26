@@ -11,6 +11,7 @@ import {
   MutableRefObject,
   useState,
   useCallback,
+  useEffect,
 } from 'react';
 
 import {
@@ -330,12 +331,14 @@ export default (
     rowMultiSelectionEnabled
   );
 
-  if (
-    previousRowMultiSelectionEnabled === true &&
-    rowMultiSelectionEnabled === false
-  ) {
-    setSelected({});
-  }
+  useEffect(() => {
+    if (
+      previousRowMultiSelectionEnabled === true &&
+      rowMultiSelectionEnabled === false
+    ) {
+      setSelected({});
+    }
+  }, [previousRowMultiSelectionEnabled, rowMultiSelectionEnabled]);
 
   const computedRowSelectionEnabled = rowSelectionEnabled;
   const computedRowMultiSelectionEnabled = rowMultiSelectionEnabled;

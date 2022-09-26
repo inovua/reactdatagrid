@@ -1373,6 +1373,8 @@ export type TypeComputedProps = TypeDataGridPropsNoI18n & {
   preventBlurOnContextMenuOpen?: MutableRefObject<boolean>;
   copySelectedCellsToClipboard?: () => void;
   copyActiveRowToClipboard?: () => void;
+  copySelectedRowsToClipboard?: () => void;
+  pasteSelectedRowsFromClipboard?: () => void;
   pasteSelectedCellsFromClipboard?: () => void;
   pasteActiveRowFromClipboard?: () => void;
   tryStartEdit?: ({

@@ -107,7 +107,9 @@ const useClipboard = (
   computedPropsRef: MutableRefObject<TypeComputedProps | null>
 ): {
   copyActiveRowToClipboard: () => void;
+  copySelectedRowsToClipboard: () => void;
   pasteActiveRowFromClipboard: () => void;
+  pasteSelectedRowsFromClipboard: () => void;
   copySelectedCellsToClipboard: () => void;
   pasteSelectedCellsFromClipboard: () => void;
   clipboard: MutableRefObject<boolean>;
@@ -120,6 +122,25 @@ const useClipboard = (
     return null;
   }
 
+  const copySelectedRowsToClipboard = () => {
+    const { current: computedProps } = computedPropsRef;
+    if (!computedProps) return null;
+    if (!computedProps.checkboxColumn) return null;
+
+    const selectedRows = computedProps.computedSelected;
+    if (selectedRows) {
+      const rows = Object.keys(selectedRows).map(
+        row => selectedRows[row as keyof object]
+      );
+      console.log('selectedRows', rows);
+    }
+  };
+
+  const pasteSelectedRowsFromClipboard = () => {
+    const { current: computedProps } = computedPropsRef;
+    if (!computedProps) return null;
+  };
+
   const copyActiveRowToClipboard = () => {
     const { current: computedProps } = computedPropsRef;
     if (!computedProps) {
@@ -129,7 +150,6 @@ const useClipboard = (
     if (computedProps.computedCellSelection) {
       return null;
     }
-
     const activeRow = computedProps.getActiveItem();
 
     if (computedProps.onCopyActiveRowChange) {
@@ -298,7 +318,9 @@ const useClipboard = (
 
   return {
     copyActiveRowToClipboard,
+    copySelectedRowsToClipboard,
     pasteActiveRowFromClipboard,
+    pasteSelectedRowsFromClipboard,
     copySelectedCellsToClipboard,
     pasteSelectedCellsFromClipboard,
     clipboard,
