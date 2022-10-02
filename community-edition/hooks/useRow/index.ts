@@ -209,10 +209,15 @@ export default (
         (event as any).nativeEvent.__handled_in_details = true;
       }
     }
-
     if (computedProps.enableClipboard) {
+      const cellSelection = !!computedProps.computedCellSelection;
+      const checkboxColumn = !!computedProps.checkboxColumn;
+
       if ((event.ctrlKey || event.metaKey) && event.key == 'c') {
-        if (computedProps.computedCellSelection) {
+        if (checkboxColumn) {
+          computedProps.copySelectedRowsToClipboard &&
+            computedProps.copySelectedRowsToClipboard();
+        } else if (cellSelection) {
           computedProps.copySelectedCellsToClipboard &&
             computedProps.copySelectedCellsToClipboard();
         } else {
@@ -222,7 +227,10 @@ export default (
       }
 
       if ((event.ctrlKey || event.metaKey) && event.key == 'v') {
-        if (computedProps.computedCellSelection) {
+        if (checkboxColumn) {
+          computedProps.pasteSelectedRowsFromClipboard &&
+            computedProps.pasteSelectedRowsFromClipboard();
+        } else if (cellSelection) {
           computedProps.pasteSelectedCellsFromClipboard &&
             computedProps.pasteSelectedCellsFromClipboard();
         } else {
