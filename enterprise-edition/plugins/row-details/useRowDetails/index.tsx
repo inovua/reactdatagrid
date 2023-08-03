@@ -40,6 +40,19 @@ const setRowHeightById_FromProps = (
   id: string | number,
   computedProps: TypeComputedProps
 ): void => {
+  if (typeof rowHeight === 'number') {
+    //make sure row height is never set to less than min height
+    if (computedProps.minRowHeight && rowHeight < computedProps.minRowHeight)
+      rowHeight = computedProps.minRowHeight;
+
+    //make sure row height is never set to more than max height
+    if (computedProps.maxRowHeight && rowHeight < computedProps.maxRowHeight)
+      rowHeight = computedProps.maxRowHeight;
+
+    //row height should never be less than 0
+    if (rowHeight < 0) rowHeight = 0;
+  }
+
   const rowHeights: { [key: string]: number } = {
     ...getRowHeights_FromProps(computedProps),
   };
