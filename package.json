@@ -11,6 +11,7 @@
   "bugs": {
     "url": "https://github.com/inovua/reactdatagrid/issues"
   },
+  "types": "index.d.ts",
   "main": "index.js",
   "scripts": {
     "// **** run this in dev mode": "****//",
